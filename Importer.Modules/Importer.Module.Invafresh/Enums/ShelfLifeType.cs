@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Importer.Module.Invafresh
+namespace Importer.Module.Invafresh.Enums
 {
-    public class Class1
+    public enum ShelfLifeType
     {
+        DAYS = 0,
+        HOURS = 1
     }
 }
