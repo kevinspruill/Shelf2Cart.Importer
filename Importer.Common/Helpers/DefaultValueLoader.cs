@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Importer.Common.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;

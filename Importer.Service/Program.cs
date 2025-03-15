@@ -12,7 +12,7 @@ namespace Importer.Service
 {
     public class Program
     {
-        static void Main(string[] args)
+        static async void Main(string[] args)
         {
             try
             {
