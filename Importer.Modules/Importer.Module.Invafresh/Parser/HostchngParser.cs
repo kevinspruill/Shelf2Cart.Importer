@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Importer.Common.Helpers;
 
 namespace Importer.Module.Invafresh.Parser
 {
@@ -61,7 +62,7 @@ namespace Importer.Module.Invafresh.Parser
         {
             var records = new List<BaseRecord>();
 
-            using (var reader = new StreamReader(filePath, Encoding.ASCII))
+            using (var reader = new StreamReader(filePath, Encoding.Default))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -70,6 +71,28 @@ namespace Importer.Module.Invafresh.Parser
                     if (record != null)
                     {
                         records.Add(record);
+                        if (record is BatchHeaderRecord batchHeader)
+                        {
+                            Logger.Trace($"Batch Header: Name={batchHeader.BatchName}, Number={batchHeader.BatchNumber}, CreationDate={batchHeader.BatchCreationDate}, CreationTime={batchHeader.BatchCreationTime}, ItemsInBatch={batchHeader.NumberOfItemsInBatch}, DateToApplyBatch={batchHeader.DateToApplyBatch}, TimeToApplyBatch={batchHeader.TimeToApplyBatch}, BatchType={batchHeader.BatchType}, StoreNumber={batchHeader.StoreNumber}, QueueFlag={batchHeader.QueueFlag}");
+                        }
+                        else if (record is PluItemRecord pluItem)
+                        {
+                            Logger.Trace($"PLU Item Record: CommandCode={pluItem.CommandCode}, DepartmentNumber={pluItem.DepartmentNumber}, PluNumber={pluItem.PluNumber}, UpcCode={pluItem.UpcCode}, DescriptionLine1={pluItem.DescriptionLine1}, DescriptionLine2={pluItem.DescriptionLine2}");
+                        }
+                        else if (record is IngredientItemRecord ingredientItem)
+                        {
+                            Logger.Trace($"Ingredient Item Record: CommandCode={ingredientItem.CommandCode}, DepartmentNumber={ingredientItem.DepartmentNumber}, PluNumber={ingredientItem.PluNumber}, IngredientNumber={ingredientItem.IngredientNumber}");
+                        }
+                        else if (record is NutritionItemRecord nutritionItem)
+                        {
+                            Logger.Trace($"Nutrition Item Record: CommandCode={nutritionItem.CommandCode}, DepartmentNumber={nutritionItem.DepartmentNumber}, NutritionNumber={nutritionItem.NutritionNumber}");
+                        }
+                        else if (record is LegacyNutritionItemRecord legacyNutritionItem)
+                        {
+                            Logger.Trace($"Legacy Nutrition Item Record: CommandCode={legacyNutritionItem.CommandCode}, DepartmentNumber={legacyNutritionItem.DepartmentNumber}, NutritionNumber={legacyNutritionItem.NutritionNumber}");
+
+
+                        }
                     }
                 }
             }
@@ -108,7 +131,6 @@ namespace Importer.Module.Invafresh.Parser
 
             return null;
         }
-
         private BaseRecord CreateRecordFromFields(CommandCode commandCode, Dictionary<string, string> fields)
         {
             switch (commandCode)

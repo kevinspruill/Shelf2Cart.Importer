@@ -48,6 +48,7 @@
     <Compile Include="Enums\UnitOfMeasure.cs" />
     <Compile Include="Helpers\FieldTagHelper.cs" />
     <Compile Include="Helpers\ImpliedDecimalExtensions.cs" />
+    <Compile Include="InvafreshModule.cs" />
     <Compile Include="Models\BaseRecord.cs" />
     <Compile Include="Models\BatchHeaderRecord.cs" />
     <Compile Include="Models\FieldTagAttribute.cs" />
@@ -61,6 +62,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Settings\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Importer.Common\Importer.Common.csproj">
+      <Project>{61D8720A-C6AC-46AB-9366-92AFE3E2880E}</Project>
+      <Name>Importer.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

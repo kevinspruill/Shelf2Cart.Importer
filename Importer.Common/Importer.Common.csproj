@@ -70,7 +70,9 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\ProductProcessor.cs" />
     <Compile Include="Helpers\SettingsLoader.cs" />
+    <Compile Include="ImporterTypes\FileImport.cs" />
     <Compile Include="Interfaces\ICustomerProcess.cs" />
+    <Compile Include="Interfaces\IImporterModule.cs" />
     <Compile Include="Models\BooleanVal.cs" />
     <Compile Include="Models\CleanseRule.cs" />
     <Compile Include="Models\DepartmentPadding.cs" />
@@ -86,10 +88,9 @@
     <Compile Include="Modifiers\ProductLabelUpdater.cs" />
     <Compile Include="Modifiers\TitleCaseConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Enums\ImporterEnums.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Triggers\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -65,6 +65,18 @@
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Generic\Importer.Module.Generic.csproj">
+      <Project>{18aadd4a-0449-4eca-baa7-e4b8c5ad0a80}</Project>
+      <Name>Importer.Module.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Invafresh\Importer.Module.Invafresh.csproj">
+      <Project>{7a200a3d-9cc6-45f7-a9e3-055ee223da82}</Project>
+      <Name>Importer.Module.Invafresh</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Upshop\Importer.Module.Upshop.csproj">
+      <Project>{ce71ddf7-da62-4608-98fe-f194c4e2410e}</Project>
+      <Name>Importer.Module.Upshop</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

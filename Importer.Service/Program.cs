@@ -1,5 +1,7 @@
 ﻿using Importer.Common.Helpers;
+using Importer.Common.Interfaces;
 using Importer.Core.Modes;
+using Importer.Module.Invafresh;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,7 +14,7 @@ namespace Importer.Service
 {
     public class Program
     {
-        static async void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             try
             {
@@ -49,6 +51,7 @@ namespace Importer.Service
             // Check if the TestingEnabled setting is set to true in the settings file
 
             SettingsLoader settingsLoader = new SettingsLoader();
+            return true;
             return settingsLoader.TestingEnabled;
         }
 
@@ -58,6 +61,11 @@ namespace Importer.Service
             try
             {
                 Logger.Info("Starting test mode");
+
+                IImporterModule importerModule = new InvafreshModule();
+                importerModule.TriggerValue = "D:\\811-Master_Export.txt";
+                importerModule.Execute();
+
             }
             catch (Exception ex)
             {
