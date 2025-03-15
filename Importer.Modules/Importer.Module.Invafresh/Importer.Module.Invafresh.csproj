@@ -46,8 +46,11 @@
     <Compile Include="Enums\FrequentShopperDiscountType.cs" />
     <Compile Include="Enums\ShelfLifeType.cs" />
     <Compile Include="Enums\UnitOfMeasure.cs" />
+    <Compile Include="Helpers\FieldTagHelper.cs" />
+    <Compile Include="Helpers\ImpliedDecimalExtensions.cs" />
     <Compile Include="Models\BaseRecord.cs" />
     <Compile Include="Models\BatchHeaderRecord.cs" />
+    <Compile Include="Models\FieldTagAttribute.cs" />
     <Compile Include="Models\IngredientItemRecord.cs" />
     <Compile Include="Models\LegacyNutritionItemRecord.cs" />
     <Compile Include="Models\NutritionEntry.cs" />
@@ -56,6 +59,8 @@
     <Compile Include="Parser\HostchngParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Settings\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

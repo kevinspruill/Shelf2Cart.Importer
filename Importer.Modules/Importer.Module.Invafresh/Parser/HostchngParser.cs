@@ -1,5 +1,6 @@
 ﻿using Importer.Module.Invafresh.Enums;
 using Importer.Module.Invafresh.Models;
+using Importer.Module.Invafresh.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +23,25 @@ namespace Importer.Module.Invafresh.Parser
 
         private Dictionary<string, CommandCode> InitializeCommandCodeMap()
         {
+            var addOrUpdateCommands = new List<CommandCode>
+            {
+                CommandCode.SPIA, // Send PLU Item Add
+                CommandCode.SPIC, // Send PLU Item Change
+                CommandCode.SPPC, // Send PLU Price Change
+                CommandCode.SIIA, // Send Ingredient Item Add
+                CommandCode.SIIC, // Send Ingredient Item Change
+                CommandCode.SNIA, // Send Nutrition Item Add
+                CommandCode.SNIC  // Send Nutrition Item Change
+            };
+
+            var deleteCommands = new List<CommandCode>
+            {
+                CommandCode.SPID, // Send PLU Item Delete
+                CommandCode.SPFE, // Delete All Scale PLU Items
+                CommandCode.SIID, // Send Ingredient Item Delete 
+                CommandCode.SNID  // Send Nutrition Item Delete
+            };
+
             return new Dictionary<string, CommandCode>
             {
                 { "SPIA", CommandCode.SPIA },
@@ -37,12 +57,11 @@ namespace Importer.Module.Invafresh.Parser
                 { "SNID", CommandCode.SNID }
             };
         }
-
         public List<BaseRecord> ParseFile(string filePath)
         {
             var records = new List<BaseRecord>();
 
-            using (var rea0der = new StreamReader(filePath, Encoding.ASCII))
+            using (var reader = new StreamReader(filePath, Encoding.ASCII))
             {
                 string line;
                 while ((line = reader.ReadLine()) != null)
@@ -92,25 +111,6 @@ namespace Importer.Module.Invafresh.Parser
 
         private BaseRecord CreateRecordFromFields(CommandCode commandCode, Dictionary<string, string> fields)
         {
-            var addOrUpdateCommands = new List<CommandCode>
-            {
-                CommandCode.SPIA, // Send PLU Item Add
-                CommandCode.SPIC, // Send PLU Item Change
-                CommandCode.SPPC, // Send PLU Price Change
-                CommandCode.SIIA, // Send Ingredient Item Add
-                CommandCode.SIIC, // Send Ingredient Item Change
-                CommandCode.SNIA, // Send Nutrition Item Add
-                CommandCode.SNIC  // Send Nutrition Item Change
-            };
-
-            var deleteCommands = new List<CommandCode>
-            {
-                CommandCode.SPID, // Send PLU Item Delete
-                CommandCode.SPFE, // Delete All Scale PLU Items
-                CommandCode.SIID, // Send Ingredient Item Delete 
-                CommandCode.SNID  // Send Nutrition Item Delete
-            };
-
             switch (commandCode)
             {
                 case CommandCode.SPIA:

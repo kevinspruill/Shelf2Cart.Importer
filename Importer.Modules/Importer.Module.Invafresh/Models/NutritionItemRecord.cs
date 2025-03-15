@@ -8,9 +8,13 @@ namespace Importer.Module.Invafresh.Models
 {
     public class NutritionItemRecord : BaseRecord
     {
+        [FieldTag("NTN", true)]
         public int NutritionNumber { get; set; }  // NTN - Required
+        [FieldTag("LF1")]
         public int? LabelFormatNumber { get; set; }  // LF1
+        [FieldTag("SPC")]
         public string ServingsPerContainer { get; set; }  // SPC
+        [FieldTag("SSZ")]
         public string ServingSizeDescription { get; set; }  // SSZ
         public Dictionary<string, Tuple<int?, int?>> NutritionValues { get; set; } = new Dictionary<string, Tuple<int?, int?>>();
 
