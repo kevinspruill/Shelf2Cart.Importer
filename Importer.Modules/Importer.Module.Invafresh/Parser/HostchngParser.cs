@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using Importer.Common.Helpers;
 using System.Threading;
 using System.Diagnostics;
+using Importer.Common.Models;
+using System.Reflection;
 
 namespace Importer.Module.Invafresh.Parser
 {
@@ -18,9 +20,10 @@ namespace Importer.Module.Invafresh.Parser
         private readonly char _fieldDelimiter;
         private readonly Dictionary<string, CommandCode> _commandCodeMap;
 
-        public List<BaseRecord> PLURecords { get; private set; } = new List<BaseRecord>();
-        public List<BaseRecord> IngredientRecords { get; private set; } = new List<BaseRecord>();
-        public List<BaseRecord> NutritionRecords { get; private set; } = new List<BaseRecord>();
+        public List<PluItemRecord> PLURecords { get; private set; } = new List<PluItemRecord>();
+        public List<IngredientItemRecord> IngredientRecords { get; private set; } = new List<IngredientItemRecord>();
+        public List<NutritionItemRecord> NutritionRecords { get; private set; } = new List<NutritionItemRecord>();
+        public List<LegacyNutritionItemRecord> LegacyNutritionRecords { get; private set; } = new List<LegacyNutritionItemRecord>();
 
         public HostchngParser(char fieldDelimiter = (char)253)
         {
@@ -64,7 +67,6 @@ namespace Importer.Module.Invafresh.Parser
                 { "SNID", CommandCode.SNID }
             };
         }
-        // ...
 
         public List<BaseRecord> ParseFile(string filePath)
         {
@@ -105,7 +107,7 @@ namespace Importer.Module.Invafresh.Parser
                         else if (record is LegacyNutritionItemRecord legacyNutritionItem)
                         {
                             Logger.Trace($"Legacy Nutrition Item Record: CommandCode={legacyNutritionItem.CommandCode}, DepartmentNumber={legacyNutritionItem.DepartmentNumber}, NutritionNumber={legacyNutritionItem.NutritionNumber}");
-                            NutritionRecords.Add(legacyNutritionItem);
+                            LegacyNutritionRecords.Add(legacyNutritionItem);
                         }
                     }
                 }
@@ -118,7 +120,11 @@ namespace Importer.Module.Invafresh.Parser
             Logger.Trace($"Ingredient Records: {IngredientRecords.Count}");
             Logger.Trace($"Nutrition Records: {NutritionRecords.Count}");
 
+            ConvertPLURecordsToTblProducts();
+
             return records;
+
+            
         }
         private BaseRecord ParseLine(string line)
         {
@@ -641,5 +647,69 @@ namespace Importer.Module.Invafresh.Parser
 
             return record;
         }
+
+        public List<tblProducts> ConvertPLURecordsToTblProducts()
+        {
+            var products = new List<tblProducts>();
+            foreach (var pluItem in PLURecords)
+            {
+                var product = ConvertPLURecordToTblproducts(pluItem);
+                products.Add(product);
+            }
+            return products;
+        }
+
+        private tblProducts ConvertPLURecordToTblproducts(PluItemRecord pluItem)
+        {
+            // Get matching INO from IngredientRecords
+            var ingredientRecord = IngredientRecords.FirstOrDefault(i => i.DepartmentNumber == pluItem.DepartmentNumber && i.IngredientNumber == pluItem.IngredientNumber);
+
+            // Get matching NTN from NutritionRecords
+            var nutritionRecord = NutritionRecords.FirstOrDefault(n => n.DepartmentNumber == pluItem.DepartmentNumber && n.NutritionNumber == pluItem.NutritionNumber);
+
+            // Get matching NUT from LegacyNutritionRecords
+            var legacyNutritionRecord = LegacyNutritionRecords.FirstOrDefault(n => n.DepartmentNumber == pluItem.DepartmentNumber && n.NutritionNumber == pluItem.NutritionNumber);
+
+            // Convert the PLU item record to a tblProducts object
+            var product = new tblProducts
+            {
+                PLU = pluItem.PluNumber.ToString(),
+                Dept = pluItem.DepartmentNumber.ToString(),
+                Description1 = pluItem.DescriptionLine1,
+                Description2 = pluItem.DescriptionLine2,
+                Description3 = pluItem.DescriptionLine3,
+                Description4 = pluItem.DescriptionLine4,
+                Price = pluItem.UnitPrice.ToString(),
+                NetWt = pluItem.FixedWeightAmount.ToString(),
+                ShelfLife = pluItem.ShelfLife.ToString(),
+                ShelfLifeType = pluItem.ShelfLifeType.ToString(),
+
+                // TODO: Add other fields
+            };
+
+            if (ingredientRecord != null)
+            {
+                // Add ingredient information to tblProducts
+                product.Ingredients = ingredientRecord.IngredientText;
+            }
+
+            if (nutritionRecord != null)
+            {
+                // Add nutrition information to tblProducts
+                product.NFDesc = nutritionRecord.ServingSizeDescription;
+            }
+
+            if (legacyNutritionRecord != null)
+            {
+                foreach (var entry in legacyNutritionRecord.NutritionEntries)
+                {
+                    // Add nutrition entries to tblProducts for LegacyNutritionItemRecord
+                }
+            }
+
+            return product;
+        }
+
+
     }
 }
