@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Importer.Common.Helpers;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Importer.Module.Invafresh.Parser
 {
@@ -15,6 +17,10 @@ namespace Importer.Module.Invafresh.Parser
     {
         private readonly char _fieldDelimiter;
         private readonly Dictionary<string, CommandCode> _commandCodeMap;
+
+        public List<BaseRecord> PLURecords { get; private set; } = new List<BaseRecord>();
+        public List<BaseRecord> IngredientRecords { get; private set; } = new List<BaseRecord>();
+        public List<BaseRecord> NutritionRecords { get; private set; } = new List<BaseRecord>();
 
         public HostchngParser(char fieldDelimiter = (char)253)
         {
@@ -58,9 +64,15 @@ namespace Importer.Module.Invafresh.Parser
                 { "SNID", CommandCode.SNID }
             };
         }
+        // ...
+
         public List<BaseRecord> ParseFile(string filePath)
         {
             var records = new List<BaseRecord>();
+
+            // Create and start a Stopwatch
+            Stopwatch parsetimer = new Stopwatch();
+            parsetimer.Start();
 
             using (var reader = new StreamReader(filePath, Encoding.Default))
             {
@@ -78,24 +90,33 @@ namespace Importer.Module.Invafresh.Parser
                         else if (record is PluItemRecord pluItem)
                         {
                             Logger.Trace($"PLU Item Record: CommandCode={pluItem.CommandCode}, DepartmentNumber={pluItem.DepartmentNumber}, PluNumber={pluItem.PluNumber}, UpcCode={pluItem.UpcCode}, DescriptionLine1={pluItem.DescriptionLine1}, DescriptionLine2={pluItem.DescriptionLine2}");
+                            PLURecords.Add(pluItem);
                         }
                         else if (record is IngredientItemRecord ingredientItem)
                         {
                             Logger.Trace($"Ingredient Item Record: CommandCode={ingredientItem.CommandCode}, DepartmentNumber={ingredientItem.DepartmentNumber}, PluNumber={ingredientItem.PluNumber}, IngredientNumber={ingredientItem.IngredientNumber}");
+                            IngredientRecords.Add(ingredientItem);
                         }
                         else if (record is NutritionItemRecord nutritionItem)
                         {
                             Logger.Trace($"Nutrition Item Record: CommandCode={nutritionItem.CommandCode}, DepartmentNumber={nutritionItem.DepartmentNumber}, NutritionNumber={nutritionItem.NutritionNumber}");
+                            NutritionRecords.Add(nutritionItem);
                         }
                         else if (record is LegacyNutritionItemRecord legacyNutritionItem)
                         {
                             Logger.Trace($"Legacy Nutrition Item Record: CommandCode={legacyNutritionItem.CommandCode}, DepartmentNumber={legacyNutritionItem.DepartmentNumber}, NutritionNumber={legacyNutritionItem.NutritionNumber}");
-
-
+                            NutritionRecords.Add(legacyNutritionItem);
                         }
                     }
                 }
             }
+
+            parsetimer.Stop();
+            Logger.Trace($"Parsed {records.Count} records in {parsetimer.ElapsedMilliseconds / 1000.0} seconds.");
+
+            Logger.Trace($"PLU Records: {PLURecords.Count}");
+            Logger.Trace($"Ingredient Records: {IngredientRecords.Count}");
+            Logger.Trace($"Nutrition Records: {NutritionRecords.Count}");
 
             return records;
         }
