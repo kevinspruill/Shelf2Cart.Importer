@@ -107,9 +107,12 @@ namespace Importer.Common.Helpers
                     product.Button1 = product.Description1;
                     product.Button2 = product.Description2;
                 }
-
-                Logger.Trace("Applying custom ECRS product processing");
-                product = _customProductProcessor.ProductProcessor(product);
+                
+                if (_customProductProcessor != null)
+                {
+                    Logger.Trace("Applying custom Importer product processing");
+                    product = _customProductProcessor.ProductProcessor(product);
+                }
 
                 Logger.Debug($"Product processing completed: PLU={product.PLU}");
                 return product;

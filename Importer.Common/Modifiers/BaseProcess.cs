@@ -10,12 +10,18 @@ namespace Importer.Common.Modifiers
 {
     public class BaseProcess : ICustomerProcess
     {
-        public string Name => "ECRS Base Processor - No Customer Configuration Loaded";
+        public string Name => "Importer Base Processor";
         public bool ForceUpdate { get; set; } = false;
         public void PreQueryRoutine()
         {
             // No pre-processing required
         }
+
+        public void DataFileCondtioning<T>(T ImportData = null) where T : class
+        {
+            // No data file conditioning required
+        }
+
         public tblProducts ProductProcessor(tblProducts product)
         {
             return product;

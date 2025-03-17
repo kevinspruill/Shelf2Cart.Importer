@@ -12,22 +12,28 @@ using System.Threading;
 using System.Diagnostics;
 using Importer.Common.Models;
 using System.Reflection;
+using System.Net;
+using System.Runtime.InteropServices;
+using Importer.Common.Interfaces;
+using Importer.Common.Modifiers;
 
 namespace Importer.Module.Invafresh.Parser
 {
     public class HostchngParser
     {
-        private readonly char _fieldDelimiter;
+        private readonly char _fieldDelimiter = (char)253;
         private readonly Dictionary<string, CommandCode> _commandCodeMap;
+        private ICustomerProcess _customerProcess { get; set; }
+
 
         public List<PluItemRecord> PLURecords { get; private set; } = new List<PluItemRecord>();
         public List<IngredientItemRecord> IngredientRecords { get; private set; } = new List<IngredientItemRecord>();
         public List<NutritionItemRecord> NutritionRecords { get; private set; } = new List<NutritionItemRecord>();
         public List<LegacyNutritionItemRecord> LegacyNutritionRecords { get; private set; } = new List<LegacyNutritionItemRecord>();
-
-        public HostchngParser(char fieldDelimiter = (char)253)
+        
+        public HostchngParser(ICustomerProcess customerProcess = null)
         {
-            _fieldDelimiter = fieldDelimiter;
+            _customerProcess = customerProcess ?? new BaseProcess();
             _commandCodeMap = InitializeCommandCodeMap();
         }
 
@@ -658,7 +664,6 @@ namespace Importer.Module.Invafresh.Parser
             }
             return products;
         }
-
         private tblProducts ConvertPLURecordToTblproducts(PluItemRecord pluItem)
         {
             // Get matching INO from IngredientRecords
@@ -675,7 +680,7 @@ namespace Importer.Module.Invafresh.Parser
             {
                 PLU = pluItem.PluNumber.ToString(),
                 Dept = pluItem.DepartmentNumber.ToString(),
-                Description1 = pluItem.DescriptionLine1,
+                //Description1 = pluItem.DescriptionLine1,
                 Description2 = pluItem.DescriptionLine2,
                 Description3 = pluItem.DescriptionLine3,
                 Description4 = pluItem.DescriptionLine4,
@@ -686,6 +691,37 @@ namespace Importer.Module.Invafresh.Parser
 
                 // TODO: Add other fields
             };
+
+            // TODO: Override Mapping Function, Loaded from JSON or Config file
+
+            // TODO: Add foreach after loading from file
+            var propertyWithAttribute = typeof(tblProducts).GetProperties()
+                .FirstOrDefault(prop =>
+                {
+                    var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
+                        .Cast<ImportDBFieldAttribute>()
+                        .FirstOrDefault();
+                    return attr != null && attr.Name == "Description 1";
+                });
+
+            if (propertyWithAttribute != null)
+            {
+                var pluItemProperty = typeof(PluItemRecord).GetProperties()
+                .FirstOrDefault(prop =>
+                {
+                    var attr = prop.GetCustomAttributes(typeof(FieldTagAttribute), false)
+                        .Cast<FieldTagAttribute>()
+                        .FirstOrDefault();
+                    return attr != null && attr.Tag == "DN1";
+                });
+
+                if (pluItemProperty != null)
+                {
+                    // Get the value from pluItem and set it to the product
+                    var value = pluItemProperty.GetValue(pluItem);
+                    propertyWithAttribute.SetValue(product, value);
+                }
+            }
 
             if (ingredientRecord != null)
             {

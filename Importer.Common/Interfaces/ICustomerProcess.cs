@@ -7,7 +7,8 @@ namespace Importer.Common.Interfaces
         string Name { get; }
         bool ForceUpdate { get; set; }
         void PreQueryRoutine();
-        tblProducts PreProductProcess(tblProducts product=null);
+        void DataFileCondtioning<T>(T ImportData = null) where T : class;
+        tblProducts PreProductProcess(tblProducts product);
         void PreProductProcess();
         tblProducts ProductProcessor(tblProducts product);
         void PostProductProcess();

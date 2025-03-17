@@ -1,6 +1,8 @@
 ﻿using Importer.Common;
+using Importer.Common.Helpers;
 using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
+using Importer.Common.Models;
 using Importer.Module.Invafresh.Parser;
 using System;
 using System.Collections.Generic;
@@ -23,20 +25,39 @@ namespace Importer.Module.Invafresh
 
         public InvafreshModule()
         {
-            //_fileImport = new FileImport(this);
+
         }
 
         public void Execute()
         {
-            _fileImport = new FileImport(this);
-            var filedata = _fileImport.ReadFileContent("D:\\811-Master_Export.txt");
-            var parser = new HostchngParser();
+           
+        }
 
-            var parseddate = parser.ParseFile("D:\\811-Master_Export.txt");
+        public List<tblProducts> GetTblProductsList()
+        {
+            var products = new List<tblProducts>();
+            var parser = new HostchngParser();
+            var filedata = _fileImport.ReadFileContent("D:\\811-Master_Export.txt");
+            var parseddata = parser.ParseFile("D:\\811-Master_Export.txt");
+
+            var convertedRecords = parser.ConvertPLURecordsToTblProducts();
+            
+            if(convertedRecords != null)
+            {
+                products.AddRange(convertedRecords);
+            }
+            else
+            {
+                Logger.Error("Failed to convert PLU records to tblProducts");
+            }
+
+            return products;
+
         }
 
         public void Initialize()
         {
+            _fileImport = new FileImport(this);
             _fileImport.StartWatching();
         }
 
