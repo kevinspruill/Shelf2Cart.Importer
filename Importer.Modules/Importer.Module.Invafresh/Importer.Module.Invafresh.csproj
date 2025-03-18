@@ -67,9 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="811-Master_Export.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="811-Master_Export.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Importer.Common\Importer.Common.csproj">
