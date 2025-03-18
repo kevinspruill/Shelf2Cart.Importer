@@ -46,6 +46,7 @@
     <Compile Include="Enums\FrequentShopperDiscountType.cs" />
     <Compile Include="Enums\ShelfLifeType.cs" />
     <Compile Include="Enums\UnitOfMeasure.cs" />
+    <Compile Include="Helpers\Converters.cs" />
     <Compile Include="Helpers\FieldTagHelper.cs" />
     <Compile Include="Helpers\ImpliedDecimalExtensions.cs" />
     <Compile Include="InvafreshModule.cs" />
@@ -61,13 +62,23 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Settings\" />
+    <Content Include="811-Master_Export.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Importer.Common\Importer.Common.csproj">
       <Project>{61D8720A-C6AC-46AB-9366-92AFE3E2880E}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Settings\Invafresh.Settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Settings\InvaFresh.CustomMap.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

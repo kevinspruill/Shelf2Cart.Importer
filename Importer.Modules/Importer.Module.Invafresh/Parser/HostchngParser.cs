@@ -23,16 +23,19 @@ namespace Importer.Module.Invafresh.Parser
     {
         private readonly char _fieldDelimiter = (char)253;
         private readonly Dictionary<string, CommandCode> _commandCodeMap;
+        private bool _legacyNutritionEnabled = true;
         private ICustomerProcess _customerProcess { get; set; }
-
+        
 
         public List<PluItemRecord> PLURecords { get; private set; } = new List<PluItemRecord>();
         public List<IngredientItemRecord> IngredientRecords { get; private set; } = new List<IngredientItemRecord>();
         public List<NutritionItemRecord> NutritionRecords { get; private set; } = new List<NutritionItemRecord>();
         public List<LegacyNutritionItemRecord> LegacyNutritionRecords { get; private set; } = new List<LegacyNutritionItemRecord>();
-        
-        public HostchngParser(ICustomerProcess customerProcess = null)
+        private tblProducts ProductTemplate { get; set; } = new tblProducts();
+
+        public HostchngParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
         {
+            ProductTemplate = productTemplate;
             _customerProcess = customerProcess ?? new BaseProcess();
             _commandCodeMap = InitializeCommandCodeMap();
         }
@@ -107,13 +110,15 @@ namespace Importer.Module.Invafresh.Parser
                         }
                         else if (record is NutritionItemRecord nutritionItem)
                         {
-                            Logger.Trace($"Nutrition Item Record: CommandCode={nutritionItem.CommandCode}, DepartmentNumber={nutritionItem.DepartmentNumber}, NutritionNumber={nutritionItem.NutritionNumber}");
                             NutritionRecords.Add(nutritionItem);
+                            Logger.Trace($"Nutrition Item Record: CommandCode={nutritionItem.CommandCode}, DepartmentNumber={nutritionItem.DepartmentNumber}, NutritionNumber={nutritionItem.NutritionNumber}");
+                            
                         }
                         else if (record is LegacyNutritionItemRecord legacyNutritionItem)
                         {
-                            Logger.Trace($"Legacy Nutrition Item Record: CommandCode={legacyNutritionItem.CommandCode}, DepartmentNumber={legacyNutritionItem.DepartmentNumber}, NutritionNumber={legacyNutritionItem.NutritionNumber}");
                             LegacyNutritionRecords.Add(legacyNutritionItem);
+                            Logger.Trace($"Legacy Nutrition Item Record: CommandCode={legacyNutritionItem.CommandCode}, DepartmentNumber={legacyNutritionItem.DepartmentNumber}, NutritionNumber={legacyNutritionItem.NutritionNumber}");
+                            
                         }
                     }
                 }
@@ -124,7 +129,10 @@ namespace Importer.Module.Invafresh.Parser
 
             Logger.Trace($"PLU Records: {PLURecords.Count}");
             Logger.Trace($"Ingredient Records: {IngredientRecords.Count}");
-            Logger.Trace($"Nutrition Records: {NutritionRecords.Count}");
+            if (_legacyNutritionEnabled)
+                Logger.Trace($"Nutrition Records: {LegacyNutritionRecords.Count}");
+            else
+                Logger.Trace($"Nutrition Records: {NutritionRecords.Count}");
 
             ConvertPLURecordsToTblProducts();
 
@@ -139,6 +147,12 @@ namespace Importer.Module.Invafresh.Parser
 
             // Dictionary to hold all fields
             var fieldDict = new Dictionary<string, string>();
+
+            // check fields for legacy nutrition format, It will contain NENN, NEV, NEP fields
+            if (_legacyNutritionEnabled && (fields.Any(f => f.Contains("SNIA") || f.Contains("SNIC"))))
+            {
+                return CreateLegacyNutritionItemRecord(CommandCode.SNIA, line);
+            }
 
             // Process each field
             foreach (var field in fields)
@@ -503,12 +517,12 @@ namespace Importer.Module.Invafresh.Parser
 
             // Parse nutrition values
             // Check if we're using the current nutrition format
-            bool isCurrentFormat = false;
+            bool isCurrentFormat = true;
             foreach (var key in fields.Keys)
             {
-                if (key.Length == 3 && record.NutritionValues.ContainsKey(key))
+                if (key == "NENN" || key == "NEV" || key == "NEP")
                 {
-                    isCurrentFormat = true;
+                    isCurrentFormat = false;
                     break;
                 }
             }
@@ -537,101 +551,67 @@ namespace Importer.Module.Invafresh.Parser
                     }
                 }
             }
-            else
-            {
-                // Try to detect if it's legacy format, if so, we should create a LegacyNutritionItemRecord instead
-                bool isLegacyFormat = false;
-                foreach (var key in fields.Keys)
-                {
-                    if (key == "NENN" || key == "NEV" || key == "NEP")
-                    {
-                        isLegacyFormat = true;
-                        break;
-                    }
-                }
-
-                if (isLegacyFormat)
-                {
-                    return CreateLegacyNutritionItemRecord(commandCode, fields);
-                }
-            }
 
             return record;
         }
-        private LegacyNutritionItemRecord CreateLegacyNutritionItemRecord(CommandCode commandCode, Dictionary<string, string> fields)
+        private LegacyNutritionItemRecord CreateLegacyNutritionItemRecord(CommandCode commandCode, string line)
         {
             var record = new LegacyNutritionItemRecord
             {
                 CommandCode = commandCode
             };
 
-            // Parse required fields
-            if (fields.TryGetValue("SNO", out var sno) && int.TryParse(sno, out var snoVal))
-                record.StoreNumber = snoVal;
+            // First extract the basic fields
+            var basicFields = new Dictionary<string, string>();
+            var fieldParts = line.Split(_fieldDelimiter);
 
-            if (fields.TryGetValue("DNO", out var dno) && int.TryParse(dno, out var dnoVal))
-                record.DepartmentNumber = dnoVal;
-
-            if (fields.TryGetValue("NTN", out var ntn) && int.TryParse(ntn, out var ntnVal))
-                record.NutritionNumber = ntnVal;
-
-            // Parse optional fields
-            if (fields.TryGetValue("LF1", out var lf1) && int.TryParse(lf1, out var lf1Val))
-                record.LabelFormatNumber = lf1Val;
-
-            if (fields.TryGetValue("SPC", out var spc))
-                record.ServingsPerContainer = spc;
-
-            if (fields.TryGetValue("SSZ", out var ssz))
-                record.ServingSizeDescription = ssz;
-
-            // Group the NENN, NEV, NEP fields and create nutrition entries
-            // First, collect all entries by their index (presumed to be sequential)
-            Dictionary<int, NutritionEntry> entries = new Dictionary<int, NutritionEntry>();
-
-            foreach (var pair in fields)
+            foreach (var field in fieldParts)
             {
-                if (pair.Key.StartsWith("NENN"))
+                if (field.Length >= 3)
                 {
-                    // Extract index and create the entry if it doesn't exist
-                    if (int.TryParse(pair.Key.Substring(4), out var index))
-                    {
-                        if (!entries.ContainsKey(index))
-                            entries[index] = new NutritionEntry();
-
-                        entries[index].NutritionType = pair.Value;
-                    }
-                }
-                else if (pair.Key.StartsWith("NEV"))
-                {
-                    if (int.TryParse(pair.Key.Substring(3), out var index) &&
-                        int.TryParse(pair.Value, out var val))
-                    {
-                        if (!entries.ContainsKey(index))
-                            entries[index] = new NutritionEntry();
-
-                        entries[index].Value = val;
-                    }
-                }
-                else if (pair.Key.StartsWith("NEP"))
-                {
-                    if (int.TryParse(pair.Key.Substring(3), out var index) &&
-                        int.TryParse(pair.Value, out var val))
-                    {
-                        if (!entries.ContainsKey(index))
-                            entries[index] = new NutritionEntry();
-
-                        entries[index].PercentageValue = val;
-                    }
+                    var fieldId = field.Substring(0, 3);
+                    var fieldValue = field.Length > 3 ? field.Substring(3) : string.Empty;
+                    basicFields[fieldId] = fieldValue;
                 }
             }
 
-            // Add all entries to the record
-            foreach (var entry in entries.Values)
+            // Set basic fields
+            record.DepartmentNumber = FieldTagHelper.GetTagValue<int>(basicFields, "DNO", 0);
+            record.NutritionNumber = FieldTagHelper.GetTagValue<int>(basicFields, "NTN", 0);
+            record.LabelFormatNumber = FieldTagHelper.GetTagValue<int?>(basicFields, "LF1");
+            record.ServingsPerContainer = FieldTagHelper.GetTagValue<string>(basicFields, "SPC");
+            record.ServingSizeDescription = FieldTagHelper.GetTagValue<string>(basicFields, "SSZ");
+
+            // Now parse nutrition entries in sequence
+            var entries = new List<NutritionEntry>();
+            NutritionEntry currentEntry = null;
+
+            foreach (var field in fieldParts)
             {
-                record.NutritionEntries.Add(entry);
+                if (field.Length < 3) continue;
+
+                var fieldId = field.Substring(0, 3);
+                var fieldValue = field.Length > 3 ? field.Substring(3) : string.Empty;
+
+                // Handle nutrition type entries in sequence
+                if (fieldId == "NEN") // NENN field
+                {
+                    currentEntry = new NutritionEntry { NutritionType = fieldValue };
+                    entries.Add(currentEntry);
+                }
+                else if (fieldId == "NEV" && currentEntry != null) // NEV field
+                {
+                    if (int.TryParse(fieldValue, out var val))
+                        currentEntry.Value = val;
+                }
+                else if (fieldId == "NEP" && currentEntry != null) // NEP field
+                {
+                    if (int.TryParse(fieldValue, out var pct))
+                        currentEntry.PercentageValue = pct;
+                }
             }
 
+            record.NutritionEntries = entries;
             return record;
         }
         private BaseRecord CreateNutritionDeleteRecord(CommandCode commandCode, Dictionary<string, string> fields)
@@ -666,6 +646,8 @@ namespace Importer.Module.Invafresh.Parser
         }
         private tblProducts ConvertPLURecordToTblproducts(PluItemRecord pluItem)
         {
+            var product = ProductTemplate.Clone();
+
             // Get matching INO from IngredientRecords
             var ingredientRecord = IngredientRecords.FirstOrDefault(i => i.DepartmentNumber == pluItem.DepartmentNumber && i.IngredientNumber == pluItem.IngredientNumber);
 
@@ -676,24 +658,26 @@ namespace Importer.Module.Invafresh.Parser
             var legacyNutritionRecord = LegacyNutritionRecords.FirstOrDefault(n => n.DepartmentNumber == pluItem.DepartmentNumber && n.NutritionNumber == pluItem.NutritionNumber);
 
             // Convert the PLU item record to a tblProducts object
-            var product = new tblProducts
-            {
-                PLU = pluItem.PluNumber.ToString(),
-                Dept = pluItem.DepartmentNumber.ToString(),
-                //Description1 = pluItem.DescriptionLine1,
-                Description2 = pluItem.DescriptionLine2,
-                Description3 = pluItem.DescriptionLine3,
-                Description4 = pluItem.DescriptionLine4,
-                Price = pluItem.UnitPrice.ToString(),
-                NetWt = pluItem.FixedWeightAmount.ToString(),
-                ShelfLife = pluItem.ShelfLife.ToString(),
-                ShelfLifeType = pluItem.ShelfLifeType.ToString(),
+            product.Dept = pluItem.DepartmentNumber.ToString();
+            product.PLU = pluItem.PluNumber.ToString();
+            product.Description1 = pluItem.DescriptionLine1;
+            product.Description2 = pluItem.DescriptionLine2;
+            product.Description3 = pluItem.DescriptionLine3;
+            product.Description4 = pluItem.DescriptionLine4;
+            product.Price = pluItem.UnitPrice.ToPrice().ToString();
+            product.NetWt = pluItem.FixedWeightAmount.ToFixedWeight().ToString();
+            product.ShelfLife = pluItem.ShelfLife.ToString();
+            product.IngredientNum = pluItem.IngredientNumber.ToString();
+            product.NutrifactNum = pluItem.NutritionNumber.ToString();
+            product.Scaleable = Converters.UMEtoScalable(pluItem.UnitOfMeasure);
+            //product.Tare = pluItem.WrappedTareWeight.ToTare().ToString();
+            product.Description10 = pluItem.UpcCode;
+            product.Description4 = pluItem.ByCountQuantity.ToString();
+            //product.SalePrice = pluItem.DiscountPrice.ToPrice().ToString(); // need to handle nulls
+            //product.Description8 = pluItem.GradeNumber.ToString();
 
-                // TODO: Add other fields
-            };
 
             // TODO: Override Mapping Function, Loaded from JSON or Config file
-
             // TODO: Add foreach after loading from file
             var propertyWithAttribute = typeof(tblProducts).GetProperties()
                 .FirstOrDefault(prop =>
@@ -732,20 +716,85 @@ namespace Importer.Module.Invafresh.Parser
             if (nutritionRecord != null)
             {
                 // Add nutrition information to tblProducts
-                product.NFDesc = nutritionRecord.ServingSizeDescription;
+                product.NFDesc = nutritionRecord.ServingsPerContainer;
+                product.NFServingSize = nutritionRecord.ServingSizeDescription;
             }
 
             if (legacyNutritionRecord != null)
             {
-                foreach (var entry in legacyNutritionRecord.NutritionEntries)
-                {
-                    // Add nutrition entries to tblProducts for LegacyNutritionItemRecord
-                }
+                product.NFDesc = legacyNutritionRecord.ServingsPerContainer;
+                product.NFServingSize = legacyNutritionRecord.ServingSizeDescription;
+
+                // Vitamins and Minerals (Percentages)
+                product.NFVitA = GetLegacyNutrtionValue(legacyNutritionRecord, "N001-P"); // Vitamin A Percent
+                product.NFVitC = GetLegacyNutrtionValue(legacyNutritionRecord, "N002-P"); // Vitamin C Percent
+                product.NF3 = GetLegacyNutrtionValue(legacyNutritionRecord, "N003-P"); // Thiamine Percent
+                product.NF4 = GetLegacyNutrtionValue(legacyNutritionRecord, "N004-P"); // Riboflavin Percent
+                product.NF5 = GetLegacyNutrtionValue(legacyNutritionRecord, "N005-P"); // Niacin Percent
+                product.NFCalcium = GetLegacyNutrtionValue(legacyNutritionRecord, "N006-P"); // Calcium Percent
+                product.NFCalciummcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N006-V"); // Calcium Value
+                product.NFIron = GetLegacyNutrtionValue(legacyNutritionRecord, "N007-P"); // Iron Percent
+                product.NFIronmcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N007-V"); // Iron Value
+                product.NFVitD = GetLegacyNutrtionValue(legacyNutritionRecord, "N008-P"); // Vitamin D Percent
+                product.NFVitDmcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N008-V"); // Vitamin D Value
+                product.NF9 = GetLegacyNutrtionValue(legacyNutritionRecord, "N010-P"); // Vitamin B6 Percent
+                product.NF6 = GetLegacyNutrtionValue(legacyNutritionRecord, "N011-P"); // Folic Acid Percent
+                product.NF10 = GetLegacyNutrtionValue(legacyNutritionRecord, "N012-P"); // Vitamin B12 Percent
+
+                // Calories and Macronutrients
+                product.NFCalories = GetLegacyNutrtionValue(legacyNutritionRecord, "N100-V"); // Calories Value
+                product.NFCaloriesFromFat = GetLegacyNutrtionValue(legacyNutritionRecord, "N101-V"); // Calories From Fat Value
+
+                // Fats
+                product.NFTotalFat = GetLegacyNutrtionValue(legacyNutritionRecord, "N102-P"); // Total Fat Percent
+                product.NFTotalFatG = GetLegacyNutrtionValue(legacyNutritionRecord, "N102-V"); // Total Fat Value
+                product.NF1 = GetLegacyNutrtionValue(legacyNutritionRecord, "N103-P"); // Saturated Fat Percent
+                product.NFSatFatG = GetLegacyNutrtionValue(legacyNutritionRecord, "N103-V"); // Saturated Fat Value
+                product.NF8 = GetLegacyNutrtionValue(legacyNutritionRecord, "N113-V"); // Trans Fatty Acid Value
+
+                // Cholesterol
+                product.NFCholesterol = GetLegacyNutrtionValue(legacyNutritionRecord, "N104-P"); // Cholesterol Percent
+                product.NFCholesterolMG = GetLegacyNutrtionValue(legacyNutritionRecord, "N104-V"); // Cholesterol Value
+
+                // Carbohydrates
+                product.NFTotCarbo = GetLegacyNutrtionValue(legacyNutritionRecord, "N105-P"); // Total Carbohydrates Percent
+                product.NFTotCarboG = GetLegacyNutrtionValue(legacyNutritionRecord, "N105-V"); // Total Carbohydrates Value
+                product.NFDietFiber = GetLegacyNutrtionValue(legacyNutritionRecord, "N106-P"); // Dietary Fiber Percent
+                product.NF2 = GetLegacyNutrtionValue(legacyNutritionRecord, "N106-V"); // Dietary Fiber Value
+                product.NFSugars = GetLegacyNutrtionValue(legacyNutritionRecord, "N108-V"); // Sugars Value
+                product.NF7 = GetLegacyNutrtionValue(legacyNutritionRecord, "N120-V"); // Sugar Alcohol Value
+                product.NFSugarsAdded = GetLegacyNutrtionValue(legacyNutritionRecord, "N127-P"); // Added Sugars Percent
+                product.NFSugarsAddedG = GetLegacyNutrtionValue(legacyNutritionRecord, "N127-V"); // Added Sugars Value
+
+                // Sodium and Potassium
+                product.NFSodium = GetLegacyNutrtionValue(legacyNutritionRecord, "N107-P"); // Sodium Percent
+                product.NFSodiumMG = GetLegacyNutrtionValue(legacyNutritionRecord, "N107-V"); // Sodium Value
+                product.NFPotassium = GetLegacyNutrtionValue(legacyNutritionRecord, "N110-P"); // Potassium Percent
+                product.NFPotassiummcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N110-V"); // Potassium Value
+
+                // Protein
+                product.NFProtein = GetLegacyNutrtionValue(legacyNutritionRecord, "N109-V"); // Protein Value
             }
 
             return product;
         }
 
+        private string GetLegacyNutrtionValue(LegacyNutritionItemRecord legacyNutritionRecord, string NEN)
+        {
+            // get the Value and PercentageValue of the first 4 characters NEN
+            var LegacyNut = legacyNutritionRecord.NutritionEntries.FirstOrDefault(n => n.NutritionType == NEN.Substring(0, 4));
 
+            // if the NEN ends with V, return the Value
+            if (NEN.EndsWith("V"))
+            {
+                return LegacyNut?.Value.ToString();
+            }
+            // if the NEN ends with P, return the PercentageValue
+            else if (NEN.EndsWith("P"))
+            {
+                return LegacyNut?.PercentageValue.ToString();
+            }
+            return string.Empty;
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Importer.Common.Interfaces
         string TriggerValue { get; set; } // Path if ImporterType is File, or URL if ImporterType is API
         void Initialize();
         void Execute();
-        List<tblProducts> GetTblProductsList();
+        List<tblProducts> GetTblProductsList(tblProducts productTemplate);
         void Terminate();
     }
 }

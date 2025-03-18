@@ -53,6 +53,8 @@ namespace Importer.Module.Invafresh.Models
         public string LogoNumbers { get; set; }  // LNU
         [FieldTag("GNO")]
         public string GraphicNumbers { get; set; }  // GNO
+        [FieldTag("GNU")]
+        public string GradeNumber { get; set; }  // GNU
         [FieldTag("INO")]
         public int? IngredientNumber { get; set; }  // INO
         [FieldTag("NTN")]

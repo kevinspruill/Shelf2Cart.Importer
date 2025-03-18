@@ -6,6 +6,7 @@
   "ProperCase": true,
   "DepartmentPLU": false,
   "DescriptionCleanse": true,
+  "HoldDataFilesDays": 7,
   "ProperCaseFields": [
     "Description 1",
     "Description 2",

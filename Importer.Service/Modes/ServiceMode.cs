@@ -10,6 +10,11 @@ namespace Importer.Core.Modes
     {
         public async Task Start()
         {
+            // Create Scheduler with Quartz (if needed)
+            // Create FileWatchers for ImportModules
+            // Create API Clients for ImportModules
+            // Create Named Pipes Service for UI
+
         }
 
         public async Task Stop()

@@ -370,6 +370,12 @@ namespace Importer.Common.Models
             [ImportDBField("Zone Price 9")]
             public string ZonePrice9 { get; set; } = string.Empty;
 
+
+        public tblProducts Clone()
+        {
+            return (tblProducts)this.MemberwiseClone();
+        }
+
     }    
     
 }

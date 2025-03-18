@@ -65,14 +65,14 @@ namespace Importer.Service
             {
                 Logger.Info("Starting test mode");
 
-                IImporterModule importerModule = new InvafreshModule();
-                importerModule.TriggerValue = "D:\\811-Master_Export.txt";
-                importerModule.Initialize();
-
                 ProductProcessor productProcessor = new ProductProcessor(null);
                 var productTemplate = productProcessor.CreateProductTemplate();
 
-                var items = importerModule.GetTblProductsList();
+                IImporterModule importerModule = new InvafreshModule();
+                importerModule.TriggerValue = "D:\\811-Master_Export.txt";
+                importerModule.Initialize();               
+
+                var items = importerModule.GetTblProductsList(productTemplate);
 
                 Logger.Info($"Total items retrieved: {items.Count}");
                 Console.WriteLine($"Total items retrieved: {items.Count}");
