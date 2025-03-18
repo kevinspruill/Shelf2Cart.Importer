@@ -15,24 +15,20 @@ namespace Importer.Module.Invafresh
 {
     public class InvafreshModule : IImporterModule
     {
+
+        private FileImport _fileImport;
+
         public string Name { get; set; } = "Invafresh Importer Module";
         public string Version { get; set; } = "3.0.0";
         public bool IsEnabled { get; set; } = true;
         public ImporterType Type { get; set; } = ImporterType.File;
         public ImporterTrigger Trigger { get; set; } = ImporterTrigger.Auto;
         public string TriggerValue { get; set; } = string.Empty;
-
-        FileImport _fileImport;
         public InvafreshSettingsLoader Settings { get; set; } = new InvafreshSettingsLoader();
-
-        public InvafreshModule()
-        {
-
-        }
 
         public void Execute()
         {
-           
+            // Not implemented  
         }
 
         public List<tblProducts> GetTblProductsList(tblProducts productTemplate)

@@ -15,6 +15,7 @@ namespace Importer.Module.Invafresh.Helpers
         public static decimal ToTare(this int? value, bool useTwoDigitPrecision = false)
             => (decimal)(useTwoDigitPrecision ? value / 100m : value / 1000m);
         public static decimal ToNutrition(this int? value) => (decimal)(value / 10m);
+        public static decimal ApplyImpliedDecimals(this int? value, int numOfImpliedDecimals) => (decimal)(value / Math.Pow(10, numOfImpliedDecimals));
 
         // Decimal extensions
         public static int ToPriceInteger(this decimal value) => (int)(value * 100m);

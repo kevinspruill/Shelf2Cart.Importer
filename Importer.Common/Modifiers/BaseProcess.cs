@@ -17,9 +17,9 @@ namespace Importer.Common.Modifiers
             // No pre-processing required
         }
 
-        public void DataFileCondtioning<T>(T ImportData = null) where T : class
+        public T DataFileCondtioning<T>(T ImportData = null) where T : class
         {
-            // No data file conditioning required
+            return ImportData;
         }
 
         public tblProducts ProductProcessor(tblProducts product)

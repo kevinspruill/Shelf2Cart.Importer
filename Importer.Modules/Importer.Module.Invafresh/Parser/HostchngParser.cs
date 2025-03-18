@@ -78,7 +78,6 @@ namespace Importer.Module.Invafresh.Parser
                 { "SNID", CommandCode.SNID }
             };
         }
-
         public List<BaseRecord> ParseFile(string filePath)
         {
             var records = new List<BaseRecord>();
@@ -95,6 +94,12 @@ namespace Importer.Module.Invafresh.Parser
                     var record = ParseLine(line);
                     if (record != null)
                     {
+                        if (_customerProcess != null && _customerProcess.Name != "Importer Base Processor")
+                        {
+                            // Apply any data conditioning, based on the customer process
+                            record = _customerProcess.DataFileCondtioning(record);
+                        }
+
                         records.Add(record);
                         if (record is BatchHeaderRecord batchHeader)
                         {
@@ -517,19 +522,8 @@ namespace Importer.Module.Invafresh.Parser
             if (fields.TryGetValue("SSZ", out var ssz))
                 record.ServingSizeDescription = ssz;
 
-            // Parse nutrition values
-            // Check if we're using the current nutrition format
-            bool isCurrentFormat = true;
-            foreach (var key in fields.Keys)
-            {
-                if (key == "NENN" || key == "NEV" || key == "NEP")
-                {
-                    isCurrentFormat = false;
-                    break;
-                }
-            }
-
-            if (isCurrentFormat)
+            
+            if (!_legacyNutritionEnabled)
             {
                 // Process current nutrition format (with comma-separated values)
                 foreach (var pair in fields)
@@ -635,7 +629,6 @@ namespace Importer.Module.Invafresh.Parser
 
             return record;
         }
-
         public List<tblProducts> ConvertPLURecordsToTblProducts()
         {
             var products = new List<tblProducts>();
@@ -656,7 +649,7 @@ namespace Importer.Module.Invafresh.Parser
             // Get matching NTN from NutritionRecords
             var nutritionRecord = NutritionRecords.FirstOrDefault(n => n.DepartmentNumber == pluItem.DepartmentNumber && n.NutritionNumber == pluItem.NutritionNumber);
 
-            // Get matching NUT from LegacyNutritionRecords
+            // Get matching NTN from LegacyNutritionRecords
             var legacyNutritionRecord = LegacyNutritionRecords.FirstOrDefault(n => n.DepartmentNumber == pluItem.DepartmentNumber && n.NutritionNumber == pluItem.NutritionNumber);
 
             // Convert the PLU item record to a tblProducts object
@@ -672,11 +665,11 @@ namespace Importer.Module.Invafresh.Parser
             product.IngredientNum = pluItem.IngredientNumber.ToString();
             product.NutrifactNum = pluItem.NutritionNumber.ToString();
             product.Scaleable = Converters.UMEtoScalable(pluItem.UnitOfMeasure);
-            //product.Tare = pluItem.WrappedTareWeight.ToTare().ToString();
+            product.Tare = pluItem.WrappedTareWeight.HasValue ? pluItem.WrappedTareWeight.ToTare().ToString() : string.Empty;
             product.Description10 = pluItem.UpcCode;
             product.Description4 = pluItem.ByCountQuantity.ToString();
-            //product.SalePrice = pluItem.DiscountPrice.ToPrice().ToString(); // need to handle nulls
-            //product.Description8 = pluItem.GradeNumber.ToString();
+            product.SalePrice = pluItem.DiscountPrice.HasValue ? pluItem.DiscountPrice.ToPrice().ToString() : string.Empty;
+            product.Description8 = string.IsNullOrEmpty(pluItem.GradeNumber) ? string.Empty : pluItem.GradeNumber;
 
 
             // Use CustomMapLoader to override mapping fields from PluItemRecord to tblProducts
@@ -724,6 +717,9 @@ namespace Importer.Module.Invafresh.Parser
                 // Add nutrition information to tblProducts
                 product.NFDesc = nutritionRecord.ServingsPerContainer;
                 product.NFServingSize = nutritionRecord.ServingSizeDescription;
+
+                // Vitamins and Minerals (Percentages)
+                // TODO: Add more nutrition fields here
             }
 
             if (legacyNutritionRecord != null)
@@ -782,9 +778,10 @@ namespace Importer.Module.Invafresh.Parser
                 product.NFProtein = GetLegacyNutrtionValue(legacyNutritionRecord, "N109-V"); // Protein Value
             }
 
+            // TODO: Add Legacy Nutrition Custom Remapping here (Only Implement if needed)
+
             return product;
         }
-
         private string GetLegacyNutrtionValue(LegacyNutritionItemRecord legacyNutritionRecord, string NEN)
         {
             // get the Value and PercentageValue of the first 4 characters NEN
@@ -793,7 +790,7 @@ namespace Importer.Module.Invafresh.Parser
             // if the NEN ends with V, return the Value
             if (NEN.EndsWith("V"))
             {
-                return LegacyNF?.Value.ToString();
+                return LegacyNF?.Value.ApplyImpliedDecimals(1).ToString();
             }
             // if the NEN ends with P, return the PercentageValue
             else if (NEN.EndsWith("P"))
