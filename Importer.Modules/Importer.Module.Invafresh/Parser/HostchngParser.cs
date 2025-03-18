@@ -23,9 +23,10 @@ namespace Importer.Module.Invafresh.Parser
     {
         private readonly char _fieldDelimiter = (char)253;
         private readonly Dictionary<string, CommandCode> _commandCodeMap;
-        private bool _legacyNutritionEnabled = true;
+        private bool _legacyNutritionEnabled;
         private ICustomerProcess _customerProcess { get; set; }
-        
+        InvafreshSettingsLoader Settings = new InvafreshSettingsLoader();
+
 
         public List<PluItemRecord> PLURecords { get; private set; } = new List<PluItemRecord>();
         public List<IngredientItemRecord> IngredientRecords { get; private set; } = new List<IngredientItemRecord>();
@@ -38,6 +39,7 @@ namespace Importer.Module.Invafresh.Parser
             ProductTemplate = productTemplate;
             _customerProcess = customerProcess ?? new BaseProcess();
             _commandCodeMap = InitializeCommandCodeMap();
+            _legacyNutritionEnabled = Settings.UseLegacyNutritionFormat;
         }
 
         private Dictionary<string, CommandCode> InitializeCommandCodeMap()
@@ -677,33 +679,37 @@ namespace Importer.Module.Invafresh.Parser
             //product.Description8 = pluItem.GradeNumber.ToString();
 
 
-            // TODO: Override Mapping Function, Loaded from JSON or Config file
-            // TODO: Add foreach after loading from file
-            var propertyWithAttribute = typeof(tblProducts).GetProperties()
-                .FirstOrDefault(prop =>
-                {
-                    var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
-                        .Cast<ImportDBFieldAttribute>()
-                        .FirstOrDefault();
-                    return attr != null && attr.Name == "Description 1";
-                });
-
-            if (propertyWithAttribute != null)
+            // Use CustomMapLoader to override mapping fields from PluItemRecord to tblProducts
+            var mappedFields = CustomMapLoader.CustomMap;
+            foreach (var field in mappedFields)
             {
-                var pluItemProperty = typeof(PluItemRecord).GetProperties()
-                .FirstOrDefault(prop =>
-                {
-                    var attr = prop.GetCustomAttributes(typeof(FieldTagAttribute), false)
-                        .Cast<FieldTagAttribute>()
-                        .FirstOrDefault();
-                    return attr != null && attr.Tag == "DN1";
-                });
 
-                if (pluItemProperty != null)
+                var propertyWithAttribute = typeof(tblProducts).GetProperties()
+                    .FirstOrDefault(prop =>
+                    {
+                        var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
+                            .Cast<ImportDBFieldAttribute>()
+                            .FirstOrDefault();
+                        return attr != null && attr.Name == field.Key;
+                    });
+
+                if (propertyWithAttribute != null)
                 {
-                    // Get the value from pluItem and set it to the product
-                    var value = pluItemProperty.GetValue(pluItem);
-                    propertyWithAttribute.SetValue(product, value);
+                    var pluItemProperty = typeof(PluItemRecord).GetProperties()
+                    .FirstOrDefault(prop =>
+                    {
+                        var attr = prop.GetCustomAttributes(typeof(FieldTagAttribute), false)
+                            .Cast<FieldTagAttribute>()
+                            .FirstOrDefault();
+                        return attr != null && attr.Tag == field.Value;
+                    });
+
+                    if (pluItemProperty != null)
+                    {
+                        // Get the value from pluItem and set it to the product
+                        var value = pluItemProperty.GetValue(pluItem);
+                        propertyWithAttribute.SetValue(product, value);
+                    }
                 }
             }
 
@@ -782,17 +788,17 @@ namespace Importer.Module.Invafresh.Parser
         private string GetLegacyNutrtionValue(LegacyNutritionItemRecord legacyNutritionRecord, string NEN)
         {
             // get the Value and PercentageValue of the first 4 characters NEN
-            var LegacyNut = legacyNutritionRecord.NutritionEntries.FirstOrDefault(n => n.NutritionType == NEN.Substring(0, 4));
+            var LegacyNF = legacyNutritionRecord.NutritionEntries.FirstOrDefault(n => n.NutritionType == NEN.Substring(0, 4));
 
             // if the NEN ends with V, return the Value
             if (NEN.EndsWith("V"))
             {
-                return LegacyNut?.Value.ToString();
+                return LegacyNF?.Value.ToString();
             }
             // if the NEN ends with P, return the PercentageValue
             else if (NEN.EndsWith("P"))
             {
-                return LegacyNut?.PercentageValue.ToString();
+                return LegacyNF?.PercentageValue.ToString();
             }
             return string.Empty;
         }

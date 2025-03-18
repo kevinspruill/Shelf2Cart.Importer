@@ -3,6 +3,7 @@ using Importer.Common.Helpers;
 using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Models;
+using Importer.Module.Invafresh.Helpers;
 using Importer.Module.Invafresh.Parser;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace Importer.Module.Invafresh
         public string TriggerValue { get; set; } = string.Empty;
 
         FileImport _fileImport;
+        public InvafreshSettingsLoader Settings { get; set; } = new InvafreshSettingsLoader();
 
         public InvafreshModule()
         {
