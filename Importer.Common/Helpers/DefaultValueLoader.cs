@@ -28,7 +28,7 @@ namespace Importer.Common.Helpers
 
         public DefaultValueLoader()
         {
-            _settingsPath = Path.Combine(Directory.GetCurrentDirectory(), SETTINGS_FOLDER);
+            _settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SETTINGS_FOLDER);
             LoadDefaultValues();
         }
 

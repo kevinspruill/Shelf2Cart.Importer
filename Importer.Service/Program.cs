@@ -21,14 +21,26 @@ namespace Importer.Service
         {
             try
             {
+                string filePath = string.Empty;
                 Logger.Info("Application starting");
+                if (args.Length > 0)
+                {
+                    filePath = args[0];
+                    if (!File.Exists(filePath))
+                    {
+                        Logger.Error($"{filePath} does not exist or Permission is Denied");
+                        return;
+                    }
+
+
+                }
 
                 SettingsLoader settingsLoader = new SettingsLoader();
 
                 if (settingsLoader.TestingEnabled)
                 {
                     Logger.Info("Running in test mode");
-                    await TestingMode.RunTestMode();
+                    await TestingMode.RunTestMode(filePath);
                 }
                 else
                 {

@@ -14,7 +14,7 @@ namespace Importer.Core.Modes
 {
     public static class TestingMode
     {
-        public static async Task RunTestMode()
+        public static async Task RunTestMode(string filePath="")
         {
 
             try
@@ -25,7 +25,7 @@ namespace Importer.Core.Modes
                 var productTemplate = productProcessor.CreateProductTemplate();
 
                 IImporterModule importerModule = new InvafreshModule();
-                importerModule.TriggerValue = "D:\\811-Master_Export.txt";
+                importerModule.TriggerValue = filePath;
                 importerModule.Initialize();
 
                 var items = importerModule.GetTblProductsList(productTemplate);

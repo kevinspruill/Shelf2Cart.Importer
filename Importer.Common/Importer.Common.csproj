@@ -64,6 +64,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\CustomerProcessLoader.cs" />
     <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Helpers\DefaultValueLoader.cs" />
     <Compile Include="Helpers\jsonLoader.cs" />

@@ -34,9 +34,9 @@ namespace Importer.Module.Invafresh
         public List<tblProducts> GetTblProductsList(tblProducts productTemplate)
         {
             var products = new List<tblProducts>();
-            var parser = new HostchngParser(productTemplate);
-            var filedata = _fileImport.ReadFileContent("811-Master_Export.txt");
-            var parseddata = parser.ParseFile("811-Master_Export.txt");
+            var parser = new HostchngParser(productTemplate, CustomerProcessLoader.GetCustomerProcess());
+            var filedata = _fileImport.ReadFileContent(TriggerValue);
+            var parseddata = parser.ParseFile(TriggerValue);
 
             var convertedRecords = parser.ConvertPLURecordsToTblProducts();
             
