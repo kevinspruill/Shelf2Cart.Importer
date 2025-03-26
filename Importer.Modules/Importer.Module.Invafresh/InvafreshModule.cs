@@ -2,6 +2,7 @@
 using Importer.Common.Helpers;
 using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
+using Importer.Common.Main;
 using Importer.Common.Models;
 using Importer.Module.Invafresh.Helpers;
 using Importer.Module.Invafresh.Parser;
@@ -16,21 +17,26 @@ namespace Importer.Module.Invafresh
     public class InvafreshModule : IImporterModule
     {
         public string Name { get; set; } = "Invafresh";
-        public string Version { get; set; } = "3.0.0";
-        
+        public string Version { get; set; } = "3.0.0";        
         public InvafreshSettingsLoader Settings { get; set; } = new InvafreshSettingsLoader();
         public Dictionary<string, object> TypeSettings { get; set; } = new Dictionary<string, object>();
-        
-        ICustomerProcess _customerProcess;
-        string _filePath = string.Empty;
+        public ImporterInstance ImporterInstance { get; set; }
+        public string ImporterTypeData { get; set; } = string.Empty;
+
+        ICustomerProcess _customerProcess;        
         FileWatcher _importerType;
+
+        public InvafreshModule()
+        {
+            _importerType = new FileWatcher(this);
+        }
 
         public List<tblProducts> GetTblProductsList(tblProducts productTemplate)
         {
             var products = new List<tblProducts>();
 
             var parser = new HostchngParser(productTemplate, _customerProcess);
-            parser.ParseFile(_filePath.ToString());
+            parser.ParseFile(ImporterTypeData.ToString());
 
             var convertedRecords = parser.ConvertPLURecordsToTblProducts();
             
@@ -49,9 +55,7 @@ namespace Importer.Module.Invafresh
 
         public void InitModule(ImporterInstance importerInstance)
         {
-            _importerType = new FileWatcher();
-            _importerType.ApplySettings(importerInstance.TypeSettings);
-            _filePath = _importerType.FilePath;
+            ImporterInstance = importerInstance;
             _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
 
             SetupImporterType();
@@ -61,14 +65,43 @@ namespace Importer.Module.Invafresh
         {
             if (_importerType != null)
             {
-                _importerType.FilePath = TypeSettings.TryGetValue("FilePath", out object filePath) ? filePath.ToString() : string.Empty;
-                _importerType.FileName = TypeSettings.TryGetValue("FileName", out object fileName) ? fileName.ToString() : string.Empty;
-                _importerType.FileFilter = TypeSettings.TryGetValue("FileFilter", out object fileFilter) ? fileFilter.ToString() : string.Empty;
-
+                _importerType.ApplySettings(ImporterInstance.TypeSettings);
             }
             else
             {
-                Logger.Error("Importer Type is not initialized.");
+                Logger.Error("File Watcher is not initialized.");
+            }
+        }
+
+        public void StartModule()
+        {
+            // Start the file watcher
+            if (_importerType != null)
+            {
+                _importerType.InitializeFileWatcher();
+                _importerType.ToggleFileWatcher();
+            }
+            else
+            {
+                Logger.Error("File Watcher is not initialized.");
+            }
+        }
+
+        public void TriggerProcess()
+        {
+            MainProcess.ProcessAsync(this).GetAwaiter().GetResult();
+        }
+
+        public void StopModule()
+        {
+            // Stop the file watcher
+            if (_importerType != null)
+            {
+                _importerType.ToggleFileWatcher();
+            }
+            else
+            {
+                Logger.Error("File Watcher is not initialized.");
             }
         }
     }

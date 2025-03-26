@@ -53,7 +53,7 @@ namespace Importer.Common.Helpers
                     var instance = Activator.CreateInstance(type) as IImporterModule;
                     if (instance != null && instance.Name == moduleName)
                     {
-                        Logger.Debug($"Found Configured module: {instance.Name}");
+                        Logger.Info($"{instance.Name} Module Loaded");
                         return instance;
                     }
                 }
@@ -76,7 +76,7 @@ namespace Importer.Common.Helpers
                     var instance = Activator.CreateInstance(type) as ICustomerProcess;
                     if (instance != null && instance.Name == Customer)
                     {
-                        Logger.Debug($"Found Configured module: {instance.Name}");
+                        Logger.Info($"{instance.Name} Process Loaded");
                         return instance;
                     }
                 }

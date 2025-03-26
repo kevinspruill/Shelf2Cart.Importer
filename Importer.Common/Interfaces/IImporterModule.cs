@@ -11,8 +11,14 @@ namespace Importer.Common.Interfaces
     {
         string Name { get; set; }
         string Version { get; set; }
+        ImporterInstance ImporterInstance { get; set; }
+        string ImporterTypeData { get; set; }
         void InitModule(ImporterInstance importerInstance);
+        void SetupImporterType();
+        void StartModule();
+        void TriggerProcess();
         List<tblProducts> GetTblProductsList(tblProducts productTemplate);
+        void StopModule();
 
     }
 }

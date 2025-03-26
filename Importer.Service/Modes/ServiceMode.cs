@@ -1,4 +1,5 @@
 ﻿using Importer.Common.Helpers;
+using Importer.Common.Interfaces;
 using Importer.Common.Models;
 using System;
 using System.Collections.Generic;
@@ -48,21 +49,54 @@ namespace Importer.Core.Modes
     }
 
     public class ImporterService
-    {      
-
+    {
         public async Task Start()
         {
+            // new line in the logger with the Date and Time in the middle
+            Logger.Info("--------------------------------------------------");
+            Logger.Info($"Service started at: {DateTime.Now}");
+            Logger.Info("--------------------------------------------------");
+
+            IImporterModule importerModule = null;
+            Dictionary<string, object> typeSettings = new Dictionary<string, object>();
+
             var configuredInstances = InstanceLoader.LoadInstances();
-            
             foreach (var instance in configuredInstances)
             {
-                
+                if (instance.Enabled)
+                {
+                    Logger.Info($"Loading module: {instance.ImporterModule} for instance: {instance.Name}");
+                    importerModule = InstanceLoader.GetImporterModule(instance.ImporterModule);
+                    importerModule.InitModule(instance);
+                    importerModule.StartModule();
+                    Logger.Info($"Instance: {instance.Name} is enabled is loaded.");
+                    Logger.Info("--------------------------------------------------");
+                    Logger.Info($"Awaiting Data...");
+                    Logger.Info("--------------------------------------------------");
+                }
+                else
+                {
+                    Logger.Debug($"Instance {instance.Name} is not enabled, and will not be loaded.");
+                }
             }
 
+            if (importerModule == null)
+            {
+                Logger.Error("No enabled importer module found.");
+                return;
+            }
+
+            
+
+            await Task.CompletedTask;
         }
 
         public async Task Stop()
         {
+            await Task.CompletedTask;
+            Logger.Info("--------------------------------------------------");
+            Logger.Info($"Service Stopped at: {DateTime.Now}");
+            Logger.Info("--------------------------------------------------");
         }
     }
 }

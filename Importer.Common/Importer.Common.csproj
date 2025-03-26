@@ -76,6 +76,7 @@
     <Compile Include="Interfaces\ICustomerProcess.cs" />
     <Compile Include="Interfaces\IImporterModule.cs" />
     <Compile Include="Interfaces\IImporterType.cs" />
+    <Compile Include="Main\MainProcess.cs" />
     <Compile Include="Models\BooleanVal.cs" />
     <Compile Include="Models\CleanseRule.cs" />
     <Compile Include="Models\DepartmentPadding.cs" />

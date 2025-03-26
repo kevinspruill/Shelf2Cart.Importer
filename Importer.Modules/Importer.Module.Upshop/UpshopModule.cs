@@ -12,12 +12,35 @@ namespace Importer.Module.Upshop
     {
         public string Name { get; set; } = "Upshop";
         public string Version { get; set; } = "1.0.0";
+        public ImporterInstance ImporterInstance { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string ImporterTypeData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public List<tblProducts> GetTblProductsList(tblProducts productTemplate)
         {
             return new List<tblProducts>();
         }
 
         public void InitModule(ImporterInstance importerInstance)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetupImporterType()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StartModule()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopModule()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TriggerProcess()
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,5 @@
 {
-  "TestingEnabled": true,
+  "TestingEnabled": false,
   "DeptColName": "Dept",
   "ButtonSameAsDesc": true,
   "Flush": false,
