@@ -1,0 +1,23 @@
+[
+  {
+    "Name": "API",
+    "Description": "API Importer Type Example",
+    "ImporterModule": "Invafresh",
+    "Enabled": false,
+    "TypeSettings": {
+      "BaseUrl": "https://api.example.com"
+    }
+  },
+    {
+      "Name": "WakeFern Importer",
+      "Description": "File Watcher Importer Type Example",
+      "ImporterModule": "Invafresh",
+      "CustomerProcess": "Wakefern",
+      "Enabled": true,
+      "TypeSettings": {
+        "FilePath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1",
+        "FileName": "",
+        "FileFilter": "*.*"
+      }
+    }
+]

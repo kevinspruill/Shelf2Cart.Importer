@@ -8,7 +8,7 @@ namespace Wakefern.CustomerProcess
 {
     public class WakefernProcess : ICustomerProcess
     {
-        public string Name => "Wakefern Process";
+        public string Name => "Wakefern";
 
         public bool ForceUpdate { get; set; } = false;
 

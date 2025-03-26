@@ -14,19 +14,40 @@ namespace Importer.Core.Modes
 {
     public static class TestingMode
     {
-        public static async Task RunTestMode(string filePath="")
+        public static async Task RunTestMode(string filePath = "")
         {
 
             try
             {
                 Logger.Info("Starting test mode");
 
+                IImporterModule importerModule = null;
+                ICustomerProcess customerProcess = null;
+                Dictionary<string, object> typeSettings = new Dictionary<string, object>();
+
+                var configuredInstances = InstanceLoader.LoadInstances();
+                foreach (var instance in configuredInstances)
+                {
+                    if (instance.Enabled)
+                    {
+                        importerModule = InstanceLoader.GetImporterModule(instance.ImporterModule);
+                        customerProcess = InstanceLoader.GetCustomerProcess(instance.CustomerProcess);
+                        typeSettings = instance.TypeSettings;
+                        importerModule.InitModule(instance);
+                        Logger.Debug($"Loading module: {instance.ImporterModule} for instance: {instance.Name}");
+                    }
+
+                    Logger.Debug($"Configured instance: {instance.Name}");
+                }
+
+                if (importerModule == null)
+                {
+                    Logger.Error("No enabled importer module found.");
+                    return;
+                }
+
                 ProductProcessor productProcessor = new ProductProcessor(null);
                 var productTemplate = productProcessor.CreateProductTemplate();
-
-                IImporterModule importerModule = new InvafreshModule();
-                importerModule.TriggerValue = filePath;
-                importerModule.Initialize();
 
                 var items = importerModule.GetTblProductsList(productTemplate);
 
@@ -103,13 +124,6 @@ namespace Importer.Core.Modes
                     Logger.Info("No new products to import.");
                 }
 
-
-                // Write processed items to a tab-delimited file
-                //string outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ProcessedItems.txt");
-                //WriteItemsToFile(processedItems, outputPath);
-
-                //Logger.Info($"Test mode completed successfully. Output written to: {outputPath}");
-                //Console.WriteLine($"Test mode completed. Output written to: {outputPath}");
                 Console.WriteLine("Press any key to exit.");
                 Console.ReadKey();
 
@@ -121,34 +135,6 @@ namespace Importer.Core.Modes
                 Console.WriteLine("Check the log file for more details.");
                 Console.WriteLine("Press any key to exit...");
                 Console.ReadKey();
-            }
-        }
-        private static void WriteItemsToFile(List<tblProducts> items, string filePath)
-        {
-            try
-            {
-                using (StreamWriter writer = new StreamWriter(filePath, false, Encoding.UTF8))
-                {
-                    // Write headers
-                    var properties = typeof(tblProducts).GetProperties()
-                        .Where(p => p.GetCustomAttribute<ImportDBFieldAttribute>() != null)
-                        .OrderBy(p => p.GetCustomAttribute<ImportDBFieldAttribute>().Name);
-
-                    writer.WriteLine(string.Join("\t", properties.Select(p => p.GetCustomAttribute<ImportDBFieldAttribute>().Name)));
-
-                    // Write data
-                    foreach (var item in items)
-                    {
-                        var values = properties.Select(p => p.GetValue(item)?.ToString() ?? "");
-                        writer.WriteLine(string.Join("\t", values));
-                    }
-                }
-
-                Logger.Info($"Items successfully written to file: {filePath}");
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Error writing items to file: {filePath}", ex);
             }
         }
     }

@@ -11,13 +11,8 @@ namespace Importer.Common.Interfaces
     {
         string Name { get; set; }
         string Version { get; set; }
-        bool IsEnabled { get; set; }
-        ImporterType Type { get; set; }
-        ImporterTrigger Trigger { get; set; }
-        string TriggerValue { get; set; } // Path if ImporterType is File, or URL if ImporterType is API
-        void Initialize();
-        void Execute();
+        void InitModule(ImporterInstance importerInstance);
         List<tblProducts> GetTblProductsList(tblProducts productTemplate);
-        void Terminate();
+
     }
 }

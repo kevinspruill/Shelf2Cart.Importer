@@ -15,28 +15,22 @@ namespace Importer.Module.Invafresh
 {
     public class InvafreshModule : IImporterModule
     {
-
-        private FileImport _fileImport;
-
-        public string Name { get; set; } = "Invafresh Importer Module";
+        public string Name { get; set; } = "Invafresh";
         public string Version { get; set; } = "3.0.0";
-        public bool IsEnabled { get; set; } = true;
-        public ImporterType Type { get; set; } = ImporterType.File;
-        public ImporterTrigger Trigger { get; set; } = ImporterTrigger.Auto;
-        public string TriggerValue { get; set; } = string.Empty;
+        
         public InvafreshSettingsLoader Settings { get; set; } = new InvafreshSettingsLoader();
-
-        public void Execute()
-        {
-            // Not implemented  
-        }
+        public Dictionary<string, object> TypeSettings { get; set; } = new Dictionary<string, object>();
+        
+        ICustomerProcess _customerProcess;
+        string _filePath = string.Empty;
+        FileWatcher _importerType;
 
         public List<tblProducts> GetTblProductsList(tblProducts productTemplate)
         {
             var products = new List<tblProducts>();
-            var parser = new HostchngParser(productTemplate, CustomerProcessLoader.GetCustomerProcess());
-            var filedata = _fileImport.ReadFileContent(TriggerValue);
-            var parseddata = parser.ParseFile(TriggerValue);
+
+            var parser = new HostchngParser(productTemplate, _customerProcess);
+            parser.ParseFile(_filePath.ToString());
 
             var convertedRecords = parser.ConvertPLURecordsToTblProducts();
             
@@ -53,15 +47,29 @@ namespace Importer.Module.Invafresh
 
         }
 
-        public void Initialize()
+        public void InitModule(ImporterInstance importerInstance)
         {
-            _fileImport = new FileImport(this);
-            _fileImport.StartWatching();
+            _importerType = new FileWatcher();
+            _importerType.ApplySettings(importerInstance.TypeSettings);
+            _filePath = _importerType.FilePath;
+            _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
+
+            SetupImporterType();
         }
 
-        public void Terminate()
+        public void SetupImporterType()
         {
-            _fileImport.StopWatching();
+            if (_importerType != null)
+            {
+                _importerType.FilePath = TypeSettings.TryGetValue("FilePath", out object filePath) ? filePath.ToString() : string.Empty;
+                _importerType.FileName = TypeSettings.TryGetValue("FileName", out object fileName) ? fileName.ToString() : string.Empty;
+                _importerType.FileFilter = TypeSettings.TryGetValue("FileFilter", out object fileFilter) ? fileFilter.ToString() : string.Empty;
+
+            }
+            else
+            {
+                Logger.Error("Importer Type is not initialized.");
+            }
         }
     }
 }

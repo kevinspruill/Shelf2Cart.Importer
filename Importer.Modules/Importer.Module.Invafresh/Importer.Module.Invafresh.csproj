@@ -67,9 +67,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="811-Master_Export.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\Importer.Common\Importer.Common.csproj">
       <Project>{61D8720A-C6AC-46AB-9366-92AFE3E2880E}</Project>
       <Name>Importer.Common</Name>

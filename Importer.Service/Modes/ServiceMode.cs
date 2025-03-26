@@ -1,6 +1,8 @@
 ﻿using Importer.Common.Helpers;
+using Importer.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -50,10 +52,12 @@ namespace Importer.Core.Modes
 
         public async Task Start()
         {
-            // Create Scheduler with Quartz (if needed)
-            // Create FileWatchers for ImportModules
-            // Create API Clients for ImportModules
-            // Create Named Pipes Service for UI
+            var configuredInstances = InstanceLoader.LoadInstances();
+            
+            foreach (var instance in configuredInstances)
+            {
+                
+            }
 
         }
 
