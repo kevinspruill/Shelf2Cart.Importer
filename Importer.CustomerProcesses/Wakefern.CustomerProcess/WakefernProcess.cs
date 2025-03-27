@@ -32,8 +32,9 @@ namespace Wakefern.CustomerProcess
                 .Replace(" .", ".");
 
             //Clean odd characters from Linux machines and/or encoding issues
-            cleanedIngredients = cleanedIngredients.Replace((char)131, ' ').Replace((char)167, ' ').Replace((char)194, ' ').Replace((char)195, ' ')
-                .Replace((char)197, ' ').Replace((char)14, ' ').Replace((char)0, ' ');
+            cleanedIngredients = cleanedIngredients.Replace(((char)131).ToString(), string.Empty).Replace(((char)167).ToString(), string.Empty)
+                .Replace(((char)192).ToString(), string.Empty).Replace(((char)194).ToString(), string.Empty).Replace(((char)195).ToString(), string.Empty)
+                .Replace(((char)197).ToString(), string.Empty).Replace(((char)14).ToString(), string.Empty).Replace(((char)0).ToString(), string.Empty);
 
             cleanedIngredients = string.Join(" ", cleanedIngredients.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 
