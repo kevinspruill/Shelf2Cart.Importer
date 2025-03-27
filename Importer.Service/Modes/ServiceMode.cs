@@ -14,11 +14,12 @@ namespace Importer.Core.Modes
     public static class ServiceMode
     {
         // TopShelf Service Mode Intialization
-        public static void RunServiceMode()
+        public static void RunServiceMode(string[] args)
         {
             try
             {
-                HostFactory.Run(x =>
+                // Use Host.Run to pass args automatically, it will handle install, uninstall, etc.
+                var exitCode = HostFactory.Run(x =>
                 {
                     x.Service<ImporterService>(s =>
                     {
@@ -27,7 +28,7 @@ namespace Importer.Core.Modes
                         s.WhenStopped(async tc => await tc.Stop());
                     });
                     x.RunAsLocalSystem();
-                    x.SetDescription("This service will import data a Data Host into Shelf 2 Cart Merchandiser");
+                    x.SetDescription("This service will import data into The Shelf 2 Cart Merchandiser");
                     x.SetDisplayName("Shelf 2 Cart Importer Service");
                     x.SetServiceName("S2C_ImporterService");
 
@@ -35,7 +36,13 @@ namespace Importer.Core.Modes
                     {
                         Logger.Error("An error occurred in the service", ex);
                     });
+                    
+                    // If args were provided, TopShelf will use them automatically
                 });
+                
+                // Check TopShelf exit code and log it
+                int exitCodeValue = (int)Convert.ChangeType(exitCode, exitCode.GetTypeCode());
+                Logger.Info($"Service exited with code {exitCodeValue}");
             }
             catch (Exception ex)
             {
