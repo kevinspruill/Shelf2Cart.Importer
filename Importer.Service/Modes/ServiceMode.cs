@@ -32,15 +32,6 @@ namespace Importer.Core.Modes
                     x.SetDescription("This service will import data into The Shelf 2 Cart Merchandiser");
                     x.SetDisplayName("Shelf 2 Cart Importer Service");
                     x.SetServiceName("S2C_ImporterService");
-
-                    // Add recovery options
-                    x.EnableServiceRecovery(r =>
-                    {
-                        r.RestartService(1); // restart the service after 1 minute
-                        r.RestartComputer(5, "Restarting computer"); // restart the computer after 5 minutes
-                        r.SetResetPeriod(1); // days
-                    });
-
                     x.OnException(ex =>
                     {
                         Logger.Error("An error occurred in the service", ex);
