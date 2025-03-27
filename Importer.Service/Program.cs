@@ -35,7 +35,15 @@ namespace Importer.Service
                     return;
                 }
 
-                // Normal operation continues below
+                // If started by Windows Service Manager, just run the service directly
+                if (args.Length > 0 && (args[0].StartsWith("-") || args[0].StartsWith("/")))
+                {
+                    Logger.Info("Started by Windows Service Manager");
+                    ServiceMode.RunServiceMode(args);
+                    return;
+                }
+
+                // Normal operation continues below with file processing
                 if (args.Length > 0)
                 {
                     filePath = args[0];

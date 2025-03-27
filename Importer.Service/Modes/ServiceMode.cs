@@ -27,10 +27,19 @@ namespace Importer.Core.Modes
                         s.WhenStarted(async tc => await tc.Start());
                         s.WhenStopped(async tc => await tc.Stop());
                     });
+                    
                     x.RunAsLocalSystem();
                     x.SetDescription("This service will import data into The Shelf 2 Cart Merchandiser");
                     x.SetDisplayName("Shelf 2 Cart Importer Service");
                     x.SetServiceName("S2C_ImporterService");
+
+                    // Add recovery options
+                    x.EnableServiceRecovery(r =>
+                    {
+                        r.RestartService(1); // restart the service after 1 minute
+                        r.RestartComputer(5, "Restarting computer"); // restart the computer after 5 minutes
+                        r.SetResetPeriod(1); // days
+                    });
 
                     x.OnException(ex =>
                     {
@@ -59,41 +68,46 @@ namespace Importer.Core.Modes
     {
         public async Task Start()
         {
-            // new line in the logger with the Date and Time in the middle
-            Logger.Info("--------------------------------------------------");
-            Logger.Info($"Service started at: {DateTime.Now}");
-            Logger.Info("--------------------------------------------------");
-
-            IImporterModule importerModule = null;
-            Dictionary<string, object> typeSettings = new Dictionary<string, object>();
-
-            var configuredInstances = InstanceLoader.LoadInstances();
-            foreach (var instance in configuredInstances)
+            try
             {
-                if (instance.Enabled)
+                // new line in the logger with the Date and Time in the middle
+                Logger.Info("--------------------------------------------------");
+                Logger.Info($"Service started at: {DateTime.Now}");
+                Logger.Info("--------------------------------------------------");
+
+                IImporterModule importerModule = null;
+                Dictionary<string, object> typeSettings = new Dictionary<string, object>();
+
+                var configuredInstances = InstanceLoader.LoadInstances();
+                foreach (var instance in configuredInstances)
                 {
-                    Logger.Info($"Loading module: {instance.ImporterModule} for instance: {instance.Name}");
-                    importerModule = InstanceLoader.GetImporterModule(instance.ImporterModule);
-                    importerModule.InitModule(instance);
-                    importerModule.StartModule();
-                    Logger.Info($"Instance: {instance.Name} is enabled is loaded.");
-                    Logger.Info("--------------------------------------------------");
-                    Logger.Info($"Awaiting Data...");
-                    Logger.Info("--------------------------------------------------");
+                    if (instance.Enabled)
+                    {
+                        Logger.Info($"Loading module: {instance.ImporterModule} for instance: {instance.Name}");
+                        importerModule = InstanceLoader.GetImporterModule(instance.ImporterModule);
+                        importerModule.InitModule(instance);
+                        importerModule.StartModule();
+                        Logger.Info($"Instance: {instance.Name} is enabled is loaded.");
+                        Logger.Info("--------------------------------------------------");
+                        Logger.Info($"Awaiting Data...");
+                        Logger.Info("--------------------------------------------------");
+                    }
+                    else
+                    {
+                        Logger.Debug($"Instance {instance.Name} is not enabled, and will not be loaded.");
+                    }
                 }
-                else
+
+                if (importerModule == null)
                 {
-                    Logger.Debug($"Instance {instance.Name} is not enabled, and will not be loaded.");
+                    Logger.Error("No enabled importer module found.");
+                    return;
                 }
             }
-
-            if (importerModule == null)
+            catch (Exception ex)
             {
-                Logger.Error("No enabled importer module found.");
-                return;
+                Logger.Error("Error starting service", ex);
             }
-
-            
 
             await Task.CompletedTask;
         }
