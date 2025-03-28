@@ -19,6 +19,6 @@ namespace Importer.Common.Interfaces
         void TriggerProcess();
         List<tblProducts> GetTblProductsList(tblProducts productTemplate);
         void StopModule();
-
+        int GetPendingFileCount();
     }
 }

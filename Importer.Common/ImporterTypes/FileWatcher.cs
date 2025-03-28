@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Importer.Common.ImporterTypes
@@ -18,8 +19,13 @@ namespace Importer.Common.ImporterTypes
         public IImporterModule ImporterModule { get; set; } = null;
 
         private FileSystemWatcher fileWatcher;
-        private DateTime lastEventTime;
+        private Dictionary<string, DateTime> fileLastEventTimes = new Dictionary<string, DateTime>();
         private readonly TimeSpan eventThreshold = TimeSpan.FromSeconds(1);
+        
+        // Add a queue for file processing and processing state
+        private Queue<string> fileProcessingQueue = new Queue<string>();
+        private bool isProcessing = false;
+        private object queueLock = new object();
 
         public FileWatcher(IImporterModule importerModule)
         {
@@ -64,14 +70,28 @@ namespace Importer.Common.ImporterTypes
                 FileFilter = settings["FileFilter"].ToString();
             }
         }
+        
         public void OnFileChangedOrCreated(object sender, FileSystemEventArgs e)
         {
-            // Check if the event is within the threshold
-            if (DateTime.Now - lastEventTime > eventThreshold)
+            // get the file path
+            string filePath = e.FullPath;
+            
+            // Check if this file has been recently processed
+            bool shouldProcess = true;
+            if (fileLastEventTimes.ContainsKey(filePath))
             {
-                lastEventTime = DateTime.Now;
-                // get the file path
-                string filePath = e.FullPath;
+                // Check if the event is within the threshold for this specific file
+                if (DateTime.Now - fileLastEventTimes[filePath] <= eventThreshold)
+                {
+                    shouldProcess = false;
+                }
+            }
+            
+            if (shouldProcess)
+            {
+                // Update the last event time for this file
+                fileLastEventTimes[filePath] = DateTime.Now;
+                
                 // Check if the file exists
                 if (File.Exists(filePath))
                 {
@@ -79,10 +99,8 @@ namespace Importer.Common.ImporterTypes
                     string fileContent = ReadFileContent(filePath);
                     if (fileContent != null)
                     {
-                        // send the filepath to the importer module
-                        ImporterModule.ImporterTypeData = filePath;
-                        // Trigger the Product Processor
-                        ImporterModule.TriggerProcess();
+                        // Add the file to the processing queue
+                        EnqueueFile(filePath);
                     }
                     else
                     {
@@ -97,6 +115,70 @@ namespace Importer.Common.ImporterTypes
                 }
             }
         }
+        
+        // Add file to processing queue and start processing if not already active
+        private void EnqueueFile(string filePath)
+        {
+            lock (queueLock)
+            {
+                // Add the file to the queue
+                fileProcessingQueue.Enqueue(filePath);
+                Logger.Info($"Added file to processing queue: {filePath}. Queue size: {fileProcessingQueue.Count}");
+                
+                // If we're not currently processing, start processing the queue
+                if (!isProcessing)
+                {
+                    isProcessing = true;
+                    // Start processing the queue asynchronously
+                    Task.Run(() => ProcessQueue());
+                }
+            }
+        }
+        
+        // Process files in the queue one at a time
+        private void ProcessQueue()
+        {
+            while (true)
+            {
+                string fileToProcess = null;
+                
+                // Get the next file to process from the queue under a lock
+                lock (queueLock)
+                {
+                    if (fileProcessingQueue.Count > 0)
+                    {
+                        fileToProcess = fileProcessingQueue.Dequeue();
+                        Logger.Info($"Dequeued file for processing: {fileToProcess}. Remaining in queue: {fileProcessingQueue.Count}");
+                    }
+                    else
+                    {
+                        // No more files to process, exit the processing loop
+                        isProcessing = false;
+                        Logger.Info("File processing queue is empty, stopping processor");
+                        break;
+                    }
+                }
+                
+                // Process the file outside the lock
+                if (fileToProcess != null)
+                {
+                    try
+                    {
+                        Logger.Info($"Processing file: {fileToProcess}");
+                        // send the filepath to the importer module
+                        ImporterModule.ImporterTypeData = fileToProcess;
+                        // Trigger the Product Processor
+                        ImporterModule.TriggerProcess();
+                        Logger.Info($"Completed processing file: {fileToProcess}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"Error processing file {fileToProcess}: {ex.Message}");
+                    }
+                }
+            }
+        }
+        
         public string ReadFileContent(string filePath)
         {
             int retryCount = 0;
@@ -145,5 +227,12 @@ namespace Importer.Common.ImporterTypes
             return null;
         }
 
+        public int GetQueuedFileCount()
+        {
+            lock (queueLock)
+            {
+                return fileProcessingQueue.Count;
+            }
+        }
     }
 }

@@ -104,5 +104,10 @@ namespace Importer.Module.Invafresh
                 Logger.Error("File Watcher is not initialized.");
             }
         }
+
+        public int GetPendingFileCount()
+        {
+            return _importerType?.GetQueuedFileCount() ?? 0;
+        }
     }
 }

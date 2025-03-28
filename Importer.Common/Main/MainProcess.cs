@@ -71,20 +71,24 @@ namespace Importer.Common.Main
                 // Use bulk operation
                 var recordsUpdated = DatabaseHelper.BulkInsertOrUpdate(processedItems);
 
-                // Write ImportLog.txt to trigger ProcessDatabase if recordsUpdated is true
-                if (recordsUpdated)
+                // Only write to ImportLog.txt if there are no more files to process
+                if (importerModule.GetPendingFileCount() == 0)
                 {
-                    Logger.Info($"Records updated, writing to ImportLog.txt");
-                    WriteTimeToFile();
-                }
-                else if (_customerProcess.ForceUpdate)
-                {
-                    Logger.Info($"Force update triggered from {_customerProcess.Name} Custom Process, writing to ImportLog.txt");
-                    WriteTimeToFile();
+                    // Write ImportLog.txt to trigger ProcessDatabase if recordsUpdated is true
+                    if (recordsUpdated)
+                    {
+                        Logger.Info($"Records updated, writing to ImportLog.txt");
+                        WriteTimeToFile();
+                    }
+                    else if (_customerProcess.ForceUpdate)
+                    {
+                        Logger.Info($"Force update triggered from {_customerProcess.Name} Custom Process, writing to ImportLog.txt");
+                        WriteTimeToFile();
+                    }
                 }
                 else
                 {
-                    Logger.Info("No new products to import or update.");
+                    Logger.Info("Skipping ImportLog.txt generation - more files queued for processing");
                 }
 
                 _customerProcess.PostProductProcess();
