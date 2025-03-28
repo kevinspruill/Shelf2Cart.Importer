@@ -16,6 +16,8 @@ namespace Importer.Module.Invafresh.Enums
         SPIC, // Send PLU Item Change
         SPPC, // Send PLU Price Change
         SPID, // Send PLU Item Delete
+        
+        // Delete All Command
         SPFE, // Delete All Scale PLU Items
 
         // Ingredient Item Commands

@@ -577,6 +577,35 @@ namespace Importer.Common.Helpers
                 }
             }
         }
+
+        public static List<tblProducts> BulkDelete(List<tblProducts> products)
+        {
+            using (var connection = new OleDbConnection(_connectionString))
+            {
+                connection.Open();
+                using (var transaction = connection.BeginTransaction())
+                {
+                    try
+                    {                        
+                        foreach (var product in products)
+                        {
+                            string deleteQuery = $"DELETE FROM tblProducts WHERE PLU = {product.PLU}";
+                            connection.Execute(deleteQuery, transaction);
+                        }
+                        transaction.Commit();
+                        Logger.Info($"Bulk delete completed. {products.Count} records deleted.");
+                        return products;
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        Logger.Error($"Error during bulk delete: {ex.Message}");
+                        return new List<tblProducts>();
+                    }
+                }
+            }
+        }
+
         public static Dictionary<string, string> GetJoinedFields()
         {
             using (var connection = new OleDbConnection(_connectionString))

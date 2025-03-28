@@ -21,26 +21,20 @@ namespace Importer.Module.Invafresh
         public InvafreshSettingsLoader Settings { get; set; } = new InvafreshSettingsLoader();
         public Dictionary<string, object> TypeSettings { get; set; } = new Dictionary<string, object>();
         public ImporterInstance ImporterInstance { get; set; }
+        public tblProducts ProductTemplate { get; set; } = new tblProducts();
+        public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
         ICustomerProcess _customerProcess;        
         FileWatcher _importerType;
+        HostchngParser parser = null;
 
-        public InvafreshModule()
-        {
-            _importerType = new FileWatcher(this);
-        }
-
-        public List<tblProducts> GetTblProductsList(tblProducts productTemplate)
+        public List<tblProducts> GetTblProductsList()
         {
             var products = new List<tblProducts>();
-
-            var parser = new HostchngParser(productTemplate, _customerProcess);
-            parser.ParseFile(ImporterTypeData.ToString());
-
             var convertedRecords = parser.ConvertPLURecordsToTblProducts();
-            
-            if(convertedRecords != null)
+
+            if (convertedRecords != null)
             {
                 products.AddRange(convertedRecords);
             }
@@ -52,15 +46,32 @@ namespace Importer.Module.Invafresh
             return products;
 
         }
+        public List<tblProducts> GetTblProductsDeleteList()
+        {
+            var productsToDelete = new List<tblProducts>();
+            var deletedRecords = parser.ConvertPLUDeleteRecordsToTblProducts();
 
+            if (deletedRecords != null)
+            {
+                productsToDelete.AddRange(deletedRecords);
+            }
+            else
+            {
+                Logger.Error("Failed to convert PLU records to tblProducts");
+            }
+
+            return productsToDelete;
+        }
         public void InitModule(ImporterInstance importerInstance)
         {
+
             ImporterInstance = importerInstance;
             _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
 
+            _importerType = new FileWatcher(this);
+
             SetupImporterType();
         }
-
         public void SetupImporterType()
         {
             if (_importerType != null)
@@ -72,7 +83,6 @@ namespace Importer.Module.Invafresh
                 Logger.Error("File Watcher is not initialized.");
             }
         }
-
         public void StartModule()
         {
             // Start the file watcher
@@ -86,12 +96,12 @@ namespace Importer.Module.Invafresh
                 Logger.Error("File Watcher is not initialized.");
             }
         }
-
         public void TriggerProcess()
         {
+            var parser = new HostchngParser(ProductTemplate, _customerProcess);
+            parser.ParseFile(ImporterTypeData.ToString());
             MainProcess.ProcessAsync(this).GetAwaiter().GetResult();
         }
-
         public void StopModule()
         {
             // Stop the file watcher
@@ -104,7 +114,6 @@ namespace Importer.Module.Invafresh
                 Logger.Error("File Watcher is not initialized.");
             }
         }
-
         public int GetPendingFileCount()
         {
             return _importerType?.GetQueuedFileCount() ?? 0;

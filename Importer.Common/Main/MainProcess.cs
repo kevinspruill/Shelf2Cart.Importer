@@ -14,16 +14,29 @@ namespace Importer.Common.Main
     {
         public static async Task ProcessAsync(IImporterModule importerModule)
         {
-            ProductProcessor productProcessor = new ProductProcessor(null);
-            var productTemplate = productProcessor.CreateProductTemplate();
-
-            var items = importerModule.GetTblProductsList(productTemplate);
+            SettingsLoader Settings = new SettingsLoader();
 
             var _customerProcess = InstanceLoader.GetCustomerProcess(importerModule.ImporterInstance.CustomerProcess);
 
-            Logger.Info($"Total items retrieved: {items.Count}");
-            Console.WriteLine($"Total items retrieved: {items.Count}");
+            ProductProcessor productProcessor = new ProductProcessor(_customerProcess);
+            var productTemplate = productProcessor.CreateProductTemplate();
 
+            importerModule.ProductTemplate = productTemplate;
+            var items = importerModule.GetTblProductsList();
+            var deleteItems = importerModule.GetTblProductsDeleteList();
+
+            if (Settings.Flush || importerModule.Flush)
+            {
+                DatabaseHelper.DeleteAllProducts();
+                Logger.Info("Flushed all products from the database.");
+            }
+            else if (deleteItems != null && deleteItems.Count > 0)
+            {
+                DatabaseHelper.BulkDelete(deleteItems);
+                Logger.Info($"Deleted {deleteItems.Count} items from the database.");
+            }
+
+            Logger.Info($"Total items retrieved: {items.Count}");
             List<tblProducts> processedItems = new List<tblProducts>();
 
             // Process each item using tasks
@@ -78,6 +91,11 @@ namespace Importer.Common.Main
                     if (recordsUpdated)
                     {
                         Logger.Info($"Records updated, writing to ImportLog.txt");
+                        WriteTimeToFile();
+                    }
+                    else if (deleteItems.Count > 0 || Settings.Flush)
+                    {
+                        Logger.Info($"Records deleted or flush triggered, writing to ImportLog.txt");
                         WriteTimeToFile();
                     }
                     else if (_customerProcess.ForceUpdate)

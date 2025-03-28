@@ -29,11 +29,11 @@ namespace Importer.Module.Invafresh.Parser
 
 
         public List<PluItemRecord> PLURecords { get; private set; } = new List<PluItemRecord>();
+        public List<PluItemRecord> DeletedPLURecords { get; private set; } = new List<PluItemRecord>();
         public List<IngredientItemRecord> IngredientRecords { get; private set; } = new List<IngredientItemRecord>();
         public List<NutritionItemRecord> NutritionRecords { get; private set; } = new List<NutritionItemRecord>();
         public List<LegacyNutritionItemRecord> LegacyNutritionRecords { get; private set; } = new List<LegacyNutritionItemRecord>();
         private tblProducts ProductTemplate { get; set; } = new tblProducts();
-
         public HostchngParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
         {
             ProductTemplate = productTemplate;
@@ -41,7 +41,7 @@ namespace Importer.Module.Invafresh.Parser
             _commandCodeMap = InitializeCommandCodeMap();
             _legacyNutritionEnabled = Settings.UseLegacyNutritionFormat;
         }
-
+        public bool Flush { get; set; }
         private Dictionary<string, CommandCode> InitializeCommandCodeMap()
         {
             var addOrUpdateCommands = new List<CommandCode>
@@ -107,8 +107,28 @@ namespace Importer.Module.Invafresh.Parser
                         }
                         else if (record is PluItemRecord pluItem)
                         {
-                            Logger.Trace($"PLU Item Record: CommandCode={pluItem.CommandCode}, DepartmentNumber={pluItem.DepartmentNumber}, PluNumber={pluItem.PluNumber}, UpcCode={pluItem.UpcCode}, DescriptionLine1={pluItem.DescriptionLine1}, DescriptionLine2={pluItem.DescriptionLine2}");
-                            PLURecords.Add(pluItem);
+                            // if command code is SPID, This is a PLU delete record
+                            if (pluItem.CommandCode == CommandCode.SPID)
+                            {
+                                if (!Flush)
+                                {
+                                    DeletedPLURecords.Add(pluItem);
+                                    Logger.Trace($"Deleted PLU Record: DepartmentNumber={pluItem.DepartmentNumber}, PluNumber={pluItem.PluNumber}");
+
+                                }
+                            }
+                            // if command code is SPFE, This is a delete all record
+                            else if (record.CommandCode == CommandCode.SPFE)
+                            {
+                                Logger.Trace($"Delete All PLU Record: CommandCode={pluItem.CommandCode}");
+                                Flush = true;
+                            }
+                            // Else this is an Add or Change PLU record
+                            else
+                            {
+                                Logger.Trace($"PLU Item Record: CommandCode={pluItem.CommandCode}, DepartmentNumber={pluItem.DepartmentNumber}, PluNumber={pluItem.PluNumber}, UpcCode={pluItem.UpcCode}, DescriptionLine1={pluItem.DescriptionLine1}, DescriptionLine2={pluItem.DescriptionLine2}");
+                                PLURecords.Add(pluItem);
+                            }
                         }
                         else if (record is IngredientItemRecord ingredientItem)
                         {
@@ -126,6 +146,14 @@ namespace Importer.Module.Invafresh.Parser
                             LegacyNutritionRecords.Add(legacyNutritionItem);
                             Logger.Trace($"Legacy Nutrition Item Record: CommandCode={legacyNutritionItem.CommandCode}, DepartmentNumber={legacyNutritionItem.DepartmentNumber}, NutritionNumber={legacyNutritionItem.NutritionNumber}");
                             
+                        }
+                        else if (record is BaseRecord baseRecord)
+                        {
+                            Logger.Trace($"Base Record: CommandCode={baseRecord.CommandCode}");
+                        }
+                        else
+                        {
+                            Logger.Warn($"Unknown record type: {record.GetType()}");
                         }
                     }
                 }
@@ -193,8 +221,10 @@ namespace Importer.Module.Invafresh.Parser
                 case CommandCode.SPIC:
                 case CommandCode.SPPC:
                     return CreatePluItemRecord(commandCode, fields);
-                case CommandCode.SPID:
                 case CommandCode.SPFE:
+                    Flush = true;
+                    return CreatePluDeleteRecord(commandCode, fields);
+                case CommandCode.SPID:                
                     return CreatePluDeleteRecord(commandCode, fields);
                 case CommandCode.SIIA:
                 case CommandCode.SIIC:
@@ -419,7 +449,7 @@ namespace Importer.Module.Invafresh.Parser
 
             return record;
         }
-        private BaseRecord CreatePluDeleteRecord(CommandCode commandCode, Dictionary<string, string> fields)
+        private PluItemRecord CreatePluDeleteRecord(CommandCode commandCode, Dictionary<string, string> fields)
         {
             var record = new PluItemRecord
             {
@@ -633,6 +663,16 @@ namespace Importer.Module.Invafresh.Parser
         {
             var products = new List<tblProducts>();
             foreach (var pluItem in PLURecords)
+            {
+                var product = ConvertPLURecordToTblproducts(pluItem);
+                products.Add(product);
+            }
+            return products;
+        }
+        public List<tblProducts> ConvertPLUDeleteRecordsToTblProducts()
+        {
+            var products = new List<tblProducts>();
+            foreach (var pluItem in DeletedPLURecords)
             {
                 var product = ConvertPLURecordToTblproducts(pluItem);
                 products.Add(product);

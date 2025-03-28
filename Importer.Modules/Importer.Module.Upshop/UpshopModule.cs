@@ -14,10 +14,22 @@ namespace Importer.Module.Upshop
         public string Version { get; set; } = "1.0.0";
         public ImporterInstance ImporterInstance { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string ImporterTypeData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public tblProducts ProductTemplate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool Flush { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public List<tblProducts> GetTblProductsList(tblProducts productTemplate)
+        public int GetPendingFileCount()
         {
-            return new List<tblProducts>();
+            throw new NotImplementedException();
+        }
+
+        public List<tblProducts> GetTblProductsDeleteList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<tblProducts> GetTblProductsList()
+        {
+            throw new NotImplementedException();
         }
 
         public void InitModule(ImporterInstance importerInstance)
