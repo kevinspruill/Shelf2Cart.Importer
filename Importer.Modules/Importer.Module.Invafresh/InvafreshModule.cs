@@ -98,7 +98,7 @@ namespace Importer.Module.Invafresh
         }
         public void TriggerProcess()
         {
-            var parser = new HostchngParser(ProductTemplate, _customerProcess);
+            parser = new HostchngParser(ProductTemplate, _customerProcess);
             parser.ParseFile(ImporterTypeData.ToString());
             MainProcess.ProcessAsync(this).GetAwaiter().GetResult();
         }

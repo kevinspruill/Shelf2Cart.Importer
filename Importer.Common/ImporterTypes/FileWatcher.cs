@@ -12,6 +12,7 @@ namespace Importer.Common.ImporterTypes
 {
     public class FileWatcher : IImporterType
     {
+        public string Name { get; set; } = "FileWatcher";
         public string FilePath { get; set; }
         public string FileName { get; set; }
         public string FileFilter { get; set; }
@@ -233,6 +234,11 @@ namespace Importer.Common.ImporterTypes
             {
                 return fileProcessingQueue.Count;
             }
+        }
+
+        public List<string> GetSettingNames()
+        {
+            return Settings.Keys.ToList();
         }
     }
 }

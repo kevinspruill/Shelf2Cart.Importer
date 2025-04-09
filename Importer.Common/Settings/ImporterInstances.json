@@ -1,9 +1,8 @@
 [
   {
-    "Name": "WakeFern Importer",
+    "Name": "Test Importer",
     "Description": "File Watcher Importer Type Example",
     "ImporterModule": "Invafresh",
-    "CustomerProcess": "Wakefern",
     "Enabled": true,
     "TypeSettings": {
       "FilePath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1",
