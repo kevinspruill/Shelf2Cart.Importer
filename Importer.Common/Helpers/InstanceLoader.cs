@@ -82,7 +82,7 @@ namespace Importer.Common.Helpers
                 }
             }
 
-            return null;
+            return new BaseProcess();
         }
 
     }

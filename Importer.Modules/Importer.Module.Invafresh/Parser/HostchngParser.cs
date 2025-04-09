@@ -181,13 +181,7 @@ namespace Importer.Module.Invafresh.Parser
             var fields = line.Split(_fieldDelimiter);
 
             // Dictionary to hold all fields
-            var fieldDict = new Dictionary<string, string>();
-
-            // check fields for legacy nutrition format, It will contain NENN, NEV, NEP fields
-            if (_legacyNutritionEnabled && (fields.Any(f => f.Contains("SNIA") || f.Contains("SNIC"))))
-            {
-                return CreateLegacyNutritionItemRecord(CommandCode.SNIA, line);
-            }
+            var fieldDict = new Dictionary<string, string>();            
 
             // Process each field
             foreach (var field in fields)
@@ -200,8 +194,13 @@ namespace Importer.Module.Invafresh.Parser
                 }
             }
 
-            // Determine record type based on command code
-            if (fieldDict.TryGetValue("CCO", out var commandCodeStr) &&
+            // Check for legacy nutrition, and if CCO is SNIA or SNIC
+            if (_legacyNutritionEnabled && fieldDict.ContainsKey("CCO") &&
+                (fieldDict["CCO"] == "SNIA" || fieldDict["CCO"] == "SNIC"))
+            {
+                return CreateLegacyNutritionItemRecord(CommandCode.SNIA, line);
+            }
+            else if (fieldDict.TryGetValue("CCO", out var commandCodeStr) &&
                 _commandCodeMap.TryGetValue(commandCodeStr, out var commandCode))
             {
                 return CreateRecordFromFields(commandCode, fieldDict);
