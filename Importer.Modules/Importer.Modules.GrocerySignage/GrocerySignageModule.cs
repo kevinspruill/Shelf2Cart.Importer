@@ -1,69 +1,39 @@
 ﻿using Importer.Common.Helpers;
 using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
-using Importer.Common.Main;
 using Importer.Common.Models;
-using Importer.Module.Generic.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Importer.Module.Generic
+namespace Importer.Modules.GrocerySignage
 {
-    public class GenericModule : IImporterModule
+    public class GrocerySignageModule : IImporterModule
     {
-        public string Name { get; set; } = "Generic";
+        public string Name { get; set; } = "GrocerySignage";
         public string Version { get; set; } = "2.0.0";
         public ImporterInstance ImporterInstance { get; set; }
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
-        ICustomerProcess _customerProcess;
         FileWatcher _importerType;
-        TextParser parser = null;
 
         public List<tblProducts> GetTblProductsDeleteList()
         {
-            var productsToDelete = new List<tblProducts>();
-            var deletedRecords = parser.ConvertPLUDeleteRecordsToTblProducts();
-
-            if (deletedRecords != null)
-            {
-                productsToDelete.AddRange(deletedRecords);
-            }
-            else
-            {
-                Logger.Error("Failed to convert PLU Delete records to tblProducts");
-            }
-
-            return productsToDelete;
+            return null;
         }
 
         public List<tblProducts> GetTblProductsList()
         {
-            var products = new List<tblProducts>();
-            var convertedRecords = parser.ConvertPLURecordsToTblProducts();
-
-            if (convertedRecords != null)
-            {
-                products.AddRange(convertedRecords);
-            }
-            else
-            {
-                Logger.Error("Failed to convert PLU records to tblProducts");
-            }
-
-            return products;
+            return null;
         }
 
         public void InitModule(ImporterInstance importerInstance)
         {
             ImporterInstance = importerInstance;
-            _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
-
             _importerType = new FileWatcher(this);
 
             SetupImporterType();
@@ -97,10 +67,10 @@ namespace Importer.Module.Generic
 
         public void TriggerProcess()
         {
-            parser = new TextParser(ProductTemplate, _customerProcess);
-            parser.ParseFile(ImporterTypeData.ToString());
-            MainProcess.ProcessAsync(this).GetAwaiter().GetResult();
+            // Trigger process logic here, Will use custom Process for Grocery Signage DB
+            // Will read either a Pipe Delimited or Excel file
         }
+
         public void StopModule()
         {
             // Stop the file watcher
@@ -113,6 +83,7 @@ namespace Importer.Module.Generic
                 Logger.Error("File Watcher is not initialized.");
             }
         }
+
         public int GetPendingFileCount()
         {
             return _importerType?.GetQueuedFileCount() ?? 0;

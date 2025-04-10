@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{18AADD4A-0449-4ECA-BAA7-E4B8C5AD0A80}</ProjectGuid>
+    <ProjectGuid>{582B9EA5-9A96-489E-9329-D41846A3F584}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Importer.Module.Generic</RootNamespace>
-    <AssemblyName>Importer.Module.Generic</AssemblyName>
+    <RootNamespace>Importer.Modules.GrocerySignage</RootNamespace>
+    <AssemblyName>Importer.Modules.GrocerySignage</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -41,32 +41,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GenericModule.cs" />
-    <Compile Include="Helpers\BooleanMapLoader.cs" />
-    <Compile Include="Helpers\FieldMapLoader.cs" />
-    <Compile Include="Helpers\GenericSettingsLoader.cs" />
-    <Compile Include="Parser\TextParser.cs" />
+    <Compile Include="GrocerySignageModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Importer.Common\Importer.Common.csproj">
+    <ProjectReference Include="..\..\Importer.Common\Importer.Common.csproj">
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Settings\Generic.FieldMap.json">
+    <None Include="Settings\GrocerySignage.Settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Settings\Generic.BooleanVals.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Settings\Generic.Settings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Converters\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

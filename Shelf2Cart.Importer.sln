@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Service", "Importer.Service\Importer.Service.csproj", "{0EE0DDBE-F767-4ADE-8429-5588C048F330}"
+	ProjectSection(ProjectDependencies) = postProject
+		{582B9EA5-9A96-489E-9329-D41846A3F584} = {582B9EA5-9A96-489E-9329-D41846A3F584}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Common", "Importer.Common\Importer.Common.csproj", "{61D8720A-C6AC-46AB-9366-92AFE3E2880E}"
 EndProject
@@ -20,6 +23,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.UI", "Importer.UI\Importer.UI.csproj", "{F124D47B-5BB9-473C-98AE-F3394E0B8561}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wakefern.CustomerProcess", "Importer.CustomerProcesses\Wakefern.CustomerProcess\Wakefern.CustomerProcess.csproj", "{CD8391E8-1D38-4D54-9A85-BE531CE17304}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Modules.GrocerySignage", "Importer.Modules\Importer.Modules.GrocerySignage\Importer.Modules.GrocerySignage.csproj", "{582B9EA5-9A96-489E-9329-D41846A3F584}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +60,10 @@ Global
 		{CD8391E8-1D38-4D54-9A85-BE531CE17304}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD8391E8-1D38-4D54-9A85-BE531CE17304}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD8391E8-1D38-4D54-9A85-BE531CE17304}.Release|Any CPU.Build.0 = Release|Any CPU
+		{582B9EA5-9A96-489E-9329-D41846A3F584}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{582B9EA5-9A96-489E-9329-D41846A3F584}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{582B9EA5-9A96-489E-9329-D41846A3F584}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{582B9EA5-9A96-489E-9329-D41846A3F584}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -64,6 +73,7 @@ Global
 		{CE71DDF7-DA62-4608-98FE-F194C4E2410E} = {DC921E85-F1C3-4C7F-A900-D8B574E57F77}
 		{18AADD4A-0449-4ECA-BAA7-E4B8C5AD0A80} = {DC921E85-F1C3-4C7F-A900-D8B574E57F77}
 		{CD8391E8-1D38-4D54-9A85-BE531CE17304} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{582B9EA5-9A96-489E-9329-D41846A3F584} = {DC921E85-F1C3-4C7F-A900-D8B574E57F77}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A9D0812-4B35-41B4-B408-452EC26907E4}
