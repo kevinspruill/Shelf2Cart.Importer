@@ -42,6 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GrocerySignageModule.cs" />
+    <Compile Include="Models\GrocerySignageItem.cs" />
+    <Compile Include="Parser\ExcelParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
