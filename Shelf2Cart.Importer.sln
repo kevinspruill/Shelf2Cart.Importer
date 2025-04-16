@@ -18,7 +18,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Module.Invafresh",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Module.Upshop", "Importer.Modules\Importer.Module.Upshop\Importer.Module.Upshop.csproj", "{CE71DDF7-DA62-4608-98FE-F194C4E2410E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Module.Generic", "Importer.Module.Generic\Importer.Module.Generic.csproj", "{18AADD4A-0449-4ECA-BAA7-E4B8C5AD0A80}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Module.Generic", "Importer.Modules\Importer.Module.Generic\Importer.Module.Generic.csproj", "{18AADD4A-0449-4ECA-BAA7-E4B8C5AD0A80}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.UI", "Importer.UI\Importer.UI.csproj", "{F124D47B-5BB9-473C-98AE-F3394E0B8561}"
 EndProject

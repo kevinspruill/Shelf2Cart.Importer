@@ -51,7 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Importer.Common\Importer.Common.csproj">
+    <ProjectReference Include="..\..\Importer.Common\Importer.Common.csproj">
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
