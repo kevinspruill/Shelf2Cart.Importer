@@ -11,7 +11,5 @@ namespace Importer.Common.Interfaces
         string Name { get; set; }
         Dictionary<string, object> Settings { get; set; }
         void ApplySettings(Dictionary<string, object> settings);
-        List<string> GetSettingNames();
-
     }
 }

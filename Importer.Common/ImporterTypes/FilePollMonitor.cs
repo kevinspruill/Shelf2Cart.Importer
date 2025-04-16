@@ -12,18 +12,16 @@ using Microsoft.Data.Sqlite;
 
 namespace Importer.Common.ImporterTypes
 {
-    public class FilePollMonitor : IDisposable, IImporterType
+    public class FilePollMonitor : IDisposable
     {
         public string Name { get; set; } = "FilePollMonitor";
-        public Dictionary<string, object> Settings { get; set; }
+        public FilePollMonitorSettings Settings { get; set; } = new FilePollMonitorSettings();
+        public IImporterModule ImporterModule { get; set; } = null;
 
-        private readonly string _targetPath;
-        private readonly bool _isDirectory;
-        private readonly TimeSpan _pollInterval;
-        private readonly string _databaseFile;
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private readonly ConcurrentDictionary<string, FileSnapshot> _fileSnapshots = new ConcurrentDictionary<string, FileSnapshot>();
-        private readonly HashSet<string> _allowedExtensions;
+        private bool _isDirectory;
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private ConcurrentDictionary<string, FileSnapshot> _fileSnapshots = new ConcurrentDictionary<string, FileSnapshot>();
+        
         private const int MaxRetryCount = 3;
         private const int RetryDelayMilliseconds = 200;
         private const int RecoveryDelayMilliseconds = 5000; // Wait time before retrying after a failure
@@ -38,16 +36,16 @@ namespace Importer.Common.ImporterTypes
         private readonly string _processingFolder;
         private readonly string _archiveFolder;
 
-        public FilePollMonitor(string targetPath, TimeSpan pollInterval, string databaseFile = "filehashes.db", IEnumerable<string> allowedExtensions = null)
+        public FilePollMonitor(IImporterModule importerModule)
         {
-            _targetPath = targetPath;
-            _pollInterval = pollInterval != TimeSpan.Zero ? pollInterval : TimeSpan.FromMilliseconds(150);
-            _databaseFile = databaseFile;
-            _isDirectory = Directory.Exists(targetPath);
-            _allowedExtensions = allowedExtensions != null ? new HashSet<string>(allowedExtensions.Select(e => e.ToLowerInvariant())) : null;
+            ImporterModule = importerModule;
 
+            ApplySettings();
+
+            _isDirectory = Directory.Exists(Settings.TargetPath);
+            
             // Determine the base path. If monitoring a single file, use its parent directory.
-            string basePath = _isDirectory ? _targetPath : Path.GetDirectoryName(_targetPath);
+            string basePath = _isDirectory ? Settings.TargetPath : Path.GetDirectoryName(Settings.TargetPath);
 
             // Create subdirectories for handling different processing stages.
             _queuedFolder = Path.Combine(basePath, "Queued");
@@ -60,6 +58,7 @@ namespace Importer.Common.ImporterTypes
 
             InitializeDatabase();
         }
+
         public void Start()
         {
             // First, check and enqueue any files that are already in the queued folder.
@@ -77,7 +76,7 @@ namespace Importer.Common.ImporterTypes
 
         private async Task MonitorLoopAsync(CancellationToken token)
         {
-            Logger.Info($"Started monitoring {_targetPath}");
+            Logger.Info($"Started monitoring {Settings.TargetPath}");
 
             while (!token.IsCancellationRequested)
             {
@@ -85,7 +84,7 @@ namespace Importer.Common.ImporterTypes
                 {
                     if (_isDirectory)
                     {
-                        var files = Directory.GetFiles(_targetPath)
+                        var files = Directory.GetFiles(Settings.TargetPath)
                             .Select(path => new { Path = path, LastModified = File.GetLastWriteTimeUtc(path) })
                             .OrderBy(fileInfo => fileInfo.LastModified) // Orders in ascending order (oldest first)
                             .Select(fileInfo => fileInfo.Path)
@@ -95,14 +94,14 @@ namespace Importer.Common.ImporterTypes
                     }
                     else
                     {
-                        await CheckFileAsync(_targetPath, token);
+                        await CheckFileAsync(Settings.TargetPath, token);
                     }
 
-                    await Task.Delay(_pollInterval);
+                    await Task.Delay(Settings.PollIntervalMilliseconds);
                 }
-                catch (DirectoryNotFoundException ex)
+                catch (DirectoryNotFoundException)
                 {
-                    Logger.Error($"Directory not found: {_targetPath}. Attempting recovery in {RecoveryDelayMilliseconds}ms");
+                    Logger.Error($"Directory not found: {Settings.TargetPath}. Attempting recovery in {RecoveryDelayMilliseconds}ms");
                     await Task.Delay(RecoveryDelayMilliseconds);
                 }
                 catch (IOException ex)
@@ -128,7 +127,7 @@ namespace Importer.Common.ImporterTypes
                     return;
 
                 // Optionally filter by allowed extensions.
-                if (_allowedExtensions != null && !_allowedExtensions.Contains(Path.GetExtension(filePath).ToLowerInvariant()))
+                if (Settings.AllowedExtensions != null && !Settings.AllowedExtensions.Contains(Path.GetExtension(filePath).ToLowerInvariant()))
                     return;
 
                 var info = new FileInfo(filePath);
@@ -326,7 +325,7 @@ namespace Importer.Common.ImporterTypes
 
         private bool IsHashInDatabase(string hash)
         {
-            using (var connection = new SqliteConnection($"Data Source={_databaseFile}"))
+            using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
             {
                 connection.Open();
 
@@ -341,7 +340,7 @@ namespace Importer.Common.ImporterTypes
 
         private void InsertHashIntoDatabase(string hash, string filePath)
         {
-            using (var connection = new SqliteConnection($"Data Source={_databaseFile}"))
+            using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
             {
                 connection.Open();
 
@@ -361,7 +360,7 @@ namespace Importer.Common.ImporterTypes
         /// </summary>
         private void MarkHashAsProcessed(string hash)
         {
-            using (var connection = new SqliteConnection($"Data Source={_databaseFile}"))
+            using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
             {
                 connection.Open();
 
@@ -374,9 +373,9 @@ namespace Importer.Common.ImporterTypes
 
         private void InitializeDatabase()
         {
-            if (!File.Exists(_databaseFile))
+            if (!File.Exists(Settings.DatabaseFile))
             {
-                using (var connection = new SqliteConnection($"Data Source={_databaseFile}"))
+                using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
                 {
                     connection.Open();
 
@@ -404,12 +403,25 @@ namespace Importer.Common.ImporterTypes
         }
 
         /// <summary>
-        /// The processing method for an individual file. Adjust the file processing logic here as needed.
+        /// The processing method for an individual file.
         /// </summary>
         private Task ProcessFileAsync(string filePath, CancellationToken token)
         {
-            Console.WriteLine($"Processing: {filePath}");
-            return Task.FromResult(0);
+            try
+            {
+                Logger.Info($"Processing file: {filePath}");
+                // send the filepath to the importer module
+                ImporterModule.ImporterTypeData = filePath;
+                // Trigger the Product Processor
+                ImporterModule.TriggerProcess();
+                Logger.Info($"Completed processing file: {filePath}");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error processing file {filePath}: {ex.Message}");
+            }
+
+            return Task.CompletedTask;
         }
 
         public void Dispose()
@@ -418,14 +430,30 @@ namespace Importer.Common.ImporterTypes
             _cts.Dispose();
         }
 
-        public void ApplySettings(Dictionary<string, object> settings)
+        public void ApplySettings()
         {
-            // Apply settings if needed
+            // Apply settings to the file poll monitor
+
+            Settings.PollIntervalMilliseconds = ApplySetting<int>("PollIntervalMilliseconds");
+            Settings.TargetPath = ApplySetting<string>("TargetPath");
+            Settings.DatabaseFile = ApplySetting<string>("DatabaseFile");
+
+            // Convert List<string> to HashSet<string> to fix the type mismatch
+            var allowedExtensionsList = ApplySetting<List<string>>("AllowedExtensions");
+            Settings.AllowedExtensions = allowedExtensionsList != null
+                ? new HashSet<string>(allowedExtensionsList)
+                : null;
         }
 
-        public List<string> GetSettingNames()
+        public T ApplySetting<T>(string key)
         {
-            return new List<string>();
+            return jsonLoader.GetSetting<T>(key, ImporterModule.ImporterInstance.TypeSettings);
+        }
+
+        public int GetQueuedFileCount()
+        {
+            // Get the count of files in the processing queue
+            return fileProcessingQueue.Count;
         }
 
         private class FileSnapshot

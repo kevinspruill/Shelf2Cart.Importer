@@ -56,21 +56,17 @@ namespace Importer.Common.ImporterTypes
         public void ApplySettings(Dictionary<string, object> settings) 
         {
             Settings = settings;
+                
+            FilePath = ApplySetting("FilePath");
+            FileName = ApplySetting("FileName");
+            FileFilter = ApplySetting("FileFilter");
+        }
 
-            // Apply settings to the file watcher
-            if (settings.ContainsKey("FilePath"))
-            {
-                FilePath = settings["FilePath"].ToString();
-            }
-            if (settings.ContainsKey("FileName"))
-            {
-                FileName = settings["FileName"].ToString();
-            }
-            if (settings.ContainsKey("FileFilter"))
-            {
-                FileFilter = settings["FileFilter"].ToString();
-            }
-        }        
+        public string ApplySetting(string key)
+        {
+            return jsonLoader.GetSetting<string>(key, Settings);
+        }
+
         public void OnFileChangedOrCreated(object sender, FileSystemEventArgs e)
         {
             // get the file path
