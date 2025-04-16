@@ -55,6 +55,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Settings\Generic.FieldMap.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

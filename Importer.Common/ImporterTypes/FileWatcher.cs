@@ -70,8 +70,7 @@ namespace Importer.Common.ImporterTypes
             {
                 FileFilter = settings["FileFilter"].ToString();
             }
-        }
-        
+        }        
         public void OnFileChangedOrCreated(object sender, FileSystemEventArgs e)
         {
             // get the file path
@@ -178,8 +177,7 @@ namespace Importer.Common.ImporterTypes
                     }
                 }
             }
-        }
-        
+        }        
         public string ReadFileContent(string filePath)
         {
             int retryCount = 0;
@@ -227,7 +225,6 @@ namespace Importer.Common.ImporterTypes
 
             return null;
         }
-
         public int GetQueuedFileCount()
         {
             lock (queueLock)
@@ -235,7 +232,6 @@ namespace Importer.Common.ImporterTypes
                 return fileProcessingQueue.Count;
             }
         }
-
         public List<string> GetSettingNames()
         {
             return Settings.Keys.ToList();

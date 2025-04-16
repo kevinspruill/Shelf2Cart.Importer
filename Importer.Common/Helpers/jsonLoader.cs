@@ -24,5 +24,22 @@ namespace Importer.Common.Helpers
                 return new Dictionary<string, object>();
             }
         }
+
+        public static T GetSetting<T>(string key, Dictionary<string, object> settings)
+        {
+            if (settings.TryGetValue(key, out object value))
+            {
+                if (typeof(T) == typeof(bool) && value is bool)
+                {
+                    return (T)value;
+                }
+                if (typeof(T) == typeof(List<string>) && value is Newtonsoft.Json.Linq.JArray jArray)
+                {
+                    return (T)(object)jArray.ToObject<List<string>>();
+                }
+                return (T)Convert.ChangeType(value, typeof(T));
+            }
+            return default(T);
+        }
     }
 }

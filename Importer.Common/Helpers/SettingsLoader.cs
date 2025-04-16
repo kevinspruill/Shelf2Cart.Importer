@@ -18,20 +18,20 @@ namespace Importer.Common.Helpers
         private Dictionary<string, object> _settings;
 
         // Properties for specific settings
-        public bool TestingEnabled => GetSetting<bool>("TestingEnabled");
-        public string DeptColName => GetSetting<string>("DeptColName");
+        public bool TestingEnabled => jsonLoader.GetSetting<bool>("TestingEnabled", _settings);
+        public string DeptColName => jsonLoader.GetSetting<string>("DeptColName", _settings);
 
         // Properties for boolean settings
-        public bool ButtonSameAsDesc => GetSetting<bool>("ButtonSameAsDesc");
-        public bool Flush => GetSetting<bool>("Flush");
-        public bool ProperCase => GetSetting<bool>("ProperCase");
-        public bool DepartmentPLU => GetSetting<bool>("DepartmentPLU");
-        public bool DescriptionCleanse => GetSetting<bool>("DescriptionCleanse");
+        public bool ButtonSameAsDesc => jsonLoader.GetSetting<bool>("ButtonSameAsDesc", _settings);
+        public bool Flush => jsonLoader.GetSetting<bool>("Flush", _settings);
+        public bool ProperCase => jsonLoader.GetSetting<bool>("ProperCase", _settings);
+        public bool DepartmentPLU => jsonLoader.GetSetting<bool>("DepartmentPLU", _settings);
+        public bool DescriptionCleanse => jsonLoader.GetSetting<bool>("DescriptionCleanse", _settings);
 
         // Properties for ProperCase, AllCaps  and FindReplace fields
-        public List<string> ProperCaseFields => GetSetting<List<string>>("ProperCaseFields");
-        public List<string> FindReplaceFields => GetSetting<List<string>>("FindReplaceFields");
-        public List<string> AllCapsFields => GetSetting<List<string>>("AllCapsFields");
+        public List<string> ProperCaseFields => jsonLoader.GetSetting<List<string>>("ProperCaseFields", _settings);
+        public List<string> FindReplaceFields => jsonLoader.GetSetting<List<string>>("FindReplaceFields", _settings);
+        public List<string> AllCapsFields => jsonLoader.GetSetting<List<string>>("AllCapsFields", _settings);
 
 
         public SettingsLoader()
