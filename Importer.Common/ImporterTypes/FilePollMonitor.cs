@@ -60,11 +60,15 @@ namespace Importer.Common.ImporterTypes
 
             InitializeDatabase();
         }
-
         public void Start()
         {
+            // First, check and enqueue any files that are already in the queued folder.
+            Task.Run(() => EnqueueExistingQueuedFilesAsync(_cts.Token));
+
+            // Then, start the main monitoring loop.
             Task.Run(() => MonitorLoopAsync(_cts.Token));
         }
+
 
         public void Stop()
         {
@@ -202,6 +206,35 @@ namespace Importer.Common.ImporterTypes
                 }
             }
         }
+
+        private async Task EnqueueExistingQueuedFilesAsync(CancellationToken token)
+        {
+            // Retrieve all files from the queued folder and order them by LastWriteTimeUtc (oldest first)
+            var queuedFiles = Directory.GetFiles(_queuedFolder)
+                                .Select(path => new FileInfo(path))
+                                .OrderBy(fileInfo => fileInfo.LastWriteTimeUtc)
+                                .ToList();
+
+            foreach (var fileInfo in queuedFiles)
+            {
+                try
+                {
+                    // Compute the hash for each file (using the existing async Blake3 hash method).
+                    string hash = await RetryAsync(() => ComputeBlake3HashAsync(fileInfo.FullName, token),
+                                                     MaxRetryCount, RetryDelayMilliseconds, token);
+
+                    // Optionally, you could check if the hash already exists in the database
+                    // to prevent reprocessing, but if the file is in Queued it likely hasn't been processed yet.
+                    EnqueueFile(fileInfo.FullName, hash);
+                    Logger.Info($"Enqueued pre-existing file: {fileInfo.FullName}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error processing existing queued file {fileInfo.FullName}: {ex.Message}");
+                }
+            }
+        }
+
 
         /// <summary>
         /// Processes files one at a time from the queue.
