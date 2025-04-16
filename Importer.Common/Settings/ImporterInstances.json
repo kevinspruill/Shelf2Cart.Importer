@@ -1,13 +1,15 @@
 [
   {
     "Name": "Test Importer",
-    "Description": "File Watcher Importer Type Example",
+    "Description": "File Polling Importer Type Example",
     "ImporterModule": "Invafresh",
     "Enabled": true,
     "TypeSettings": {
-      "FilePath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1",
-      "FileName": "",
-      "FileFilter": "*.*"
+      "TargetPath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1",
+      "PollIntervalMilliseconds": 150,
+      "AllowedExtensions": [
+        "*.*"
+      ]
     }
   }
 ]

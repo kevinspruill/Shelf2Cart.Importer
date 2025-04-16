@@ -74,6 +74,10 @@
       <Project>{ce71ddf7-da62-4608-98fe-f194c4e2410e}</Project>
       <Name>Importer.Module.Upshop</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Modules.GrocerySignage\Importer.Modules.GrocerySignage.csproj">
+      <Project>{582b9ea5-9a96-489e-9329-d41846a3f584}</Project>
+      <Name>Importer.Modules.GrocerySignage</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">

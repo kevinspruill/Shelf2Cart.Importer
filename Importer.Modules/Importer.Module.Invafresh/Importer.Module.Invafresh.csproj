@@ -70,6 +70,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="Settings\Invafresh.Settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

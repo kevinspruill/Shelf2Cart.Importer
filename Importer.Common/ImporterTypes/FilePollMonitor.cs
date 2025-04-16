@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -8,7 +9,6 @@ using System.Threading.Tasks;
 using Data.HashFunction.Blake3;
 using Importer.Common.Helpers;
 using Importer.Common.Interfaces;
-using Microsoft.Data.Sqlite;
 
 namespace Importer.Common.ImporterTypes
 {
@@ -325,7 +325,7 @@ namespace Importer.Common.ImporterTypes
 
         private bool IsHashInDatabase(string hash)
         {
-            using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
+            using (var connection = new SQLiteConnection($"Data Source={Settings.DatabaseFile}"))
             {
                 connection.Open();
 
@@ -340,7 +340,7 @@ namespace Importer.Common.ImporterTypes
 
         private void InsertHashIntoDatabase(string hash, string filePath)
         {
-            using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
+            using (var connection = new SQLiteConnection($"Data Source={Settings.DatabaseFile}"))
             {
                 connection.Open();
 
@@ -360,7 +360,7 @@ namespace Importer.Common.ImporterTypes
         /// </summary>
         private void MarkHashAsProcessed(string hash)
         {
-            using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
+            using (var connection = new SQLiteConnection($"Data Source={Settings.DatabaseFile}"))
             {
                 connection.Open();
 
@@ -373,9 +373,17 @@ namespace Importer.Common.ImporterTypes
 
         private void InitializeDatabase()
         {
+
+            // if Settings.DatabaseFile is null or empty, set it to the default value
+            if (string.IsNullOrEmpty(Settings.DatabaseFile))
+            {
+                Settings.DatabaseFile = "HashingDb.db";
+            }
+
+
             if (!File.Exists(Settings.DatabaseFile))
             {
-                using (var connection = new SqliteConnection($"Data Source={Settings.DatabaseFile}"))
+                using (var connection = new SQLiteConnection($"Data Source={Settings.DatabaseFile}"))
                 {
                     connection.Open();
 

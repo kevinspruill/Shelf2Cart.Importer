@@ -41,7 +41,7 @@ namespace Importer.Common.Helpers
 
         public static IImporterModule GetImporterModule(string moduleName)
         {
-            var dlls = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            var dlls = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "Importer.Module.*.dll");
             foreach (var dll in dlls)
             {
                 var assembly = Assembly.LoadFrom(dll);
@@ -64,7 +64,7 @@ namespace Importer.Common.Helpers
 
         public static ICustomerProcess GetCustomerProcess(string Customer)
         {
-            var dlls = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.dll");
+            var dlls = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "*.CustomerProcess.dll");
             foreach (var dll in dlls)
             {
                 var assembly = Assembly.LoadFrom(dll);
