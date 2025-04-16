@@ -25,8 +25,8 @@ namespace Importer.Module.Invafresh
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
-        ICustomerProcess _customerProcess;        
-        FileWatcher _importerType;
+        ICustomerProcess _customerProcess;
+        FilePollMonitor _importerType;
         HostchngParser parser = null;
 
         public List<tblProducts> GetTblProductsList()
@@ -68,28 +68,20 @@ namespace Importer.Module.Invafresh
             ImporterInstance = importerInstance;
             _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
 
-            _importerType = new FileWatcher(this);
+            _importerType = new FilePollMonitor(this);
 
             SetupImporterType();
         }
         public void SetupImporterType()
         {
-            if (_importerType != null)
-            {
-                _importerType.ApplySettings(ImporterInstance.TypeSettings);
-            }
-            else
-            {
-                Logger.Error("File Watcher is not initialized.");
-            }
+            // No need to set up the importer type here, as it's done in the constructor of FilePollMonitor
         }
         public void StartModule()
         {
             // Start the file watcher
             if (_importerType != null)
             {
-                _importerType.InitializeFileWatcher();
-                _importerType.ToggleFileWatcher();
+                _importerType.Start();
             }
             else
             {
@@ -107,7 +99,7 @@ namespace Importer.Module.Invafresh
             // Stop the file watcher
             if (_importerType != null)
             {
-                _importerType.ToggleFileWatcher();
+                _importerType.Stop();
             }
             else
             {

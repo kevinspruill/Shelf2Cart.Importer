@@ -19,7 +19,7 @@ namespace Importer.Modules.GrocerySignage
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
-        FileWatcher _importerType;
+        FilePollMonitor _importerType;
 
         public List<tblProducts> GetTblProductsDeleteList()
         {
@@ -34,21 +34,14 @@ namespace Importer.Modules.GrocerySignage
         public void InitModule(ImporterInstance importerInstance)
         {
             ImporterInstance = importerInstance;
-            _importerType = new FileWatcher(this);
+            _importerType = new FilePollMonitor(this);
 
             SetupImporterType();
         }
 
         public void SetupImporterType()
         {
-            if (_importerType != null)
-            {
-                _importerType.ApplySettings(ImporterInstance.TypeSettings);
-            }
-            else
-            {
-                Logger.Error("File Watcher is not initialized.");
-            }
+            // No specific setup required for Grocery Signage
         }
 
         public void StartModule()
@@ -56,8 +49,7 @@ namespace Importer.Modules.GrocerySignage
             // Start the file watcher
             if (_importerType != null)
             {
-                _importerType.InitializeFileWatcher();
-                _importerType.ToggleFileWatcher();
+                _importerType.Start();
             }
             else
             {
@@ -76,11 +68,11 @@ namespace Importer.Modules.GrocerySignage
             // Stop the file watcher
             if (_importerType != null)
             {
-                _importerType.ToggleFileWatcher();
+                _importerType.Stop();
             }
             else
             {
-                Logger.Error("File Watcher is not initialized.");
+                Logger.Error("File Polling is not initialized.");
             }
         }
 

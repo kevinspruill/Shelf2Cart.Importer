@@ -3,7 +3,6 @@ using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Main;
 using Importer.Common.Models;
-using Importer.Module.Generic.I;
 using Importer.Module.Generic.Interfaces;
 using Importer.Module.Generic.Parser;
 using Importer.Module.Invafresh.Helpers;
@@ -25,7 +24,7 @@ namespace Importer.Module.Generic
         public string ImporterTypeData { get; set; } = string.Empty;
 
         ICustomerProcess _customerProcess;
-        FileWatcher _importerType;
+        FilePollMonitor _importerType;
         IParser parser = null;
 
         public List<tblProducts> GetTblProductsDeleteList()
@@ -65,32 +64,24 @@ namespace Importer.Module.Generic
             ImporterInstance = importerInstance;
             _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
 
-            _importerType = new FileWatcher(this);
+            _importerType = new FilePollMonitor(this);
 
             SetupImporterType();
         }
         public void SetupImporterType()
         {
-            if (_importerType != null)
-            {
-                _importerType.ApplySettings(ImporterInstance.TypeSettings);
-            }
-            else
-            {
-                Logger.Error("File Watcher is not initialized.");
-            }
+            // No need to set up the importer type here, as it's done in the constructor of FilePollMonitor
         }
         public void StartModule()
         {
             // Start the file watcher
             if (_importerType != null)
             {
-                _importerType.InitializeFileWatcher();
-                _importerType.ToggleFileWatcher();
+                _importerType.Start();
             }
             else
             {
-                Logger.Error("File Watcher is not initialized.");
+                Logger.Error("File Polling is not initialized.");
             }
         }
         public void TriggerProcess()
@@ -117,7 +108,7 @@ namespace Importer.Module.Generic
             // Stop the file watcher
             if (_importerType != null)
             {
-                _importerType.ToggleFileWatcher();
+                _importerType.Stop();
             }
             else
             {
