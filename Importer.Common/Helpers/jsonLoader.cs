@@ -39,7 +39,7 @@ namespace Importer.Common.Helpers
                 }
                 return (T)Convert.ChangeType(value, typeof(T));
             }
-            return default(T);
+            return default;
         }
     }
 }

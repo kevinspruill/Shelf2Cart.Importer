@@ -40,24 +40,6 @@ namespace Importer.Common.Helpers
             _settings = jsonLoader.LoadSettings(_settingsPath, SETTINGS_FILE);
         }
 
-        
-        private T GetSetting<T>(string key)
-        {
-            if (_settings.TryGetValue(key, out object value))
-            {
-                if (typeof(T) == typeof(bool) && value is bool)
-                {
-                    return (T)value;
-                }
-                if (typeof(T) == typeof(List<string>) && value is Newtonsoft.Json.Linq.JArray jArray)
-                {
-                    return (T)(object)jArray.ToObject<List<string>>();
-                }
-                return (T)Convert.ChangeType(value, typeof(T));
-            }
-            return default(T);
-        }
-
         public bool ShouldApplyProperCase(PropertyInfo property)
         {
             var attribute = property.GetCustomAttribute<ImportDBFieldAttribute>();
