@@ -1,3 +1,4 @@
 {
-  "FieldDelimiter": "\\t"
+  "FieldDelimiter": "\\t",
+  "Parser": "Generic" // "Generic" or "JSON"
 }

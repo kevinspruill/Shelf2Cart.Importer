@@ -21,6 +21,7 @@ namespace Importer.Module.Invafresh.Helpers
 
         // Properties for specific settings
         public string FieldDelimiter => jsonLoader.GetSetting<string>("FieldDelimiter", _settings);
+        public string Parser => jsonLoader.GetSetting<string>("Parser", _settings);
 
         public GenericSettingsLoader()
         {

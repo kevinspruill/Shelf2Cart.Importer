@@ -97,7 +97,7 @@
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\ProductProcessor.cs" />
     <Compile Include="Helpers\SettingsLoader.cs" />
-    <Compile Include="ImporterTypes\FilePolling.cs" />
+    <Compile Include="ImporterTypes\FilePollMonitor.cs" />
     <Compile Include="ImporterTypes\FileWatcher.cs" />
     <Compile Include="Interfaces\ICustomerProcess.cs" />
     <Compile Include="Interfaces\IImporterModule.cs" />

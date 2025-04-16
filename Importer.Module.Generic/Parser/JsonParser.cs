@@ -6,21 +6,19 @@ using Importer.Module.Generic.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Importer.Module.Generic.Parser
 {
-    public class TextParser : IParser
+    public class JsonParser : IParser
     {
-        private string _fieldDelimiter { get; set; }
         private tblProducts ProductTemplate { get; set; }
         private ICustomerProcess _customerProcess { get; set; }
         public List<Dictionary<string, string>> PLURecords { get; private set; } = new List<Dictionary<string, string>>();
         public List<Dictionary<string, string>> DeletedPLURecords { get; private set; } = new List<Dictionary<string, string>>();
 
-        public TextParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
+        public JsonParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
         {
             ProductTemplate = productTemplate;
             _customerProcess = customerProcess ?? new BaseProcess();
@@ -28,21 +26,7 @@ namespace Importer.Module.Generic.Parser
 
         public void ParseFile(string filePath)
         {
-            // read file as a tab delimited file with a header, add each record to a dictionary
-            var lines = System.IO.File.ReadAllLines(filePath);
-            // get the header
-            var header = lines[0].Split(_fieldDelimiter.ToCharArray());
-            // get the records
-            for (int i = 1; i < lines.Length; i++)
-            {
-                var record = lines[i].Split(_fieldDelimiter.ToCharArray());
-                var recordDict = new Dictionary<string, string>();
-                for (int j = 0; j < header.Length; j++)
-                {
-                    recordDict[header[j]] = record[j];
-                }
-                PLURecords.Add(recordDict);
-            }
+
         }
         public List<tblProducts> ConvertPLURecordsToTblProducts()
         {
@@ -92,7 +76,7 @@ namespace Importer.Module.Generic.Parser
                         // Get the value from pluItem and set it to the product, converting it to the correct type
 
                         var value = pluItem[field.Key];
-                        var propertyType = propertyWithAttribute.PropertyType;                        
+                        var propertyType = propertyWithAttribute.PropertyType;
 
                         if (propertyType == typeof(bool))
                         {

@@ -3,7 +3,10 @@ using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Main;
 using Importer.Common.Models;
+using Importer.Module.Generic.I;
+using Importer.Module.Generic.Interfaces;
 using Importer.Module.Generic.Parser;
+using Importer.Module.Invafresh.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +26,7 @@ namespace Importer.Module.Generic
 
         ICustomerProcess _customerProcess;
         FileWatcher _importerType;
-        TextParser parser = null;
+        IParser parser = null;
 
         public List<tblProducts> GetTblProductsDeleteList()
         {
@@ -41,7 +44,6 @@ namespace Importer.Module.Generic
 
             return productsToDelete;
         }
-
         public List<tblProducts> GetTblProductsList()
         {
             var products = new List<tblProducts>();
@@ -58,7 +60,6 @@ namespace Importer.Module.Generic
 
             return products;
         }
-
         public void InitModule(ImporterInstance importerInstance)
         {
             ImporterInstance = importerInstance;
@@ -68,7 +69,6 @@ namespace Importer.Module.Generic
 
             SetupImporterType();
         }
-
         public void SetupImporterType()
         {
             if (_importerType != null)
@@ -80,7 +80,6 @@ namespace Importer.Module.Generic
                 Logger.Error("File Watcher is not initialized.");
             }
         }
-
         public void StartModule()
         {
             // Start the file watcher
@@ -94,10 +93,22 @@ namespace Importer.Module.Generic
                 Logger.Error("File Watcher is not initialized.");
             }
         }
-
         public void TriggerProcess()
         {
-            parser = new TextParser(ProductTemplate, _customerProcess);
+
+            GenericSettingsLoader Settings = new GenericSettingsLoader();
+            var parserSetting = Settings.Parser;
+
+            switch (parserSetting)
+            {
+                case "JSON":
+                    parser = new JsonParser(ProductTemplate, _customerProcess);
+                    break;
+                default:
+                    parser = new TextParser(ProductTemplate, _customerProcess);
+                    break;
+            }
+
             parser.ParseFile(ImporterTypeData.ToString());
             MainProcess.ProcessAsync(this).GetAwaiter().GetResult();
         }

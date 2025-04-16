@@ -1,15 +1,14 @@
-﻿using Data.HashFunction.Blake3;
-using Importer.Common.Interfaces;
-using Microsoft.Data.Sqlite;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Policy;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Data.HashFunction.Blake3;
+using Importer.Common.Helpers;
+using Importer.Common.Interfaces;
+using Microsoft.Data.Sqlite;
 
 namespace Importer.Common.ImporterTypes
 {
@@ -29,6 +28,16 @@ namespace Importer.Common.ImporterTypes
         private const int RetryDelayMilliseconds = 200;
         private const int RecoveryDelayMilliseconds = 5000; // Wait time before retrying after a failure
 
+        // --- fields for queuing ---
+        // Using Tuple<string, string> where Item1=filePath and Item2=fileHash.
+        private readonly ConcurrentQueue<Tuple<string, string>> fileProcessingQueue = new ConcurrentQueue<Tuple<string, string>>();
+        private bool isProcessing = false;
+        private readonly object queueLock = new object();
+
+        private readonly string _queuedFolder;
+        private readonly string _processingFolder;
+        private readonly string _archiveFolder;
+
         public FilePollMonitor(string targetPath, TimeSpan pollInterval, string databaseFile = "filehashes.db", IEnumerable<string> allowedExtensions = null)
         {
             _targetPath = targetPath;
@@ -36,6 +45,18 @@ namespace Importer.Common.ImporterTypes
             _databaseFile = databaseFile;
             _isDirectory = Directory.Exists(targetPath);
             _allowedExtensions = allowedExtensions != null ? new HashSet<string>(allowedExtensions.Select(e => e.ToLowerInvariant())) : null;
+
+            // Determine the base path. If monitoring a single file, use its parent directory.
+            string basePath = _isDirectory ? _targetPath : Path.GetDirectoryName(_targetPath);
+
+            // Create subdirectories for handling different processing stages.
+            _queuedFolder = Path.Combine(basePath, "Queued");
+            _processingFolder = Path.Combine(basePath, "Processing");
+            _archiveFolder = Path.Combine(basePath, "Archive");
+
+            Directory.CreateDirectory(_queuedFolder);
+            Directory.CreateDirectory(_processingFolder);
+            Directory.CreateDirectory(_archiveFolder);
 
             InitializeDatabase();
         }
@@ -52,7 +73,7 @@ namespace Importer.Common.ImporterTypes
 
         private async Task MonitorLoopAsync(CancellationToken token)
         {
-            Console.WriteLine($"[Monitor] Started monitoring {_targetPath}");
+            Logger.Info($"Started monitoring {_targetPath}");
 
             while (!token.IsCancellationRequested)
             {
@@ -60,7 +81,11 @@ namespace Importer.Common.ImporterTypes
                 {
                     if (_isDirectory)
                     {
-                        var files = Directory.GetFiles(_targetPath);
+                        var files = Directory.GetFiles(_targetPath)
+                            .Select(path => new { Path = path, LastModified = File.GetLastWriteTimeUtc(path) })
+                            .OrderBy(fileInfo => fileInfo.LastModified) // Orders in ascending order (oldest first)
+                            .Select(fileInfo => fileInfo.Path)
+                            .ToList();
                         var tasks = files.Select(file => CheckFileAsync(file, token)).ToArray();
                         await Task.WhenAll(tasks);
                     }
@@ -73,22 +98,22 @@ namespace Importer.Common.ImporterTypes
                 }
                 catch (DirectoryNotFoundException ex)
                 {
-                    Console.WriteLine($"Directory not found: {_targetPath}. Attempting recovery in {RecoveryDelayMilliseconds}ms");
+                    Logger.Error($"Directory not found: {_targetPath}. Attempting recovery in {RecoveryDelayMilliseconds}ms");
                     await Task.Delay(RecoveryDelayMilliseconds);
                 }
                 catch (IOException ex)
                 {
-                    Console.WriteLine($"IO exception encountered: {ex.Message}. Attempting recovery in {RecoveryDelayMilliseconds}ms");
+                    Logger.Error($"IO exception encountered: {ex.Message}. Attempting recovery in {RecoveryDelayMilliseconds}ms");
                     await Task.Delay(RecoveryDelayMilliseconds);
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Monitor loop error: {ex.Message}");
+                    Logger.Error($"Monitor loop error: {ex.Message}");
                     await Task.Delay(RecoveryDelayMilliseconds);
                 }
             }
 
-            Console.WriteLine("Stopped.");
+            Logger.Info("Stopped.");
         }
 
         private async Task CheckFileAsync(string filePath, CancellationToken token)
@@ -98,41 +123,142 @@ namespace Importer.Common.ImporterTypes
                 if (!File.Exists(filePath))
                     return;
 
+                // Optionally filter by allowed extensions.
                 if (_allowedExtensions != null && !_allowedExtensions.Contains(Path.GetExtension(filePath).ToLowerInvariant()))
                     return;
 
                 var info = new FileInfo(filePath);
                 var snapshot = new FileSnapshot(info.Length, info.LastWriteTimeUtc);
 
-                FileSnapshot lastSnapshot;
-                if (_fileSnapshots.TryGetValue(filePath, out lastSnapshot) && lastSnapshot.Equals(snapshot))
+                if (_fileSnapshots.TryGetValue(filePath, out FileSnapshot lastSnapshot) && lastSnapshot.Equals(snapshot))
                 {
-                    return; // No changes detected
+                    return; // No changes detected.
                 }
 
                 _fileSnapshots[filePath] = snapshot;
 
+                // Compute the hash with retry logic.
                 string hash = await RetryAsync(() => ComputeBlake3HashAsync(filePath, token), MaxRetryCount, RetryDelayMilliseconds, token);
 
                 if (IsHashInDatabase(hash))
                 {
-                    Console.WriteLine($"Already processed: {filePath}");
+                    Logger.Trace($"Already processed: {filePath}");
                     return;
                 }
 
-                InsertHashIntoDatabase(hash, filePath);
+                // Only if the file is not already in one of the processing subfolders,
+                // generate one unique name to be used throughout.
+                string currentDir = Path.GetDirectoryName(filePath);
+                if (currentDir != _queuedFolder && currentDir != _processingFolder && currentDir != _archiveFolder)
+                {
+                    string originalFileName = Path.GetFileName(filePath);
+                    // Generate a unique filename with a single timestamp.
+                    string uniqueFileName = GenerateUniqueFileName(originalFileName);
+                    string queuedFilePath = Path.Combine(_queuedFolder, uniqueFileName);
+                    try
+                    {
+                        File.Move(filePath, queuedFilePath);
+                        Logger.Info($"Moved file to queued folder: {queuedFilePath}");
+                        filePath = queuedFilePath;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"Failed to move file to queued folder: {filePath} - {ex.Message}");
+                        return;
+                    }
+                }
 
-                Console.WriteLine($"Processing file: {filePath}");
-                await ProcessFileAsync(filePath, token);
-                MarkHashAsProcessed(hash);
+                // Insert the hash into the database using the file path with the unique name.
+                InsertHashIntoDatabase(hash, filePath);
+                Logger.Info($"Queuing file for processing: {filePath}");
+                // Enqueue the file along with its computed hash.
+                EnqueueFile(filePath, hash);
             }
             catch (IOException ex)
             {
-                Console.WriteLine($"File in use, skipping for now: {filePath} ({ex.Message})");
+                Logger.Error($"File in use, skipping for now: {filePath} ({ex.Message})");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error processing {filePath}: {ex.Message}");
+                Logger.Error($"Error processing {filePath}: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Enqueues the file for later processing.
+        /// </summary>
+        private void EnqueueFile(string filePath, string hash)
+        {
+            fileProcessingQueue.Enqueue(Tuple.Create(filePath, hash));
+            Logger.Info($"Added to processing queue: {filePath}. Queue size: {fileProcessingQueue.Count}");
+
+            // Ensure only one processing task runs at a time
+            lock (queueLock)
+            {
+                if (!isProcessing)
+                {
+                    isProcessing = true;
+                    Task.Run(() => ProcessQueue());
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processes files one at a time from the queue.
+        /// </summary>
+        private async Task ProcessQueue()
+        {
+            while (!_cts.IsCancellationRequested && fileProcessingQueue.TryDequeue(out Tuple<string, string> queuedItem))
+            {
+                string fileToProcess = queuedItem.Item1;
+                string hash = queuedItem.Item2;
+                try
+                {
+                    Logger.Info($"Processing queued file: {fileToProcess}");
+
+                    // Use the same unique file name for the Processing folder.
+                    string uniqueFileName = Path.GetFileName(fileToProcess);
+                    string processingFilePath = Path.Combine(_processingFolder, uniqueFileName);
+                    try
+                    {
+                        File.Move(fileToProcess, processingFilePath);
+                        Logger.Info($"Moved file to processing folder: {processingFilePath}");
+                        fileToProcess = processingFilePath;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"Failed to move file to processing folder: {fileToProcess} - {ex.Message}");
+                        continue;
+                    }
+
+                    // Process the file.
+                    await ProcessFileAsync(fileToProcess, _cts.Token);
+
+                    // After processing, move the file to the Archive folder using the same unique filename.
+                    string archiveFilePath = Path.Combine(_archiveFolder, uniqueFileName);
+                    try
+                    {
+                        File.Move(fileToProcess, archiveFilePath);
+                        Logger.Info($"Moved file to archive folder: {archiveFilePath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error($"Failed to move file to archive folder: {fileToProcess} - {ex.Message}");
+                    }
+
+                    // Mark the file's hash as processed.
+                    MarkHashAsProcessed(hash);
+                    Logger.Info($"Completed processing queued file: {archiveFilePath}");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error($"Error processing queued file {fileToProcess}: {ex.Message}");
+                }
+            }
+
+            lock (queueLock)
+            {
+                isProcessing = false;
             }
         }
 
@@ -158,10 +284,9 @@ namespace Importer.Common.ImporterTypes
         {
             var blake3 = Blake3Factory.Instance.Create();
 
-            // Read file in sync inside Task.Run
+            // Read file synchronously inside Task.Run
             byte[] data = await Task.Run(() => File.ReadAllBytes(filePath), token);
 
-            // Compute hash synchronously
             var hashResult = blake3.ComputeHash(data);
             return BitConverter.ToString(hashResult.Hash).Replace("-", "").ToLowerInvariant();
         }
@@ -198,6 +323,9 @@ namespace Importer.Common.ImporterTypes
             }
         }
 
+        /// <summary>
+        /// Marks a file’s hash as processed after the file has been handled.
+        /// </summary>
         private void MarkHashAsProcessed(string hash)
         {
             using (var connection = new SqliteConnection($"Data Source={_databaseFile}"))
@@ -233,7 +361,18 @@ namespace Importer.Common.ImporterTypes
                 }
             }
         }
+        private string GenerateUniqueFileName(string originalFileName)
+        {
+            string extension = Path.GetExtension(originalFileName);
+            string baseName = Path.GetFileNameWithoutExtension(originalFileName);
+            // Generate a single timestamp (with milliseconds for increased granularity)
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmssfff");
+            return $"{baseName}_{timestamp}{extension}";
+        }
 
+        /// <summary>
+        /// The processing method for an individual file. Adjust the file processing logic here as needed.
+        /// </summary>
         private Task ProcessFileAsync(string filePath, CancellationToken token)
         {
             Console.WriteLine($"Processing: {filePath}");
@@ -248,12 +387,12 @@ namespace Importer.Common.ImporterTypes
 
         public void ApplySettings(Dictionary<string, object> settings)
         {
-            throw new NotImplementedException();
+            // Apply settings if needed
         }
 
         public List<string> GetSettingNames()
         {
-            throw new NotImplementedException();
+            return new List<string>();
         }
 
         private class FileSnapshot
@@ -271,7 +410,6 @@ namespace Importer.Common.ImporterTypes
             {
                 var other = obj as FileSnapshot;
                 if (other == null) return false;
-
                 return Length == other.Length && LastWriteTimeUtc == other.LastWriteTimeUtc;
             }
 
@@ -287,5 +425,4 @@ namespace Importer.Common.ImporterTypes
             }
         }
     }
-
 }

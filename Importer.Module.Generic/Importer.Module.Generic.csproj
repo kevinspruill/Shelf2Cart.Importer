@@ -45,6 +45,8 @@
     <Compile Include="Helpers\BooleanMapLoader.cs" />
     <Compile Include="Helpers\FieldMapLoader.cs" />
     <Compile Include="Helpers\GenericSettingsLoader.cs" />
+    <Compile Include="Interfaces\IParser.cs" />
+    <Compile Include="Parser\JsonParser.cs" />
     <Compile Include="Parser\TextParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
