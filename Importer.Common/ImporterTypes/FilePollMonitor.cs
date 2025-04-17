@@ -337,6 +337,8 @@ namespace Importer.Common.ImporterTypes
 
         private bool IsHashInDatabase(string hash)
         {
+            return false;
+
             using (var connection = new SQLiteConnection($"Data Source={Settings.DatabaseFile}"))
             {
                 connection.Open();
@@ -403,7 +405,7 @@ namespace Importer.Common.ImporterTypes
                     command.CommandText = @"
                     CREATE TABLE IF NOT EXISTS FileHashes (
                         Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        Hash TEXT NOT NULL UNIQUE,
+                        Hash TEXT NOT NULL,
                         FilePath TEXT,
                         Processed INTEGER DEFAULT 0,
                         ModifiedAt DATETIME DEFAULT CURRENT_TIMESTAMP
