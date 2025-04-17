@@ -88,11 +88,11 @@ namespace Importer.Module.Invafresh
                 Logger.Error("File Watcher is not initialized.");
             }
         }
-        public void TriggerProcess()
+        public async void TriggerProcess()
         {
             parser = new HostchngParser(ProductTemplate, _customerProcess);
             parser.ParseFile(ImporterTypeData.ToString());
-            MainProcess.ProcessAsync(this).GetAwaiter().GetResult();
+            await MainProcess.ProcessAsync(this);
         }
         public void StopModule()
         {

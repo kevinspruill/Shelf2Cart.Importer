@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Data.HashFunction.Blake3;
+using System.Security.Cryptography;
 using Importer.Common.Helpers;
 using Importer.Common.Interfaces;
 
@@ -141,7 +141,7 @@ namespace Importer.Common.ImporterTypes
                 _fileSnapshots[filePath] = snapshot;
 
                 // Compute the hash with retry logic.
-                string hash = await RetryAsync(() => ComputeBlake3HashAsync(filePath, token), MaxRetryCount, RetryDelayMilliseconds, token);
+                string hash = await RetryAsync(() => ComputeSha256HashAsync(filePath, token), MaxRetryCount, RetryDelayMilliseconds, token);
 
                 if (IsHashInDatabase(hash))
                 {
@@ -184,6 +184,7 @@ namespace Importer.Common.ImporterTypes
             catch (Exception ex)
             {
                 Logger.Error($"Error processing {filePath}: {ex.Message}");
+                Logger.Error(ex.InnerException.Message);
             }
         }
 
@@ -219,7 +220,7 @@ namespace Importer.Common.ImporterTypes
                 try
                 {
                     // Compute the hash for each file (using the existing async Blake3 hash method).
-                    string hash = await RetryAsync(() => ComputeBlake3HashAsync(fileInfo.FullName, token),
+                    string hash = await RetryAsync(() => ComputeSha256HashAsync(fileInfo.FullName, token),
                                                      MaxRetryCount, RetryDelayMilliseconds, token);
 
                     // Optionally, you could check if the hash already exists in the database
@@ -312,15 +313,26 @@ namespace Importer.Common.ImporterTypes
             throw new IOException("Operation failed after maximum retry attempts.");
         }
 
-        private async Task<string> ComputeBlake3HashAsync(string filePath, CancellationToken token)
+        /// <summary>Computes a streaming SHA‑256 hash without loading the whole file into memory.</summary>
+        private static async Task<string> ComputeSha256HashAsync(string filePath, CancellationToken token)
         {
-            var blake3 = Blake3Factory.Instance.Create();
+            // 128 KB is a good compromise between I/O and memory on spinning or SSD drives.
+            const int BufferSize = 128 * 1024;
 
-            // Read file synchronously inside Task.Run
-            byte[] data = await Task.Run(() => File.ReadAllBytes(filePath), token);
+            using (var sha256 = SHA256.Create())
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read,
+                                               FileShare.Read, BufferSize, useAsync: true))
+            {
+                var buffer = new byte[BufferSize];
+                int bytesRead;
+                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, token).ConfigureAwait(false)) > 0)
+                {
+                    sha256.TransformBlock(buffer, 0, bytesRead, null, 0);
+                }
 
-            var hashResult = blake3.ComputeHash(data);
-            return BitConverter.ToString(hashResult.Hash).Replace("-", "").ToLowerInvariant();
+                sha256.TransformFinalBlock(Array.Empty<byte>(), 0, 0);
+                return BitConverter.ToString(sha256.Hash!).Replace("-", "").ToLowerInvariant();
+            }
         }
 
         private bool IsHashInDatabase(string hash)

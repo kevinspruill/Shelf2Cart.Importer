@@ -8,7 +8,7 @@
       "TargetPath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1",
       "PollIntervalMilliseconds": 150,
       "AllowedExtensions": [
-        "*.*"
+        ".dat"
       ]
     }
   }
