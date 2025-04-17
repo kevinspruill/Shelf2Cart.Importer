@@ -3,8 +3,10 @@ using Importer.Common.Models;
 using Importer.Common.Modifiers;
 using Importer.Module.Generic.Helpers;
 using Importer.Module.Generic.Interfaces;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +28,15 @@ namespace Importer.Module.Generic.Parser
 
         public void ParseFile(string filePath)
         {
+            //read the file
+            var jsonData = File.ReadAllText(filePath);
+            //deserialize into a List<Dictionary<string, object>> before sending to PLURecords
+            var deserializedJson = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonData);
 
+            foreach (var record in deserializedJson)
+            {
+                PLURecords.Add(record.ToDictionary(k => k.Key, v => v.Value.ToString()));
+            }
         }
         public List<tblProducts> ConvertPLURecordsToTblProducts()
         {
