@@ -126,8 +126,11 @@ namespace Importer.Common.ImporterTypes
                 if (!File.Exists(filePath))
                     return;
 
-                // Optionally filter by allowed extensions.
-                if (Settings.AllowedExtensions != null && !Settings.AllowedExtensions.Contains(Path.GetExtension(filePath).ToLowerInvariant()))
+                // Optionally filter by allowed extensions.  
+                if (Settings.AllowedExtensions != null &&
+                   !Settings.AllowedExtensions.Contains("*.*") &&
+                   !Settings.AllowedExtensions.Count.Equals(0) &&
+                   !Settings.AllowedExtensions.Contains(Path.GetExtension(filePath).ToLowerInvariant()))
                     return;
 
                 var info = new FileInfo(filePath);
@@ -391,7 +394,7 @@ namespace Importer.Common.ImporterTypes
             // if Settings.DatabaseFile is null or empty, set it to the default value
             if (string.IsNullOrEmpty(Settings.DatabaseFile))
             {
-                Settings.DatabaseFile = "HashingDb.db";
+                Settings.DatabaseFile = "FileHistory.db";
             }
 
 
