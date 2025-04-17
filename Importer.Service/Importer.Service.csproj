@@ -9,6 +9,10 @@
     <RootNamespace>Importer.Service</RootNamespace>
     <AssemblyName>Importer.Service</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+	<LangVersion>8.0</LangVersion>
+	<!-- or "latest" -->
+	<Nullable>disable</Nullable>
+	<!-- keep nullable analysis off for now -->
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -62,7 +66,7 @@
       <Project>{cd8391e8-1d38-4d54-9a85-be531ce17304}</Project>
       <Name>Wakefern.CustomerProcess</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Importer.Module.Generic\Importer.Module.Generic.csproj">
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Generic\Importer.Module.Generic.csproj">
       <Project>{18aadd4a-0449-4eca-baa7-e4b8c5ad0a80}</Project>
       <Name>Importer.Module.Generic</Name>
     </ProjectReference>
