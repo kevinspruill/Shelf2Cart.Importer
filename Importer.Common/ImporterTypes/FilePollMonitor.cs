@@ -187,7 +187,7 @@ namespace Importer.Common.ImporterTypes
             catch (Exception ex)
             {
                 Logger.Error($"Error processing {filePath}: {ex.Message}");
-                Logger.Error(ex.InnerException.Message);
+                Logger.Error(ex.InnerException?.Message);
             }
         }
 
