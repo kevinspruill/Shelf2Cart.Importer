@@ -85,10 +85,27 @@ namespace Importer.Common.ImporterTypes
                     if (_isDirectory)
                     {
                         var files = Directory.GetFiles(Settings.TargetPath)
-                            .Select(path => new { Path = path, LastModified = File.GetLastWriteTimeUtc(path) })
-                            .OrderBy(fileInfo => fileInfo.LastModified) // Orders in ascending order (oldest first)
-                            .Select(fileInfo => fileInfo.Path)
-                            .ToList();
+                           .Select(path => new { Path = path, LastModified = File.GetLastWriteTimeUtc(path)})
+                           .Where(fileInfo =>
+                           {
+                               try
+                               {
+                                   // Try to open the file with exclusive access
+                                   using (var stream = new FileStream(fileInfo.Path, FileMode.Open, FileAccess.Read, FileShare.None))
+                                   using (StreamReader reader = new StreamReader(stream))
+                                   {
+                                       return true; // File is not shared
+                                   }
+                               }
+                               catch (IOException)
+                               {
+                                   Logger.Error($"File in use, skipping for now: {fileInfo.Path}");
+                                   return false; // File is being shared
+                               }
+                           })
+                           .OrderBy(fileInfo => fileInfo.LastModified) // Orders in ascending order (oldest first)
+                           .Select(fileInfo => fileInfo.Path)
+                           .ToList();
                         var tasks = files.Select(file => CheckFileAsync(file, token)).ToArray();
                         await Task.WhenAll(tasks);
                     }
@@ -125,6 +142,12 @@ namespace Importer.Common.ImporterTypes
             {
                 if (!File.Exists(filePath))
                     return;
+
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    Logger.Trace("File is not Locked, continuing checking file...");
+                }
 
                 // Optionally filter by allowed extensions.  
                 if (Settings.AllowedExtensions != null &&
