@@ -42,6 +42,10 @@ namespace Importer.Common.Main
             // Process each item using tasks
             var tasks = items.Select(async item =>
             {
+                // replace apostrophes in all string fields with ticks
+                item.ReplaceApostrophes();
+
+                // apply custom process before product processing
                 item = _customerProcess.PreProductProcess(item);
 
                 // format price to 2 decimal places, parsing first

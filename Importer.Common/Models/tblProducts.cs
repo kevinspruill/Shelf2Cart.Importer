@@ -376,6 +376,23 @@ namespace Importer.Common.Models
             return (tblProducts)this.MemberwiseClone();
         }
 
-    }    
-    
+        // extension of string properties to replace ' with `
+        public void ReplaceApostrophes()
+        {
+            foreach (var prop in this.GetType().GetProperties())
+            {
+                if (prop.PropertyType == typeof(string))
+                {
+                    string value = (string)prop.GetValue(this);
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        value = value.Replace("'", "`");
+                        prop.SetValue(this, value);
+                    }
+                }
+            }
+        }
+
+    }
+
 }

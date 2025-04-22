@@ -36,7 +36,7 @@ namespace Importer.Module.Invafresh.Models
         [FieldTag("UME", true)]
         public UnitOfMeasure? UnitOfMeasure { get; set; }  // UME - Required for SPIA
         [FieldTag("BCO")]
-        public int? ByCountQuantity { get; set; }  // BCO
+        public string ByCountQuantity { get; set; }  // BCO
         [FieldTag("WTA")]
         public int? WrappedTareWeight { get; set; }  // WTA
         [FieldTag("UTA")]

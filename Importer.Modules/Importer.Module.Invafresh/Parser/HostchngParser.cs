@@ -222,9 +222,9 @@ namespace Importer.Module.Invafresh.Parser
                     return CreatePluItemRecord(commandCode, fields);
                 case CommandCode.SPFE:
                     Flush = true;
-                    return CreatePluDeleteRecord(commandCode, fields);
+                    return CreatePluItemRecord(commandCode, fields);
                 case CommandCode.SPID:                
-                    return CreatePluDeleteRecord(commandCode, fields);
+                    return CreatePluItemRecord(commandCode, fields);
                 case CommandCode.SIIA:
                 case CommandCode.SIIC:
                     return CreateIngredientItemRecord(commandCode, fields);
@@ -341,8 +341,8 @@ namespace Importer.Module.Invafresh.Parser
                 record.UnitOfMeasure = umeVal;
 
             // Parse tare fields
-            if (fields.TryGetValue("BCO", out var bco) && int.TryParse(bco, out var bcoVal))
-                record.ByCountQuantity = bcoVal;
+            if (fields.TryGetValue("BCO", out var bco))
+                record.ByCountQuantity = bco;
 
             if (fields.TryGetValue("WTA", out var wta) && int.TryParse(wta, out var wtaVal))
                 record.WrappedTareWeight = wtaVal;
@@ -705,11 +705,7 @@ namespace Importer.Module.Invafresh.Parser
             product.NutrifactNum = pluItem.NutritionNumber.ToString();
             product.Scaleable = Converters.UMEtoScalable(pluItem.UnitOfMeasure);
             product.Tare = pluItem.WrappedTareWeight.HasValue ? pluItem.WrappedTareWeight.ToTare().ToString() : string.Empty;
-            product.Description10 = pluItem.UpcCode;
-            product.Description4 = pluItem.ByCountQuantity.ToString();
             product.SalePrice = pluItem.DiscountPrice.HasValue ? pluItem.DiscountPrice.ToPrice().ToString() : string.Empty;
-            product.Description8 = string.IsNullOrEmpty(pluItem.GradeNumber) ? string.Empty : pluItem.GradeNumber;
-
 
             // Use CustomMapLoader to override mapping fields from PluItemRecord to tblProducts
             var mappedFields = CustomMapLoader.CustomMap;
