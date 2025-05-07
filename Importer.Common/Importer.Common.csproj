@@ -73,6 +73,7 @@
     <Compile Include="Models\NumberFormat.cs" />
     <Compile Include="Models\ReplaceRule.cs" />
     <Compile Include="Models\StockDescription.cs" />
+    <Compile Include="Models\MMScaleGrocery.cs" />
     <Compile Include="Models\tblProducts.cs" />
     <Compile Include="Modifiers\BaseProcess.cs" />
     <Compile Include="Modifiers\DepartmentPLUPadder.cs" />
