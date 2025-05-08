@@ -12,11 +12,16 @@ namespace Importer.Module.Generic.Helpers
     {
         private const string SETTINGS_FOLDER = "Settings";
         private static string _mapFileName;
-        private static readonly string _mapPath;
+        private static string _mapPath;
 
         public static Dictionary<string, string> FieldMap;
 
         static FieldMapLoader()
+        {
+            Initialize();
+        }
+
+        public static void Initialize()
         {
             _mapFileName = "Generic.FieldMap.json";
             _mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SETTINGS_FOLDER);

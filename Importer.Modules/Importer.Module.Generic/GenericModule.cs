@@ -48,7 +48,7 @@ namespace Importer.Module.Generic
             var products = new List<tblProducts>();
             var convertedRecords = parser.ConvertPLURecordsToTblProducts();
 
-            if (convertedRecords != null)
+           if (convertedRecords != null)
             {
                 products.AddRange(convertedRecords);
             }
@@ -96,7 +96,7 @@ namespace Importer.Module.Generic
                     parser = new JsonParser(ProductTemplate, _customerProcess);
                     break;
                 default:
-                    parser = new TextParser(ProductTemplate, _customerProcess);
+                    parser = new TextParser(ProductTemplate, _customerProcess, Settings.FieldDelimiter);
                     break;
             }
 

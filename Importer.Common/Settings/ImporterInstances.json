@@ -1,11 +1,11 @@
 [
   {
-    "Name": "Test Importer",
-    "Description": "File Polling Importer Type Example",
-    "ImporterModule": "Invafresh",
+    "Name": "Westside Importer",
+    "Description": "File Polling Importer Type",
+    "ImporterModule": "Generic",
     "Enabled": true,
     "TypeSettings": {
-      "TargetPath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1",
+      "TargetPath": "C:\\Program Files\\MM_GEN_Import\\Server\\DropFolder",
       "PollIntervalMilliseconds": 150,
       "AllowedExtensions": []
     }

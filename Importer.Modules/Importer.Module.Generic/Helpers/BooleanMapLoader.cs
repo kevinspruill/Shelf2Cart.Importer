@@ -12,11 +12,16 @@ namespace Importer.Module.Generic.Helpers
     {
         private const string SETTINGS_FOLDER = "Settings";
         private static string _mapFileName;
-        private static readonly string _mapPath;
+        private static string _mapPath;
 
         public static Dictionary<string, string> BooleanVals;
 
         static BooleanMapLoader()
+        {
+            Initialize();
+        }
+
+        public static void Initialize()
         {
             _mapFileName = "Generic.BooleanVals.json";
             _mapPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SETTINGS_FOLDER);
