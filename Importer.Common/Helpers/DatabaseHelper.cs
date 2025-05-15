@@ -20,7 +20,9 @@ namespace Importer.Common.Helpers
     {
         ProcessDatase,
         ImportDatabase,
-        ResidentDatase
+        ResidentDatase,
+        AdminConsoleDatabase,
+        SupplementalDatabase,
     }
 
     public class DatabaseHelper
@@ -32,14 +34,15 @@ namespace Importer.Common.Helpers
             _connectionString = GetConnectionString(databaseType);
         }
 
-        public IEnumerable<tblProducts> GetProducts()
+        public IEnumerable<tblProducts> GetProducts(string tblName = "tblProducts")
+
         {
             using (OleDbConnection connection = new OleDbConnection(_connectionString))
             {
                 connection.Open();
 
                 // Get schema information
-                var schemaTable = connection.GetSchema("Columns", new[] { null, null, "tblProducts", null });
+                var schemaTable = connection.GetSchema("Columns", new[] { null, null, tblName, null });
 
                 // Build the SQL query dynamically
                 var columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
@@ -48,7 +51,7 @@ namespace Importer.Common.Helpers
                     return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
                 }));
 
-                string query = $"SELECT {columns} FROM tblProducts";
+                string query = $"SELECT {columns} FROM {tblName}";
 
                 var items = connection.Query<tblProducts>(query).ToList();
 
