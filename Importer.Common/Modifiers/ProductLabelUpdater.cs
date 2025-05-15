@@ -15,6 +15,7 @@ namespace Importer.Common.Modifiers
 
         public ProductLabelUpdater()
         {
+            DatabaseHelper DatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
             _stockDescriptions = DatabaseHelper.LoadStockDescriptions();
             _defaultValueLoader = new DefaultValueLoader();
         }

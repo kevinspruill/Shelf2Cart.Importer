@@ -3,6 +3,7 @@ using Importer.Common.Interfaces;
 using Importer.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -15,6 +16,7 @@ namespace Importer.Common.Main
         public static async Task ProcessAsync(IImporterModule importerModule)
         {
             SettingsLoader Settings = new SettingsLoader();
+            DatabaseHelper DatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
 
             var _customerProcess = InstanceLoader.GetCustomerProcess(importerModule.ImporterInstance.CustomerProcess);
 
@@ -95,17 +97,17 @@ namespace Importer.Common.Main
                     if (recordsUpdated)
                     {
                         Logger.Info($"Records updated, writing to ImportLog.txt");
-                        WriteTimeToFile();
+                        await TriggerProcessDatabase();
                     }
                     else if (deleteItems.Count > 0 || Settings.Flush)
                     {
                         Logger.Info($"Records deleted or flush triggered, writing to ImportLog.txt");
-                        WriteTimeToFile();
+                        await TriggerProcessDatabase();
                     }
                     else if (_customerProcess.ForceUpdate)
                     {
                         Logger.Info($"Force update triggered from {_customerProcess.Name} Custom Process, writing to ImportLog.txt");
-                        WriteTimeToFile();
+                        await TriggerProcessDatabase();
                     }
                 }
                 else
@@ -121,11 +123,17 @@ namespace Importer.Common.Main
             }
         }
 
-        private static void WriteTimeToFile()
+        private static async Task TriggerProcessDatabase()
         {
             string path = @"C:\Program Files\MM_Label\ProcessDatabase\ImportLog.txt";
             string time = DateTime.Now.ToString();
-            System.IO.File.WriteAllText(path, time);
+
+            // Use Task.Run to ensure the method runs asynchronously
+            await Task.Run(() => File.WriteAllText(path, time));
+
+            // TODO
+            // ProcessDatabase processDatabase = new ProcessDatabase();
+            // await processDatabase.ProcessImport();
         }
     }
 }

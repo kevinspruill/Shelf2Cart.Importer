@@ -16,11 +16,23 @@ using Importer.Common.Models;
 
 namespace Importer.Common.Helpers
 {
-    public static class DatabaseHelper
+    public enum DatabaseType
     {
-        private static readonly string _connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\\Program Files\\MM_Label_Import\\System Database\\MM_IMPORT_DB.mdb;";
+        ProcessDatase,
+        ImportDatabase,
+        ResidentDatase
+    }
 
-        public static IEnumerable<tblProducts> GetProducts()
+    public class DatabaseHelper
+    {
+        private readonly string _connectionString = string.Empty;
+
+        public DatabaseHelper(DatabaseType databaseType= DatabaseType.ImportDatabase)
+        {
+            _connectionString = GetConnectionString(databaseType);
+        }
+
+        public IEnumerable<tblProducts> GetProducts()
         {
             using (OleDbConnection connection = new OleDbConnection(_connectionString))
             {
@@ -43,7 +55,7 @@ namespace Importer.Common.Helpers
                 return items;
             }
         }
-        public static void Insert(tblProducts item)
+        public void Insert(tblProducts item)
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -65,7 +77,7 @@ namespace Importer.Common.Helpers
                 connection.Execute(query, item);
             }
         }
-        private static string GetQueryWithValues(string query, object parameters)
+        private string GetQueryWithValues(string query, object parameters)
         {
             foreach (var property in parameters.GetType().GetProperties())
             {
@@ -93,7 +105,7 @@ namespace Importer.Common.Helpers
             }
             return query;
         }
-        public static void Update(tblProducts item)
+        public void Update(tblProducts item)
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -135,7 +147,7 @@ namespace Importer.Common.Helpers
         /// </summary>
         /// <param name="products">List of tblProducts to insert or update</param>
         /// <param name="primaryKeyField">Name of the field to use as the primary key for updates</param>
-        public static bool BulkInsertOrUpdate(List<tblProducts> products, string primaryKeyField = "PLU")
+        public bool BulkInsertOrUpdate(List<tblProducts> products, string primaryKeyField = "PLU")
         {
             int updated = 0;
             int inserted = 0;
@@ -287,7 +299,7 @@ namespace Importer.Common.Helpers
                 return false;
             }
         }
-        private static OleDbCommand CreateCustomUpdateCommand(OleDbConnection connection,DataTable dt,string primaryKeyField,Dictionary<string, string> columnNameToFieldName)
+        private OleDbCommand CreateCustomUpdateCommand(OleDbConnection connection,DataTable dt,string primaryKeyField,Dictionary<string, string> columnNameToFieldName)
         {
             string primaryKeyColumn = primaryKeyField; // Use actual primary key field name
 
@@ -323,7 +335,7 @@ namespace Importer.Common.Helpers
 
             return command;
         }
-        private static OleDbCommand CreateCustomInsertCommand(OleDbConnection connection,DataTable dt,Dictionary<string, string> columnNameToFieldName)
+        private OleDbCommand CreateCustomInsertCommand(OleDbConnection connection,DataTable dt,Dictionary<string, string> columnNameToFieldName)
         {
             var insertFields = dt.Columns.Cast<DataColumn>()
                 .Select(col => $"[{columnNameToFieldName[col.ColumnName]}]");
@@ -349,7 +361,7 @@ namespace Importer.Common.Helpers
 
             return command;
         }
-        private static bool ValuesAreEqual(object oldValue, object newValue)
+        private bool ValuesAreEqual(object oldValue, object newValue)
         {
             // Convert DBNull to null
             if (oldValue == DBNull.Value) oldValue = null;
@@ -406,12 +418,12 @@ namespace Importer.Common.Helpers
             }
         }
         // Helper method to check for default dates
-        private static bool IsDefaultDate(DateTime date)
+        private bool IsDefaultDate(DateTime date)
         {
             // Check for .NET default date or Access default date
             return date == DateTime.MinValue || date == new DateTime(1899, 12, 30);
         }
-        private static bool IsNumericType(object value)
+        private bool IsNumericType(object value)
         {
             return value is byte || value is sbyte ||
                    value is short || value is ushort ||
@@ -420,7 +432,7 @@ namespace Importer.Common.Helpers
                    value is float || value is double ||
                    value is decimal;
         }
-        private static OleDbType GetOleDbType(Type type, string columnName)
+        private OleDbType GetOleDbType(Type type, string columnName)
         {
             if (type == typeof(string))
                 return OleDbType.VarWChar; // Use VarWChar for Unicode support
@@ -442,7 +454,7 @@ namespace Importer.Common.Helpers
 
             throw new Exception($"Unsupported data type '{type}' for column '{columnName}'.");
         }
-        public static void SetFieldsToNonIndexedExceptPLU()
+        public void SetFieldsToNonIndexedExceptPLU()
         {
             try
             {
@@ -527,7 +539,7 @@ namespace Importer.Common.Helpers
         /// - Requires more careful management of database connections and transactions.
         /// </summary>
         /// <param name="products">List of tblProducts to upsert</param>
-        public static void BulkUpsert(List<tblProducts> products)
+        public void BulkUpsert(List<tblProducts> products)
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -578,7 +590,7 @@ namespace Importer.Common.Helpers
             }
         }
 
-        public static List<tblProducts> BulkDelete(List<tblProducts> products)
+        public List<tblProducts> BulkDelete(List<tblProducts> products)
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -606,7 +618,7 @@ namespace Importer.Common.Helpers
             }
         }
 
-        public static Dictionary<string, string> GetJoinedFields()
+        public Dictionary<string, string> GetJoinedFields()
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -615,7 +627,7 @@ namespace Importer.Common.Helpers
 
             return new Dictionary<string, string>();
         }
-        public static List<tblProducts> DeserializeJsonToProduct(string json, tblProducts productTemplate)
+        public List<tblProducts> DeserializeJsonToProduct(string json, tblProducts productTemplate)
         {
             var products = new List<tblProducts>();
             var jsonArray = JArray.Parse(json);
@@ -656,7 +668,7 @@ namespace Importer.Common.Helpers
 
             return products;
         }
-        private static tblProducts ParseJsonToProducts(string json, tblProducts productTemplate)
+        private tblProducts ParseJsonToProducts(string json, tblProducts productTemplate)
         {
             var mappings = GetJoinedFields();
             var jsonObject = JObject.Parse(json);
@@ -711,7 +723,7 @@ namespace Importer.Common.Helpers
             return product;
         }
 
-        private static readonly Dictionary<string, string> _replaceRules = new Dictionary<string, string>
+        private readonly Dictionary<string, string> _replaceRules = new Dictionary<string, string>
         {
             { "''", "\"" },
             { "Ʌ", "a" },
@@ -719,7 +731,7 @@ namespace Importer.Common.Helpers
             { "\\", "" }
         };
         
-        private static object IntialFindReplace(object value)
+        private object IntialFindReplace(object value)
         {
             string stringValue = value.ToString().Trim();
             foreach (var rule in _replaceRules)
@@ -729,7 +741,7 @@ namespace Importer.Common.Helpers
             return stringValue;
         }
 
-        public static tblProducts DeserializeXMLToProduct(string xmlContent)
+        public tblProducts DeserializeXMLToProduct(string xmlContent)
         {
             var _fieldMappings = GetJoinedFields();
 
@@ -758,7 +770,7 @@ namespace Importer.Common.Helpers
                 return product;
             }
         }
-        public static tblProducts GetProductByPLU(string pLU)
+        public tblProducts GetProductByPLU(string pLU)
         {
             // lookup the product in the database
             using (var connection = new OleDbConnection(_connectionString))
@@ -770,7 +782,7 @@ namespace Importer.Common.Helpers
             }
 
         }
-        public static List<CleanseRule> LoadCleanseRules()
+        public List<CleanseRule> LoadCleanseRules()
         {
             var rules = new List<CleanseRule>();
             using (var connection = new OleDbConnection(_connectionString))
@@ -782,7 +794,7 @@ namespace Importer.Common.Helpers
             }
             return rules;
         }
-        public static List<ReplaceRule> LoadReplaceRules()
+        public List<ReplaceRule> LoadReplaceRules()
         {
             var rules = new List<ReplaceRule>();
             using (var connection = new OleDbConnection(_connectionString))
@@ -794,7 +806,7 @@ namespace Importer.Common.Helpers
             }
             return rules;
         }
-        public static Dictionary<string, int> LoadDepartmentPadding()
+        public Dictionary<string, int> LoadDepartmentPadding()
         {
             var paddingDict = new Dictionary<string, int>();
 
@@ -811,7 +823,7 @@ namespace Importer.Common.Helpers
 
             return paddingDict;
         }
-        public static List<StockDescription> LoadStockDescriptions()
+        public List<StockDescription> LoadStockDescriptions()
         {
             var stockDescriptions = new List<StockDescription>();
             using (var connection = new OleDbConnection(_connectionString))
@@ -821,7 +833,7 @@ namespace Importer.Common.Helpers
 
             return stockDescriptions;
         }
-        public static List<string> GetPLUsToDelete(string deleteField)
+        public List<string> GetPLUsToDelete(string deleteField)
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -830,7 +842,7 @@ namespace Importer.Common.Helpers
                 return connection.Query<string>(sql).AsList();
             }
         }
-        public static int DeleteRecords(string deleteField)
+        public int DeleteRecords(string deleteField)
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -839,7 +851,7 @@ namespace Importer.Common.Helpers
                 return connection.Execute(sql);
             }
         }
-        public static string GetBooleanVal(string mBooleanField)
+        public string GetBooleanVal(string mBooleanField)
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -848,7 +860,7 @@ namespace Importer.Common.Helpers
                 return connection.QueryFirstOrDefault<string>(sql, new { MBooleanField = mBooleanField });
             }
         }
-        public static List<BooleanVal> GetAllBooleanVals()
+        public List<BooleanVal> GetAllBooleanVals()
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -857,7 +869,7 @@ namespace Importer.Common.Helpers
                 return connection.Query<BooleanVal>(sql).AsList();
             }
         }
-        public static List<NumberFormatModel> GetAllNumberFormats()
+        public List<NumberFormatModel> GetAllNumberFormats()
         {
             using (var connection = new OleDbConnection(_connectionString))
             {
@@ -868,7 +880,7 @@ namespace Importer.Common.Helpers
                 return connection.Query<NumberFormatModel>(sql).AsList();
             }
         }
-        public static void DeleteAllProducts()
+        public void DeleteAllProducts()
         {
             try
             {
@@ -883,7 +895,7 @@ namespace Importer.Common.Helpers
                 Console.WriteLine($"Error clearing table: {ex.Message}");
             }
         }
-        public static int ExecuteSQLCommand(string sqlCommand)
+        public int ExecuteSQLCommand(string sqlCommand)
         {
             try
             {
@@ -907,7 +919,7 @@ namespace Importer.Common.Helpers
         /// <param name="fieldsToUpdate"> Dictionary of primary key values and field updates </param>
         /// <param name="primaryKeyField"> Name of the primary key field </param>
         /// <returns> Tuple with the number of records updated and a boolean indicating if default values were updated </returns>
-        public static Tuple<int, bool> UpdateFieldsByDictionary(Dictionary<string, Dictionary<string, object>> fieldsToUpdate, string primaryKeyField)
+        public Tuple<int, bool> UpdateFieldsByDictionary(Dictionary<string, Dictionary<string, object>> fieldsToUpdate, string primaryKeyField)
         {
             int updated = 0;
             bool defaultValuesUpdated = false;
@@ -1057,7 +1069,7 @@ namespace Importer.Common.Helpers
             }
         }
 
-        private static object GetDefaultValue(Type type)
+        private object GetDefaultValue(Type type)
         {
             if (type == typeof(string))
                 return string.Empty;
@@ -1074,7 +1086,7 @@ namespace Importer.Common.Helpers
             throw new Exception($"Unsupported data type '{type}'.");
         }
 
-        public static int GetRecordCount(string table)
+        public int GetRecordCount(string table)
         {
             try
             {
@@ -1091,6 +1103,28 @@ namespace Importer.Common.Helpers
                 Logger.Error($"Error getting record count: {ex.Message}");
                 return -1;
             }
+        }
+
+        public string GetConnectionString(DatabaseType databaseType = DatabaseType.ImportDatabase)
+        {
+            Dictionary<string, object> ProcDbSettings = jsonLoader.LoadSettings(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings"), "ProcessDatabaseSettings.json");
+
+            var connectionStringBuilder = new OleDbConnectionStringBuilder
+            {
+                Provider = "Microsoft.ACE.OLEDB.12.0",
+                PersistSecurityInfo = false,
+                 
+            };
+
+            connectionStringBuilder.DataSource = databaseType switch
+            {
+                DatabaseType.ImportDatabase => jsonLoader.GetSetting<string>("ImportDatabase", ProcDbSettings),
+                DatabaseType.ResidentDatase => jsonLoader.GetSetting<string>("ResidentDatabase", ProcDbSettings),
+                DatabaseType.ProcessDatase => jsonLoader.GetSetting<string>("ProcessDatabase", ProcDbSettings),
+                _ => throw new NotImplementedException(),
+            };
+
+            return connectionStringBuilder.ConnectionString;
         }
     }
 }

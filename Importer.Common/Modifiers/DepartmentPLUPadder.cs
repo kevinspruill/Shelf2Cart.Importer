@@ -13,6 +13,7 @@ namespace Importer.Common.Modifiers
 
         public DepartmentPLUPadder()
         {
+            DatabaseHelper DatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
             _deptPadding = DatabaseHelper.LoadDepartmentPadding();
         }
 

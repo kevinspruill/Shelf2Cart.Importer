@@ -15,6 +15,7 @@ namespace Importer.Common.Modifiers
 
         public FindReplace(List<ReplaceRule> findReplaceRules = null)
         {
+            DatabaseHelper DatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
             _rules = findReplaceRules ?? DatabaseHelper.LoadReplaceRules();
         }
 

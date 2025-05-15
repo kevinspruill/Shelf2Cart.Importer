@@ -24,6 +24,8 @@ namespace Importer.Common.Helpers
         {
             Logger.Debug("Initializing ProductProcessor");
 
+            DatabaseHelper DatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
+
             _defaultValues = new DefaultValueLoader();
             _settings = new SettingsLoader();
             _departmentPLUPadder = new DepartmentPLUPadder();

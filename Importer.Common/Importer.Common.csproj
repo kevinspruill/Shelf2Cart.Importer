@@ -66,6 +66,7 @@
     <Compile Include="Interfaces\IImporterModule.cs" />
     <Compile Include="Interfaces\IImporterType.cs" />
     <Compile Include="Main\MainProcess.cs" />
+    <Compile Include="Main\ProcessDatabase.cs" />
     <Compile Include="Models\BooleanVal.cs" />
     <Compile Include="Models\CleanseRule.cs" />
     <Compile Include="Models\DepartmentPadding.cs" />
@@ -98,6 +99,7 @@
     <None Include="Settings\ImporterInstances.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="Settings\ProcessDatabaseSettings.json" />
     <None Include="Settings\settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

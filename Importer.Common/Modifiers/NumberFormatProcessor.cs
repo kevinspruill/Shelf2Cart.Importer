@@ -17,6 +17,7 @@ namespace Importer.Common.Modifiers
 
         private static Dictionary<string, NumberFormatModel> LoadNumberFormatRules()
         {
+            DatabaseHelper DatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
             var rules = DatabaseHelper.GetAllNumberFormats();
             var rulesDictionary = new Dictionary<string, NumberFormatModel>();
 
