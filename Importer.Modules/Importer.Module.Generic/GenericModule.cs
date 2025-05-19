@@ -66,6 +66,12 @@ namespace Importer.Module.Generic
 
             _importerType = new FilePollMonitor(this);
 
+            //Need to add the ProductTemplate earlier than Invafresh module, as it's used in parser
+            ProductProcessor productProcessor = new ProductProcessor(_customerProcess);
+            var productTemplate = productProcessor.CreateProductTemplate();
+
+            ProductTemplate = productTemplate;
+
             SetupImporterType();
         }
         public void SetupImporterType()
