@@ -98,7 +98,10 @@ namespace Importer.Module.Generic.Parser
                         else
                         {
                             var convertedValue = Convert.ChangeType(value, propertyType);
-                            propertyWithAttribute.SetValue(product, convertedValue);
+                            //if there is a null or whitespace then we go with our default values
+                            if (propertyType != typeof(string)
+                                || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
+                                propertyWithAttribute.SetValue(product, convertedValue);
                         }
 
                     }
