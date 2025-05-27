@@ -1,5 +1,10 @@
-﻿using Importer.Common.Interfaces;
+﻿using Importer.Common.Helpers;
+using Importer.Common.ImporterTypes;
+using Importer.Common.Interfaces;
+using Importer.Common.Main;
 using Importer.Common.Models;
+using Importer.Module.Parsley.Models;
+using Importer.Module.Parsley.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +22,10 @@ namespace Importer.Module.Parsley
         public tblProducts ProductTemplate { get; set; }
         public bool Flush { get; set; }
 
+        ICustomerProcess _customerProcess;
+        RestAPIMonitor _importerType;
+        ParsleyJSONParser parser = null;
+
         public int GetPendingFileCount()
         {
             throw new NotImplementedException();
@@ -29,32 +38,72 @@ namespace Importer.Module.Parsley
 
         public List<tblProducts> GetTblProductsList()
         {
-            throw new NotImplementedException();
+            var products = new List<tblProducts>();
+            var convertedRecords = parser.ConvertPLURecordsToTblProducts();
+
+            if (convertedRecords != null)
+            {
+                products.AddRange(convertedRecords);
+            }
+            else
+            {
+                Logger.Error("Failed to convert PLU records to tblProducts");
+            }
+
+            return products;
+
         }
 
         public void InitModule(ImporterInstance importerInstance)
         {
-            throw new NotImplementedException();
-        }
 
+            ImporterInstance = importerInstance;
+            _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
+
+            _importerType = new RestAPIMonitor(this);
+
+            SetupImporterType();
+        }
         public void SetupImporterType()
         {
-            throw new NotImplementedException();
+            // No need to set up the importer type here, as it's done in the constructor of FilePollMonitor
         }
-
         public void StartModule()
         {
-            throw new NotImplementedException();
-        }
+            // Start the file watcher
+            if (_importerType != null)
+            {
+                //_importerType.Start();
 
+                //this will start the quartz scheduler for the RestAPIMonitor
+            }
+            else
+            {
+                Logger.Error("Rest API Monitor is not initialized.");
+            }
+        }
+        public async void TriggerProcess()
+        {
+            parser = new ParsleyJSONParser(ProductTemplate, _customerProcess);
+
+            parser.ParseMenuItemSimpleList(ImporterTypeData.ToString());
+            parser.ConvertMenuItemsToPLURecords();
+
+            await MainProcess.ProcessAsync(this);
+        }
         public void StopModule()
         {
-            throw new NotImplementedException();
-        }
-
-        public void TriggerProcess()
-        {
-            throw new NotImplementedException();
+            // Stop the file watcher
+            if (_importerType != null)
+            {
+                //_importerType.Stop();
+                
+                //This will stop the quartz scheduler
+            }
+            else
+            {
+                Logger.Error("Rest API Monitor is not initialized.");
+            }
         }
     }
 }

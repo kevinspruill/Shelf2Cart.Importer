@@ -44,6 +44,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\MenuItemFullModel.cs" />
+    <Compile Include="Models\MenuItemSimpleModel.cs" />
     <Compile Include="Parser\ParsleyJSONParser.cs" />
     <Compile Include="ParsleyModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,7 +57,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\" />
     <Folder Include="Settings\" />
   </ItemGroup>
   <ItemGroup>

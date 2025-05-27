@@ -1,11 +1,14 @@
-﻿using Importer.Common.Interfaces;
+﻿using Importer.Common.ImporterTypes;
+using Importer.Common.Interfaces;
 using Importer.Common.Models;
 using Importer.Common.Modifiers;
+using Importer.Module.Parsley.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,25 +20,52 @@ namespace Importer.Module.Parsley.Parser
         private tblProducts ProductTemplate { get; set; }
         private ICustomerProcess _customerProcess { get; set; }
         public List<Dictionary<string, string>> PLURecords { get; private set; } = new List<Dictionary<string, string>>();
+        List<MenuItemFullModel> menuItemsToUpdate = new List<MenuItemFullModel>();
+        RestAPIMonitor _restClient;
 
         public ParsleyJSONParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
         {
             ProductTemplate = productTemplate;
             _customerProcess = customerProcess ?? new BaseProcess();
+            _restClient = new RestAPIMonitor(new ParsleyModule());
         }
 
-        public void ParseFile(string filePath)
+        public void ParseMenuItemSimpleList(string jsonString)
         {
-            //read the file
-            var jsonData = File.ReadAllText(filePath);
-            //deserialize into a List<Dictionary<string, object>> before sending to PLURecords
-            var deserializedJson = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonData);
+            //Every time this method is called, in this process we will get the list of Menu Items (placed into MenuItemSimpleModel),
+            //filter that list based on LastModifiedDate, and then for each record in the filtered list we query menu items by ID to
+            //get MenuItemFullModel added to menuItemsToUpdate. Then we actually add to PLURecords using multiple methods
 
+            //read the file
+            var jsonData = jsonString;
+            //deserialize into a List<Dictionary<string, object>> before sending to PLURecords
+            var deserializedJson = JsonConvert.DeserializeObject<List<MenuItemSimpleModel>>(jsonData);
+
+            List<MenuItemSimpleModel> filteredItems = new List<MenuItemSimpleModel>();
             foreach (var record in deserializedJson)
             {
-                PLURecords.Add(record.ToDictionary(k => k.Key, v => v.Value.ToString()));
+                //TODO Check the LastModifiedTime of each record, and if it is past last check or if full load is triggered THEN
+                //we add to filteredItems as below
+                filteredItems.Add(record);
+
+                //PLURecords.Add(record.ToDictionary(k => k.Key, v => v.Value.ToString()));
+            }
+
+            foreach (var item in filteredItems)
+            {
+                menuItemsToUpdate.Add(GetMenuItemDetails(item.ID).Result);
+
             }
         }
+
+        public async Task<MenuItemFullModel> GetMenuItemDetails(string id)
+        {
+            var jsonData = await _restClient.QueryEndpoint(); //TODO Refactor QueryEndpoint to send parameters
+            var deserializedJson = JsonConvert.DeserializeObject<MenuItemFullModel>(jsonData);
+
+            return deserializedJson;
+        }
+
         public List<tblProducts> ConvertPLURecordsToTblProducts()
         {
             var products = new List<tblProducts>();
@@ -107,6 +137,12 @@ namespace Importer.Module.Parsley.Parser
             }
 
             return product;
+        }
+
+        public void ConvertMenuItemsToPLURecords()
+        {
+            //TODO This is where we convert MenuItemFullModel to a List<Dictionary<string, string>> for use in
+            //ConvertPLURecordsToTblProducts
         }
         //end copied code
     }
