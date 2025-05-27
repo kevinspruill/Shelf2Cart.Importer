@@ -17,6 +17,8 @@ namespace Importer.Common.Main
         private Dictionary<string, object> _settings;
         private DatabaseHelper ProcessingDatabaseHelper;
         private DatabaseHelper ImportDatabaseHelper;
+        private DatabaseHelper AdminDatabaseHelper;
+        private DatabaseHelper ResidentDatabaseHelper;
 
         // Properties for specific settings
         public string ResidentDatabase => jsonLoader.GetSetting<string>("ResidentDatabase", _settings);
@@ -39,7 +41,9 @@ namespace Importer.Common.Main
             _settings = jsonLoader.LoadSettings(_settingsPath, SETTINGS_FILE);
 
             // Initialize DatabaseHelper
-            ProcessingDatabaseHelper = new DatabaseHelper(DatabaseType.ProcessDatase);
+            ResidentDatabaseHelper = new DatabaseHelper(DatabaseType.ResidentDatabase);
+            AdminDatabaseHelper = new DatabaseHelper(DatabaseType.AdminConsoleDatabase);
+            ProcessingDatabaseHelper = new DatabaseHelper(DatabaseType.ProcessDatabase);
             ImportDatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
         }
 
@@ -56,18 +60,33 @@ namespace Importer.Common.Main
 
             List<tblProducts> importTblProducts = ImportDatabaseHelper.GetProducts().ToList();
 
-
+            //TODO All of the below steps should happen in memory, and anything to do with the database should be put in DatabaseHelper
+            //Basic idea is doing all this in memory and then committing once per database table
 
             // Action 10: Import data from Importer to Processing (tblProducts)
+            ProcessingDatabaseHelper.DeleteAllProducts();
+            if (UseAdminConsoleDatabase)
+                ProcessingDatabaseHelper.BulkInsertOrUpdate(AdminDatabaseHelper.GetProducts().ToList());
+            else
+                ProcessingDatabaseHelper.BulkInsertOrUpdate(ResidentDatabaseHelper.GetProducts().ToList());
+
+            ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts);
+
             // Action 17: Update Local Edits Before Applying tblProducts to Processing Database
 
+            //TODO DatabaseHelper needs the ability to get the Edit_Fields from LocalEditFields, as well as the ability to
+            //insert just what we need from the Edit_Fields
+
+            //Can make one method for importing tables like this and send the table types
             // Actions 11-14: Import Tables (tblDepartments, tblClasses, tblCategories)
 
+            //Can make one method for UpdatePageNum, and I just send the table type (like classes, categories, products)
             // Actions 19-22: If Legacy is enabled, Update PageNum (make these as part of the above methods)
 
             // Action 25: Copy to Resident Database
 
             // Purge Log Files
+
 
             return;
         }
@@ -94,5 +113,6 @@ namespace Importer.Common.Main
                 return false;
             }
         }
+
     }
 }

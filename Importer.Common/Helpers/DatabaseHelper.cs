@@ -18,9 +18,9 @@ namespace Importer.Common.Helpers
 {
     public enum DatabaseType
     {
-        ProcessDatase,
+        ProcessDatabase,
         ImportDatabase,
-        ResidentDatase,
+        ResidentDatabase,
         AdminConsoleDatabase,
         SupplementalDatabase,
     }
@@ -58,6 +58,31 @@ namespace Importer.Common.Helpers
                 return items;
             }
         }
+        //public Dictionary<string, bool> GetLocalEditFields()
+        //{
+        //    using (OleDbConnection connection = new OleDbConnection(_connectionString))
+        //    {
+        //        connection.Open();
+
+        //        // Get schema information
+        //        var schemaTable = connection.GetSchema("Columns", new[] { null, null, "LocalEditFields", null });
+
+        //        // Build the SQL query dynamically
+        //        var columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
+        //        {
+        //            var columnName = row["COLUMN_NAME"].ToString();
+        //            return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+        //        }));
+
+        //        string query = $"SELECT {columns} FROM LocalEditFields";
+
+        //        //TODO Change this line to suit our query
+        //        var items = connection.Query<tblProducts>(query).ToList();
+
+        //        return items;
+        //    }
+        //}
+
         public void Insert(tblProducts item)
         {
             using (var connection = new OleDbConnection(_connectionString))
@@ -1122,8 +1147,8 @@ namespace Importer.Common.Helpers
             connectionStringBuilder.DataSource = databaseType switch
             {
                 DatabaseType.ImportDatabase => jsonLoader.GetSetting<string>("ImportDatabase", ProcDbSettings),
-                DatabaseType.ResidentDatase => jsonLoader.GetSetting<string>("ResidentDatabase", ProcDbSettings),
-                DatabaseType.ProcessDatase => jsonLoader.GetSetting<string>("ProcessDatabase", ProcDbSettings),
+                DatabaseType.ResidentDatabase => jsonLoader.GetSetting<string>("ResidentDatabase", ProcDbSettings),
+                DatabaseType.ProcessDatabase => jsonLoader.GetSetting<string>("ProcessDatabase", ProcDbSettings),
                 _ => throw new NotImplementedException(),
             };
 
