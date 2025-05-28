@@ -1,6 +1,8 @@
 ﻿using Dapper;
+using Importer.Common.Models;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
@@ -9,10 +11,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
 using System.Xml;
 using System.Xml.Schema;
-using Importer.Common.Models;
+using System.Xml.Serialization;
 
 namespace Importer.Common.Helpers
 {
@@ -58,30 +59,30 @@ namespace Importer.Common.Helpers
                 return items;
             }
         }
-        //public Dictionary<string, bool> GetLocalEditFields()
-        //{
-        //    using (OleDbConnection connection = new OleDbConnection(_connectionString))
-        //    {
-        //        connection.Open();
+        public Dictionary<string, bool> GetLocalEditFields()
+        {
+            using (OleDbConnection connection = new OleDbConnection(_connectionString))
+            {
+                connection.Open();
 
-        //        // Get schema information
-        //        var schemaTable = connection.GetSchema("Columns", new[] { null, null, "LocalEditFields", null });
+                // Get schema information
+                var schemaTable = connection.GetSchema("Columns", new[] { null, null, "LocalEditFields", null });
 
-        //        // Build the SQL query dynamically
-        //        var columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
-        //        {
-        //            var columnName = row["COLUMN_NAME"].ToString();
-        //            return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
-        //        }));
+                // Build the SQL query dynamically
+                var columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
+                {
+                    var columnName = row["COLUMN_NAME"].ToString();
+                    return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+                }));
 
-        //        string query = $"SELECT {columns} FROM LocalEditFields";
+                string query = $"SELECT {columns} FROM LocalEditFields";
 
-        //        //TODO Change this line to suit our query
-        //        var items = connection.Query<tblProducts>(query).ToList();
+                //TODO Change this line to suit our query
+                var items = connection.QuerySingle<Dictionary<string, bool>>(query);
 
-        //        return items;
-        //    }
-        //}
+                return items;
+            }
+        }
 
         public void Insert(tblProducts item)
         {
@@ -158,7 +159,8 @@ namespace Importer.Common.Helpers
         }
 
         /// <summary>
-        /// Performs a bulk insert or update operation on the tblProducts table using a specified primary key field.
+        /// Performs a bulk insert or update operation on a specified database table using a specified primary key field.
+        /// Supports selective field updates when working with the tblLocalEdits table.
         /// 
         /// Performance:
         /// - Generally faster than individual inserts/updates, especially for large datasets.
@@ -168,14 +170,19 @@ namespace Importer.Common.Helpers
         /// Use Case:
         /// - Best for scenarios where you need to insert/update a large number of records quickly.
         /// - Allows specifying a custom field to use as the primary key for update operations.
+        /// - Supports selective field updates for tblLocalEdits to update only specific columns.
         /// 
         /// Limitations:
         /// - May not provide detailed feedback on which records were inserted vs updated.
         /// - Could potentially overwrite data if not used carefully.
+        /// - Selective field updates only work when tblName is "tblLocalEdits" and fieldsToUpdate is provided.
         /// </summary>
         /// <param name="products">List of tblProducts to insert or update</param>
-        /// <param name="primaryKeyField">Name of the field to use as the primary key for updates</param>
-        public bool BulkInsertOrUpdate(List<tblProducts> products, string primaryKeyField = "PLU")
+        /// <param name="primaryKeyField">Name of the field to use as the primary key for updates (default: "PLU")</param>
+        /// <param name="tblName">Name of the target database table (default: "tblProducts")</param>
+        /// <param name="fieldsToUpdate">Optional dictionary specifying which fields to update when tblName is "tblLocalEdits". 
+        ///     Key is field name, value indicates whether to update (true) or skip (false) the field. Only applies to tblLocalEdits table.</param>
+        public bool BulkInsertOrUpdate(List<tblProducts> products, string primaryKeyField = "PLU", string tblName = "tblProducts", Dictionary<string, bool> fieldsToUpdate = null)
         {
             int updated = 0;
             int inserted = 0;
@@ -187,9 +194,20 @@ namespace Importer.Common.Helpers
                     connection.Open();
 
                     // Create a DataTable with the structure matching the database fields
-                    DataTable dt = new DataTable("tblProducts_DT");
+                    DataTable dt = new DataTable($"{tblName}_DT");
                     var properties = typeof(tblProducts).GetProperties()
                         .Where(p => p.GetCustomAttribute<ImportDBFieldAttribute>() != null);
+
+                    // Filter properties based on fieldsToUpdate if provided and table is tblLocalEdits
+                    var propertiesToProcess = properties;
+                    if (tblName == "tblLocalEdits" && fieldsToUpdate != null)
+                    {
+                        propertiesToProcess = properties.Where(p =>
+                        {
+                            var attr = p.GetCustomAttribute<ImportDBFieldAttribute>();
+                            return fieldsToUpdate.ContainsKey(attr.Name) && fieldsToUpdate[attr.Name];
+                        });
+                    }
 
                     // Create a mapping from property names to DataTable column names
                     Dictionary<string, string> propertyToColumnName = new Dictionary<string, string>();
@@ -197,13 +215,13 @@ namespace Importer.Common.Helpers
                     Dictionary<string, string> fieldNameToPropertyName = new Dictionary<string, string>();
 
                     // Create OleDbDataAdapter with a SELECT command to fetch existing records
-                    using (OleDbDataAdapter adapter = new OleDbDataAdapter($"SELECT * FROM tblProducts", connection))
+                    using (OleDbDataAdapter adapter = new OleDbDataAdapter($"SELECT * FROM {tblName}", connection))
                     {
                         // Fill the DataTable schema from the database
                         adapter.FillSchema(dt, SchemaType.Source);
 
                         // Map properties to DataTable columns
-                        foreach (var prop in properties)
+                        foreach (var prop in propertiesToProcess)
                         {
                             var attr = prop.GetCustomAttribute<ImportDBFieldAttribute>();
                             string fieldName = attr.Name; // Original field name (may contain spaces)
@@ -244,7 +262,7 @@ namespace Importer.Common.Helpers
 
                             // Get the column name for the primary key
                             string pkPropertyName = pkProp.Name;
-                            string pkColumnName = propertyToColumnName[pkPropertyName];
+                            string pkColumnName = propertyToColumnName.ContainsKey(pkPropertyName) ? propertyToColumnName[pkPropertyName] : primaryKeyField;
 
                             // Create a DataRow array to find matching rows based on the primary key
                             string filterExpression;
@@ -268,18 +286,22 @@ namespace Importer.Common.Helpers
                                 DataRow row = existingRows[0];
                                 bool hasChanges = false;
 
-                                foreach (var prop in properties)
+                                // Only update the properties that are in our filtered list
+                                foreach (var prop in propertiesToProcess)
                                 {
-                                    string columnName = propertyToColumnName[prop.Name];
-                                    var newValue = prop.GetValue(product) ?? DBNull.Value;
-                                    var oldValue = row[columnName];
-
-                                    if (!ValuesAreEqual(oldValue, newValue))
+                                    if (propertyToColumnName.ContainsKey(prop.Name))
                                     {
-                                        // Log the differences for debugging
-                                        Logger.Debug($"Value changed for column '{columnName}': Old='{oldValue}' ({oldValue?.GetType()}), New='{newValue}' ({newValue?.GetType()})");
-                                        row[columnName] = newValue;
-                                        hasChanges = true;
+                                        string columnName = propertyToColumnName[prop.Name];
+                                        var newValue = prop.GetValue(product) ?? DBNull.Value;
+                                        var oldValue = row[columnName];
+
+                                        if (!ValuesAreEqual(oldValue, newValue))
+                                        {
+                                            // Log the differences for debugging
+                                            Logger.Debug($"Value changed for column '{columnName}': Old='{oldValue}' ({oldValue?.GetType()}), New='{newValue}' ({newValue?.GetType()})");
+                                            row[columnName] = newValue;
+                                            hasChanges = true;
+                                        }
                                     }
                                 }
 
@@ -295,12 +317,15 @@ namespace Importer.Common.Helpers
                             }
                             else
                             {
-                                // Add new row
+                                // Add new row - for inserts, we still use all available properties
                                 DataRow row = dt.NewRow();
-                                foreach (var prop in properties)
+                                foreach (var prop in propertiesToProcess)
                                 {
-                                    string columnName = propertyToColumnName[prop.Name];
-                                    row[columnName] = prop.GetValue(product) ?? DBNull.Value;
+                                    if (propertyToColumnName.ContainsKey(prop.Name))
+                                    {
+                                        string columnName = propertyToColumnName[prop.Name];
+                                        row[columnName] = prop.GetValue(product) ?? DBNull.Value;
+                                    }
                                 }
                                 dt.Rows.Add(row);
                                 inserted++;
@@ -315,7 +340,7 @@ namespace Importer.Common.Helpers
                         adapter.Update(dt);
                     }
 
-                    Logger.Info($"Bulk operation completed. {updated} records updated, {inserted} records inserted.");
+                    Logger.Info($"Bulk operation completed on table '{tblName}'. {updated} records updated, {inserted} records inserted.");
 
                     // return true if any records were updated or inserted, otherwise false
                     return updated + inserted > 0;
@@ -323,7 +348,7 @@ namespace Importer.Common.Helpers
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error during bulk insert/update: {ex.Message}", ex);
+                Logger.Error($"Error during bulk insert/update on table '{tblName}': {ex.Message}", ex);
                 return false;
             }
         }

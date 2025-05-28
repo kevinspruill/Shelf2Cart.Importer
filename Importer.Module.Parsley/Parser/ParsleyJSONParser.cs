@@ -77,13 +77,8 @@ namespace Importer.Module.Parsley.Parser
             return products;
         }
         public List<tblProducts> ConvertPLUDeleteRecordsToTblProducts()
-        {
+        {   //We do not use deletes in Parsley, but necessary for interface
             var products = new List<tblProducts>();
-            foreach (var pluItem in DeletedPLURecords)
-            {
-                var product = ConvertPLURecordToTblproducts(pluItem);
-                products.Add(product);
-            }
             return products;
         }
         private tblProducts ConvertPLURecordToTblproducts(Dictionary<string, string> pluItem)

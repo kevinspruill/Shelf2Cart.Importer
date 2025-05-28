@@ -17,7 +17,6 @@ namespace Importer.Common.Main
         private Dictionary<string, object> _settings;
         private DatabaseHelper ProcessingDatabaseHelper;
         private DatabaseHelper ImportDatabaseHelper;
-        private DatabaseHelper AdminDatabaseHelper;
         private DatabaseHelper ResidentDatabaseHelper;
 
         // Properties for specific settings
@@ -42,7 +41,6 @@ namespace Importer.Common.Main
 
             // Initialize DatabaseHelper
             ResidentDatabaseHelper = new DatabaseHelper(DatabaseType.ResidentDatabase);
-            AdminDatabaseHelper = new DatabaseHelper(DatabaseType.AdminConsoleDatabase);
             ProcessingDatabaseHelper = new DatabaseHelper(DatabaseType.ProcessDatabase);
             ImportDatabaseHelper = new DatabaseHelper(DatabaseType.ImportDatabase);
         }
@@ -64,18 +62,26 @@ namespace Importer.Common.Main
             //Basic idea is doing all this in memory and then committing once per database table
 
             // Action 10: Import data from Importer to Processing (tblProducts)
-            ProcessingDatabaseHelper.DeleteAllProducts();
-            if (UseAdminConsoleDatabase)
-                ProcessingDatabaseHelper.BulkInsertOrUpdate(AdminDatabaseHelper.GetProducts().ToList());
-            else
-                ProcessingDatabaseHelper.BulkInsertOrUpdate(ResidentDatabaseHelper.GetProducts().ToList());
-
-            ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts);
+            if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts))
+            {
+                Logger.LogErrorEvent("Failed to upsert into tblProducts.");
+                return;
+            }
+            Logger.Info($"Completed Bulk Upsert into tblProducts");
 
             // Action 17: Update Local Edits Before Applying tblProducts to Processing Database
 
             //TODO DatabaseHelper needs the ability to get the Edit_Fields from LocalEditFields, as well as the ability to
             //insert just what we need from the Edit_Fields
+
+            var editFields = ProcessingDatabaseHelper.GetLocalEditFields();
+
+            if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts, "PLU", "tblLocalEdits", editFields))
+            {
+                Logger.LogErrorEvent("Failed to update tblLocalEdits.");
+                return;
+            }
+            Logger.Info($"Completed update of tblLocalEdits");
 
             //Can make one method for importing tables like this and send the table types
             // Actions 11-14: Import Tables (tblDepartments, tblClasses, tblCategories)
