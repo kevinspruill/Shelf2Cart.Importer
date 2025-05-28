@@ -44,8 +44,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\MenuItemFullModel.cs" />
-    <Compile Include="Models\MenuItemSimpleModel.cs" />
+    <Compile Include="Models\Allergens.cs" />
+    <Compile Include="Models\Characteristics.cs" />
+    <Compile Include="Models\IngredientListItem.cs" />
+    <Compile Include="Models\MenuItemDetails.cs" />
+    <Compile Include="Models\MenuItemSimple.cs" />
+    <Compile Include="Models\Nutrient.cs" />
+    <Compile Include="Models\NutritionalInfo.cs" />
+    <Compile Include="Models\ServingSize.cs" />
     <Compile Include="Parser\ParsleyJSONParser.cs" />
     <Compile Include="ParsleyModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

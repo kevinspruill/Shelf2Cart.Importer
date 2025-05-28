@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Importer.Module.Parsley.Models
 {
-    public class MenuItemSimpleModel
+    public class ServingSize
     {
-        public string ID { get; set; }
+        public double Amount { get; set; }
+        public string Uom { get; set; }
     }
 }

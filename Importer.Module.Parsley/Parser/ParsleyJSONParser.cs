@@ -20,7 +20,7 @@ namespace Importer.Module.Parsley.Parser
         private tblProducts ProductTemplate { get; set; }
         private ICustomerProcess _customerProcess { get; set; }
         public List<Dictionary<string, string>> PLURecords { get; private set; } = new List<Dictionary<string, string>>();
-        List<MenuItemFullModel> menuItemsToUpdate = new List<MenuItemFullModel>();
+        List<MenuItemDetails> menuItemsToUpdate = new List<MenuItemDetails>();
         RestAPIMonitor _restClient;
 
         public ParsleyJSONParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
@@ -39,9 +39,9 @@ namespace Importer.Module.Parsley.Parser
             //read the file
             var jsonData = jsonString;
             //deserialize into a List<Dictionary<string, object>> before sending to PLURecords
-            var deserializedJson = JsonConvert.DeserializeObject<List<MenuItemSimpleModel>>(jsonData);
+            var deserializedJson = JsonConvert.DeserializeObject<List<MenuItemSimple>>(jsonData);
 
-            List<MenuItemSimpleModel> filteredItems = new List<MenuItemSimpleModel>();
+            List<MenuItemSimple> filteredItems = new List<MenuItemSimple>();
             foreach (var record in deserializedJson)
             {
                 //TODO Check the LastModifiedTime of each record, and if it is past last check or if full load is triggered THEN
@@ -53,15 +53,15 @@ namespace Importer.Module.Parsley.Parser
 
             foreach (var item in filteredItems)
             {
-                menuItemsToUpdate.Add(GetMenuItemDetails(item.ID).Result);
+                menuItemsToUpdate.Add(GetMenuItemDetails(item.Id).Result);
 
             }
         }
 
-        public async Task<MenuItemFullModel> GetMenuItemDetails(string id)
+        public async Task<MenuItemDetails> GetMenuItemDetails(string id)
         {
             var jsonData = await _restClient.QueryEndpoint(); //TODO Refactor QueryEndpoint to send parameters
-            var deserializedJson = JsonConvert.DeserializeObject<MenuItemFullModel>(jsonData);
+            var deserializedJson = JsonConvert.DeserializeObject<MenuItemDetails>(jsonData);
 
             return deserializedJson;
         }
@@ -136,8 +136,9 @@ namespace Importer.Module.Parsley.Parser
 
         public void ConvertMenuItemsToPLURecords()
         {
-            //TODO This is where we convert MenuItemFullModel to a List<Dictionary<string, string>> for use in
-            //ConvertPLURecordsToTblProducts
+            //TODO This is where we convert MenuItemFullModel to a List<Dictionary<string, string>> PLURecords for use in
+            //ConvertPLURecordsToTblProducts. See how Invafresh Module does it, think about how we can expand it later but not
+            //go crazy right now (how Invafresh uses hardcoding and also a custom mapper)
         }
         //end copied code
     }
