@@ -158,6 +158,22 @@ namespace Importer.Common.Helpers
             }
         }
 
+        public void InsertDrilldownTables(string tblName, string sourceDBConnectionString)
+        {
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    connection.Execute($"DELETE * FROM {tblName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error clearing {tblName}: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Performs a bulk insert or update operation on a specified database table using a specified primary key field.
         /// Supports selective field updates when working with the tblLocalEdits table.

@@ -2,15 +2,7 @@
 
 namespace Importer.Common.Models
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class ImportDBFieldAttribute : Attribute
-    {
-        public string Name { get; }
-        public ImportDBFieldAttribute(string name)
-        {
-            Name = name;
-        }
-    }
+    
     public class tblProducts
     {
             [ImportDBField("Barcode")]

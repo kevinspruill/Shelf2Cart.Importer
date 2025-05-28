@@ -86,6 +86,7 @@ namespace Importer.Common.Main
             //Can make one method for importing tables like this and send the table types
             // Actions 11-14: Import Tables (tblDepartments, tblClasses, tblCategories)
 
+
             //Can make one method for UpdatePageNum, and I just send the table type (like classes, categories, products)
             // Actions 19-22: If Legacy is enabled, Update PageNum (make these as part of the above methods)
 
