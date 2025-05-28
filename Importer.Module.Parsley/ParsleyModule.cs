@@ -3,6 +3,7 @@ using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Main;
 using Importer.Common.Models;
+using Importer.Common.Services;
 using Importer.Module.Parsley.Models;
 using Importer.Module.Parsley.Parser;
 using System;
@@ -25,6 +26,7 @@ namespace Importer.Module.Parsley
         ICustomerProcess _customerProcess;
         RestAPIMonitor _importerType;
         ParsleyJSONParser parser = null;
+        SchedulerService schedulerService;
 
         public int GetPendingFileCount()
         {
@@ -66,16 +68,17 @@ namespace Importer.Module.Parsley
         }
         public void SetupImporterType()
         {
-            // No need to set up the importer type here, as it's done in the constructor of FilePollMonitor
+            // Use SchedulerService to set up the RestAPIMonitor
+            schedulerService = new SchedulerService();
+            schedulerService.ScheduleJob<RestAPIMonitor>("Parsley", new TimeSpan(0,5,0));
         }
-        public void StartModule()
+        public async void StartModule()
         {
             // Start the file watcher
             if (_importerType != null)
             {
-                //_importerType.Start();
-
                 //this will start the quartz scheduler for the RestAPIMonitor
+                await schedulerService.StartSchedulerAsync();
             }
             else
             {
