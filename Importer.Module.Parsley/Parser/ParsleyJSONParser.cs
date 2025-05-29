@@ -1,6 +1,7 @@
 ﻿using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Models;
+using Importer.Common.Services;
 using Importer.Common.Modifiers;
 using Importer.Module.Parsley.Models;
 using Newtonsoft.Json;
@@ -21,13 +22,16 @@ namespace Importer.Module.Parsley.Parser
         private ICustomerProcess _customerProcess { get; set; }
         public List<Dictionary<string, string>> PLURecords { get; private set; } = new List<Dictionary<string, string>>();
         List<MenuItemDetails> menuItemsToUpdate = new List<MenuItemDetails>();
-        RestAPIMonitor _restClient;
+        MerchandiserAPIClient _restClient;
 
         public ParsleyJSONParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
         {
             ProductTemplate = productTemplate;
             _customerProcess = customerProcess ?? new BaseProcess();
-            _restClient = new RestAPIMonitor(new ParsleyModule());
+            _restClient = new MerchandiserAPIClient();
+            //Set API Key
+            _restClient.SetHeader("Key", "f5d25b532fd70793a2863f82963a637ba52cb4836b8589b9a67ee0d9dd25cb5278bb087905a9f4d2dc3abea7077ff22335af4f937ed8a03ba6af1afbc5d858886633fe687766a68f854ddc9782719c350662c");
+            
         }
 
         public void ParseMenuItemSimpleList(string jsonString)
@@ -54,13 +58,12 @@ namespace Importer.Module.Parsley.Parser
             foreach (var item in filteredItems)
             {
                 menuItemsToUpdate.Add(GetMenuItemDetails(item.Id).Result);
-
             }
         }
 
         public async Task<MenuItemDetails> GetMenuItemDetails(int id)
         {
-            var jsonData = await _restClient.QueryEndpoint(); //TODO Refactor QueryEndpoint to send parameters
+            var jsonData = await _restClient.GetAsync($"https://app.parsleycooks.com/api/public/menu_items/{id}"); 
             var deserializedJson = JsonConvert.DeserializeObject<MenuItemDetails>(jsonData);
 
             return deserializedJson;
@@ -86,12 +89,12 @@ namespace Importer.Module.Parsley.Parser
             var product = ProductTemplate.Clone();
 
             //TODO Accidentally hardcode mapped in ConvertMenuItem to PLURecord, so putting my accidental mapping here
-            //record.PLU = item.Id.ToString();
-            //record.Description1 = item.Name;
+            product.PLU = pluItem.GetValue("id");
+            product.Description1 = pluItem.GetValue("name");
 
             ////TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
-            //record.NetWt = $"{item.NutritionalInfo.ServingSize.Amount} {item.NutritionalInfo.ServingSize.Uom}";
-            //record.NFServingSize = item.NutritionalInfo.NutritionServingSize;
+            product.NetWt = $"{pluItem.GetValue("servingSizeAmount")} {pluItem.GetValue("servingSizeUom")}";
+            product.NFServingSize = pluItem.GetValue("nutritionServingSize");
 
             //SetNutrientInfo(record, item);
 
@@ -155,51 +158,7 @@ namespace Importer.Module.Parsley.Parser
             //record.Scaleable = item.NutritionalInfo.IsPackaged;
             //end accidental hardcode map
 
-            // Create a dictionary to map the fields
-            var mappedFields = FieldMapLoader.FieldMap;
-            foreach (var field in mappedFields)
-            {
 
-                var propertyWithAttribute = typeof(tblProducts).GetProperties()
-                    .FirstOrDefault(prop =>
-                    {
-                        var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
-                            .Cast<ImportDBFieldAttribute>()
-                            .FirstOrDefault();
-                        return attr != null && attr.Name == field.Key;
-                    });
-
-                if (propertyWithAttribute != null)
-                {
-                    // check pluItem to see if the field.Key exists
-                    bool fieldValueExists = pluItem.ContainsKey(field.Key);
-
-                    if (fieldValueExists)
-                    {
-                        // Get the value from pluItem and set it to the product, converting it to the correct type
-
-                        var value = pluItem[field.Key];
-                        var propertyType = propertyWithAttribute.PropertyType;
-
-                        if (propertyType == typeof(bool))
-                        {
-                            // The field in BooleanVals matches the field name, the value is what is constitutes a true value
-                            var trueValues = BooleanMapLoader.BooleanVals[field.Key];
-                            var isTrue = trueValues == value;
-                            propertyWithAttribute.SetValue(product, isTrue);
-                        }
-                        else
-                        {
-                            var convertedValue = Convert.ChangeType(value, propertyType);
-                            //if there is a null or whitespace then we go with our default values
-                            if (propertyType != typeof(string)
-                                || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
-                                propertyWithAttribute.SetValue(product, convertedValue);
-                        }
-
-                    }
-                }
-            }
 
             return product;
         }

@@ -1,13 +1,11 @@
 [
   {
-    "Name": "Westside Importer",
-    "Description": "File Polling Importer Type",
-    "ImporterModule": "Generic",
+    "Name": "Ya Hala Importer",
+    "Description": "Parsley Rest API Importer",
+    "ImporterModule": "Parsley",
     "Enabled": true,
     "TypeSettings": {
-      "TargetPath": "C:\\Program Files\\MM_GEN_Import\\Server\\DropFolder",
-      "PollIntervalMilliseconds": 150,
-      "AllowedExtensions": []
+
     }
   }
 ]
