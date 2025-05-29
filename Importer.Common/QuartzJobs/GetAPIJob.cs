@@ -36,10 +36,15 @@ namespace Importer.Common.QuartzJobs
 
             // Retrieve the module reference
             var moduleKey = context.JobDetail.JobDataMap.GetString("ImporterModuleKey");
+            var endpoint = context.JobDetail.JobDataMap.GetString("Endpoint");
+            var apiKey = context.JobDetail.JobDataMap.GetString("ApiKey");
+            //Set API Key
+            merchandiserAPIClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+
             if (ImporterModuleRegistry.Modules.TryGetValue(moduleKey, out var module))
             {
                 // Fetch data
-                var result = await merchandiserAPIClient.GetAsync(Settings["Endpoint"].ToString());
+                var result = await merchandiserAPIClient.GetAsync(endpoint);
 
                 // Pass data back to the module
                 module.ImporterTypeData = result; // or call a custom method if needed

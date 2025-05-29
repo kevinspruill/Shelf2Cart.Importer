@@ -5,7 +5,7 @@
     "ImporterModule": "Parsley",
     "Enabled": true,
     "TypeSettings": {
-      "Endpoint": "https://app.parsleycooks.com/api/public/menu_items/",
+      "Endpoint": "https://app.parsleycooks.com/api/public/menu_items",
       "ApiKey": "f5d25b532fd70793a2863f82963a637ba52cb4836b8589b9a67ee0d9dd25cb5278bb087905a9f4d2dc3abea7077ff22335af4f937ed8a03ba6af1afbc5d858886633fe687766a68f854ddc9782719c350662ca389c0d170ae75aa2d1859162ebf7cc9d4d4d01885d23ae74ee605b1d67c1831a4f4d5789031c1954bd0855f197"
 
     }

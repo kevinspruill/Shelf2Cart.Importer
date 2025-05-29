@@ -1,4 +1,5 @@
-﻿using Importer.Common.ImporterTypes;
+﻿using Importer.Common.Helpers;
+using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Models;
 using Importer.Common.Modifiers;
@@ -8,6 +9,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -67,9 +69,11 @@ namespace Importer.Module.Parsley.Parser
 
         public async Task<MenuItemDetails> GetMenuItemDetails(int id)
         {
-            var jsonData = await _restClient.GetAsync($"https://app.parsleycooks.com/api/public/menu_items/{id}"); 
-            var deserializedJson = JsonConvert.DeserializeObject<MenuItemDetails>(jsonData);
+            _restClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", APIKey);
 
+            var jsonData = await _restClient.GetAsync($"https://app.parsleycooks.com/api/public/menu_items/{id}");
+            var deserializedJson = JsonConvert.DeserializeObject<MenuItemDetails>(jsonData);
+            Logger.Info($"Retrieved full Menu Item Details for id {id} - {deserializedJson.Name}");
             return deserializedJson;
         }
 
@@ -92,81 +96,110 @@ namespace Importer.Module.Parsley.Parser
         {
             var product = ProductTemplate.Clone();
 
-            //TODO Accidentally hardcode mapped in ConvertMenuItem to PLURecord, so putting my accidental mapping here
-            //Make a GetValue method to not have to do two lines for everything
-            pluItem.TryGetValue("id", out string idValue);
-            product.PLU = idValue;
-            //product.Description1 = pluItem.GetValue("name");
+            product.PLU = GetValue(pluItem, "id");
+            product.Description1 = GetValue(pluItem, "name");
 
             ////TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
-            //product.NetWt = $"{pluItem.GetValue("servingSizeAmount")} {pluItem.GetValue("servingSizeUom")}";
-            //product.NFServingSize = pluItem.GetValue("nutritionServingSize");
+            product.NetWt = $"{GetValue(pluItem, "servingSizeAmount")} {GetValue(pluItem, "servingSizeUom")}";
+            product.NFServingSize = GetValue(pluItem, "nutritionServingSize");
 
-            //SetNutrientInfo(record, item);
+            product = MapNutrientInfo(pluItem, product);
 
-            ////TODO allergensString seems unreliable according to the example, we should
-            //record.Description11 = "Contains: ";
-            //if ((bool)item.NutritionalInfo.Allergens.Milk)
-            //    record.Description11 += "Milk, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Eggs)
-            //    record.Description11 += "Eggs, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Wheat)
-            //    record.Description11 += "Wheat, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Peanuts)
-            //    record.Description11 += "Peanuts, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Soybeans)
-            //    record.Description11 += "Soybeans, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Molluscs)
-            //    record.Description11 += "Molluscs, ";
-            //if ((bool)item.NutritionalInfo.Allergens.CerealsGluten)
-            //    record.Description11 += "Gluten, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Celery)
-            //    record.Description11 += "Celery, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Mustard)
-            //    record.Description11 += "Mustard, ";
-            //if ((bool)item.NutritionalInfo.Allergens.SesameSeeds)
-            //    record.Description11 += "Sesame Seeds, ";
-            //if ((bool)item.NutritionalInfo.Allergens.SulphurDioxideSulphites)
-            //    record.Description11 += "Sulphur Dioxide Sulphites, ";
-            //if ((bool)item.NutritionalInfo.Allergens.Lupin)
-            //    record.Description11 += "Lupin, ";
-            //if (item.NutritionalInfo.Allergens.Fish.Length > 0)
-            //    record.Description11 += item.NutritionalInfo.Allergens.Fish;
-            //if (item.NutritionalInfo.Allergens.CrustaceanShellfish.Length > 0)
-            //    record.Description11 += item.NutritionalInfo.Allergens.CrustaceanShellfish;
-            //if (item.NutritionalInfo.Allergens.TreeNuts.Length > 0)
-            //    record.Description11 += item.NutritionalInfo.Allergens.TreeNuts;
+            product.Description11 = $"CONTAINS: {GetValue(pluItem, "allergenString")}";
 
-            //if (record.Description11 == "Contains: ")
-            //    record.Description11 = string.Empty;
-            //else
-            //    record.Description11 = record.Description11.Substring(0, record.Description11.Length - 3);
-            ////end allergen 
+            product.Ingredients = GetValue(pluItem, "ingredients");
 
-            //record.Ingredients = item.NutritionalInfo.Ingredients;
-            //foreach (var tag in item.CustomTags)
-            //{
-            //    //TODO Use the tags
-            //}
+            //TODO Need to fill this in
+            product = MapCustomTags(pluItem, product);
 
-            ////Convert non-required fields
-            //record.Description2 = item.Subtitle;
-            //record.Price = item.Price.ToString();
+            //Convert non-required fields
+            product.Description2 = GetValue(pluItem, "subtitle");
+            product.Price = GetValue(pluItem, "price");
 
-
-            //if (item.HeatingInstructionOven.Length > 0)
-            //    record.Description14 += item.HeatingInstructionOven + "\n\n";
-
-            //if (item.HeatingInstructionMicrowave.Length > 0)
-            //    record.Description14 += item.HeatingInstructionMicrowave;
+            product.Description14 = GetValue(pluItem, "heatingInstructionOven");
+            product.Description14 += GetValue(pluItem, "heatingInstructionMicrowave");
 
             ////TODO Confirm that IsPackaged is Scaleable
             //record.Scaleable = item.NutritionalInfo.IsPackaged;
-            //end accidental hardcode map
-
-
 
             return product;
+        }
+
+        public tblProducts MapCustomTags(Dictionary<string, string> pluItem, tblProducts product)
+        {
+            //TODO loop through the custom tags
+            return product;
+        }
+
+        public tblProducts MapNutrientInfo(Dictionary<string, string> pluItem, tblProducts product)
+        {
+            //TODO set all the nutrient info, I need to know more about the names that are used by Ya Hala
+            foreach (var item in pluItem)
+            {
+                switch (item.Key)
+                {
+                    case "calories":
+                        product.NFCalories = item.Value;
+                        break;
+                    case "totalFat":
+                        product.NFTotalFatG = item.Value;
+                        break;
+                    case "saturatedFat":
+                        product.NFSatFatG = item.Value;
+                        break;
+                    case "cholesterol":
+                        product.NFCholesterolMG = item.Value;
+                        break;
+                    case "sodium":
+                        product.NFSodiumMG = item.Value;
+                        break;
+                    case "total_carbohydrates":
+                        product.NFTotCarboG = item.Value;
+                        break;
+                    case "dietary_fiber":
+                        product.NFDietFiber = item.Value;
+                        break;
+                    case "total_sugars":
+                        product.NFSugars = item.Value;
+                        break;
+                    case "protein":
+                        product.NFProtein = item.Value;
+                        break;
+                    case "vitamin_a":
+                        product.NFVitA = item.Value;
+                        break;
+                    case "vitamin_c":
+                        product.NFVitC = item.Value;
+                        break;
+                    case "calcium":
+                        product.NFCalciummcg = item.Value;
+                        break;
+                    case "iron":
+                        product.NFIronmcg = item.Value;
+                        break;
+                    case "added_sugar":
+                        product.NFSugarsAddedG = item.Value;
+                        break;
+                    case "vitamin_d":
+                        product.NFVitDmcg = item.Value;
+                        break;
+                    case "potassium":
+                        product.NFPotassiummcg = item.Value;
+                        break;
+                    //TODO determine where we will place "phosphorus", as maybe NF9 to NF20
+                    default:
+                        break;
+                }
+            }
+            return product;
+        }
+
+        public string GetValue(Dictionary<string, string> pluItem, string key)
+        {
+            if (pluItem.TryGetValue(key, out string value))
+                return value;
+            else
+                return string.Empty;
         }
 
         public void ConvertMenuItemsToPLURecords()
@@ -180,6 +213,7 @@ namespace Importer.Module.Parsley.Parser
                 //Convert required fields
                 record.Add("id", item.Id.ToString());
                 record.Add("name", item.Name);
+                record.Add("description", item.Description);
 
                 //TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
                 record.Add("servingSizeAmount", item.NutritionalInfo.ServingSize.Amount.ToString());
@@ -190,55 +224,27 @@ namespace Importer.Module.Parsley.Parser
                 //No need for a whole other method, we can just combine value and unit to make our value
                 foreach (var nutrient in item.NutritionalInfo.Nutrients.Values)
                 {
-                    record.Add(nutrient.Name, $"{nutrient.Value}{nutrient.Unit}");
+                    record.Add(nutrient.Name, nutrient.Value.ToString()); //not including the unit as we add that
                 }
 
-                //TODO allergensString seems unreliable according to the example, and these will always either be true/non-empty or null
-                if (item.NutritionalInfo.Allergens.Milk != null)
-                    record.Add("allergensMilk", item.NutritionalInfo.Allergens.Milk.ToString());
-                if (item.NutritionalInfo.Allergens.Eggs != null)
-                    record.Add("allergensEggs", item.NutritionalInfo.Allergens.Eggs.ToString());
-                if (item.NutritionalInfo.Allergens.Wheat != null)
-                    record.Add("allergensWheat", item.NutritionalInfo.Allergens.Wheat.ToString());
-                if (item.NutritionalInfo.Allergens.Peanuts != null)
-                    record.Add("allergensPeanuts", item.NutritionalInfo.Allergens.Peanuts.ToString());
-                if (item.NutritionalInfo.Allergens.Soybeans != null)
-                    record.Add("allergensSoybeans", item.NutritionalInfo.Allergens.Soybeans.ToString());
-                if (item.NutritionalInfo.Allergens.Molluscs != null)
-                    record.Add("allergensMolluscs", item.NutritionalInfo.Allergens.Molluscs.ToString());
-                if (item.NutritionalInfo.Allergens.CerealsGluten != null)
-                    record.Add("allergensCerealsGluten", item.NutritionalInfo.Allergens.CerealsGluten.ToString());
-                if (item.NutritionalInfo.Allergens.Celery != null)
-                    record.Add("allergensCelery", item.NutritionalInfo.Allergens.Celery.ToString());
-                if (item.NutritionalInfo.Allergens.Mustard != null)
-                    record.Add("allergensMustard", item.NutritionalInfo.Allergens.Mustard.ToString());
-                if (item.NutritionalInfo.Allergens.SesameSeeds != null)
-                    record.Add("allergensSesameSeeds", item.NutritionalInfo.Allergens.SesameSeeds.ToString());
-                if (item.NutritionalInfo.Allergens.SulphurDioxideSulphites != null)
-                    record.Add("allergensSulphurDioxideSulphites", item.NutritionalInfo.Allergens.SulphurDioxideSulphites.ToString());
-                if (item.NutritionalInfo.Allergens.Lupin != null)
-                    record.Add("allergensLupin", item.NutritionalInfo.Allergens.Lupin.ToString());
-                if (item.NutritionalInfo.Allergens.Fish != null)
-                    record.Add("allergensFish", item.NutritionalInfo.Allergens.Fish);
-                if (item.NutritionalInfo.Allergens.CrustaceanShellfish != null)
-                    record.Add("allergensCrustaceanShellfish", item.NutritionalInfo.Allergens.CrustaceanShellfish);
-                if (item.NutritionalInfo.Allergens.TreeNuts != null)
-                    record.Add("allergensTreeNuts", item.NutritionalInfo.Allergens.TreeNuts);
-
-                //end allergen 
+                //Ya Hala fills out their allergenString well
+                record.Add("allergenString", item.NutritionalInfo.AllergensString);
 
                 record.Add("Ingredients", item.NutritionalInfo.Ingredients);
-                foreach (var tag in item.CustomTags)
+                if (item.CustomTags != null)
                 {
-                    //TODO We might add an S2C prefix to ensure we only grab certain custom tags
-                    record.Add(tag.Key, tag.Value.ToString());
+                    foreach (var tag in item.CustomTags)
+                    {
+                        //TODO We might add an S2C prefix to ensure we only grab certain custom tags
+                        record.Add(tag.Key, tag.Value.ToString());
+                    }
                 }
-                
+
                 //Convert non-required fields
                 record.Add("subtitle", item.Subtitle);
                 record.Add("price", item.Price.ToString());
-                
-                
+
+
                 if (item.HeatingInstructionOven != null)
                     record.Add("heatingInstructionOven", item.HeatingInstructionOven);
 

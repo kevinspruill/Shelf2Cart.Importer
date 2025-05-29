@@ -22,7 +22,7 @@ namespace Importer.Module.Parsley
         public string Version { get; set; } = "1.0.0";
         public ImporterInstance ImporterInstance { get; set; }
         public string ImporterTypeData { get; set; }
-        public tblProducts ProductTemplate { get; set; }
+        public tblProducts ProductTemplate { get; set; } = new tblProducts();
         public bool Flush { get; set; }
 
         ICustomerProcess _customerProcess;
@@ -31,12 +31,12 @@ namespace Importer.Module.Parsley
 
         public int GetPendingFileCount()
         {
-            throw new NotImplementedException();
+            return 0; //temporary
         }
 
         public List<tblProducts> GetTblProductsDeleteList()
         {
-            throw new NotImplementedException();
+            return new List<tblProducts>();
         }
 
         public List<tblProducts> GetTblProductsList()
@@ -73,7 +73,8 @@ namespace Importer.Module.Parsley
         public void SetupImporterType()
         {
             // Use SchedulerService to set up the GetAPIJob
-            _importerType.ScheduleJob<GetAPIJob>("Parsley", new TimeSpan(0,5,0));
+            _importerType.ApplySettings(ImporterInstance.TypeSettings);
+            _importerType.ScheduleJob<GetAPIJob>("Parsley", new TimeSpan(1,0,0));
         }
         public async void StartModule()
         {

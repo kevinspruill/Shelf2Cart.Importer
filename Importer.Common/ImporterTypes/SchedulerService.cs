@@ -37,6 +37,7 @@ namespace Importer.Common.ImporterTypes
                 .WithIdentity(jobName)
                 .UsingJobData("ImporterModuleKey", _importerModule.GetType().AssemblyQualifiedName)
                 .UsingJobData("Endpoint", Settings["Endpoint"].ToString())
+                .UsingJobData("ApiKey", Settings["ApiKey"].ToString())
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}_Trigger")
