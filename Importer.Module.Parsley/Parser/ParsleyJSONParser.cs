@@ -58,7 +58,7 @@ namespace Importer.Module.Parsley.Parser
             }
         }
 
-        public async Task<MenuItemDetails> GetMenuItemDetails(string id)
+        public async Task<MenuItemDetails> GetMenuItemDetails(int id)
         {
             var jsonData = await _restClient.QueryEndpoint(); //TODO Refactor QueryEndpoint to send parameters
             var deserializedJson = JsonConvert.DeserializeObject<MenuItemDetails>(jsonData);
@@ -84,6 +84,76 @@ namespace Importer.Module.Parsley.Parser
         private tblProducts ConvertPLURecordToTblproducts(Dictionary<string, string> pluItem)
         {
             var product = ProductTemplate.Clone();
+
+            //TODO Accidentally hardcode mapped in ConvertMenuItem to PLURecord, so putting my accidental mapping here
+            //record.PLU = item.Id.ToString();
+            //record.Description1 = item.Name;
+
+            ////TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
+            //record.NetWt = $"{item.NutritionalInfo.ServingSize.Amount} {item.NutritionalInfo.ServingSize.Uom}";
+            //record.NFServingSize = item.NutritionalInfo.NutritionServingSize;
+
+            //SetNutrientInfo(record, item);
+
+            ////TODO allergensString seems unreliable according to the example, we should
+            //record.Description11 = "Contains: ";
+            //if ((bool)item.NutritionalInfo.Allergens.Milk)
+            //    record.Description11 += "Milk, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Eggs)
+            //    record.Description11 += "Eggs, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Wheat)
+            //    record.Description11 += "Wheat, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Peanuts)
+            //    record.Description11 += "Peanuts, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Soybeans)
+            //    record.Description11 += "Soybeans, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Molluscs)
+            //    record.Description11 += "Molluscs, ";
+            //if ((bool)item.NutritionalInfo.Allergens.CerealsGluten)
+            //    record.Description11 += "Gluten, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Celery)
+            //    record.Description11 += "Celery, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Mustard)
+            //    record.Description11 += "Mustard, ";
+            //if ((bool)item.NutritionalInfo.Allergens.SesameSeeds)
+            //    record.Description11 += "Sesame Seeds, ";
+            //if ((bool)item.NutritionalInfo.Allergens.SulphurDioxideSulphites)
+            //    record.Description11 += "Sulphur Dioxide Sulphites, ";
+            //if ((bool)item.NutritionalInfo.Allergens.Lupin)
+            //    record.Description11 += "Lupin, ";
+            //if (item.NutritionalInfo.Allergens.Fish.Length > 0)
+            //    record.Description11 += item.NutritionalInfo.Allergens.Fish;
+            //if (item.NutritionalInfo.Allergens.CrustaceanShellfish.Length > 0)
+            //    record.Description11 += item.NutritionalInfo.Allergens.CrustaceanShellfish;
+            //if (item.NutritionalInfo.Allergens.TreeNuts.Length > 0)
+            //    record.Description11 += item.NutritionalInfo.Allergens.TreeNuts;
+
+            //if (record.Description11 == "Contains: ")
+            //    record.Description11 = string.Empty;
+            //else
+            //    record.Description11 = record.Description11.Substring(0, record.Description11.Length - 3);
+            ////end allergen 
+
+            //record.Ingredients = item.NutritionalInfo.Ingredients;
+            //foreach (var tag in item.CustomTags)
+            //{
+            //    //TODO Use the tags
+            //}
+
+            ////Convert non-required fields
+            //record.Description2 = item.Subtitle;
+            //record.Price = item.Price.ToString();
+
+
+            //if (item.HeatingInstructionOven.Length > 0)
+            //    record.Description14 += item.HeatingInstructionOven + "\n\n";
+
+            //if (item.HeatingInstructionMicrowave.Length > 0)
+            //    record.Description14 += item.HeatingInstructionMicrowave;
+
+            ////TODO Confirm that IsPackaged is Scaleable
+            //record.Scaleable = item.NutritionalInfo.IsPackaged;
+            //end accidental hardcode map
 
             // Create a dictionary to map the fields
             var mappedFields = FieldMapLoader.FieldMap;
@@ -139,7 +209,105 @@ namespace Importer.Module.Parsley.Parser
             //TODO This is where we convert MenuItemFullModel to a List<Dictionary<string, string>> PLURecords for use in
             //ConvertPLURecordsToTblProducts. See how Invafresh Module does it, think about how we can expand it later but not
             //go crazy right now (how Invafresh uses hardcoding and also a custom mapper)
+            foreach (var item in menuItemsToUpdate)
+            {
+                Dictionary<string, string> record = new Dictionary<string, string>();
+                //Convert required fields
+                record.Add("id", item.Id.ToString());
+                record.Add("name", item.Name);
+
+                //TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
+                record.Add("servingSizeAmount", item.NutritionalInfo.ServingSize.Amount.ToString());
+                record.Add("servingSizeUom", item.NutritionalInfo.ServingSize.Uom);
+                record.Add("nutritionServingSize", item.NutritionalInfo.NutritionServingSize);
+                record.Add("servingsPerPackage", item.NutritionalInfo.ServingsPerPackage.ToString());
+
+                SetNutrientInfo(record, item);
+
+                //TODO allergensString seems unreliable according to the example, and these will always either be true/non-empty or null
+                if (item.NutritionalInfo.Allergens.Milk != null)
+                    record.Add("allergensMilk", item.NutritionalInfo.Allergens.Milk.ToString());
+                if (item.NutritionalInfo.Allergens.Eggs != null)
+                    record.Add("allergensEggs", item.NutritionalInfo.Allergens.Eggs.ToString());
+                if (item.NutritionalInfo.Allergens.Wheat != null)
+                    record.Add("allergensWheat", item.NutritionalInfo.Allergens.Wheat.ToString());
+                if (item.NutritionalInfo.Allergens.Peanuts != null)
+                    record.Add("allergensPeanuts", item.NutritionalInfo.Allergens.Peanuts.ToString());
+                if (item.NutritionalInfo.Allergens.Soybeans != null)
+                    record.Add("allergensSoybeans", item.NutritionalInfo.Allergens.Soybeans.ToString());
+                if (item.NutritionalInfo.Allergens.Molluscs != null)
+                    record.Add("allergensMolluscs", item.NutritionalInfo.Allergens.Molluscs.ToString());
+                if (item.NutritionalInfo.Allergens.CerealsGluten != null)
+                    record.Add("allergensCerealsGluten", item.NutritionalInfo.Allergens.CerealsGluten.ToString());
+                if (item.NutritionalInfo.Allergens.Celery != null)
+                    record.Add("allergensCelery", item.NutritionalInfo.Allergens.Celery.ToString());
+                if (item.NutritionalInfo.Allergens.Mustard != null)
+                    record.Add("allergensMustard", item.NutritionalInfo.Allergens.Mustard.ToString());
+                if (item.NutritionalInfo.Allergens.SesameSeeds != null)
+                    record.Add("allergensSesameSeeds", item.NutritionalInfo.Allergens.SesameSeeds.ToString());
+                if (item.NutritionalInfo.Allergens.SulphurDioxideSulphites != null)
+                    record.Add("allergensSulphurDioxideSulphites", item.NutritionalInfo.Allergens.SulphurDioxideSulphites.ToString());
+                if (item.NutritionalInfo.Allergens.Lupin != null)
+                    record.Add("allergensLupin", item.NutritionalInfo.Allergens.Lupin.ToString());
+                if (item.NutritionalInfo.Allergens.Fish != null)
+                    record.Add("allergensFish", item.NutritionalInfo.Allergens.Fish);
+                if (item.NutritionalInfo.Allergens.CrustaceanShellfish != null)
+                    record.Add("allergensCrustaceanShellfish", item.NutritionalInfo.Allergens.CrustaceanShellfish);
+                if (item.NutritionalInfo.Allergens.TreeNuts != null)
+                    record.Add("allergensTreeNuts", item.NutritionalInfo.Allergens.TreeNuts);
+
+                //end allergen 
+
+                record.Add("Ingredients", item.NutritionalInfo.Ingredients);
+                foreach (var tag in item.CustomTags)
+                {
+                    //TODO We might add an S2C prefix to ensure we only grab certain custom tags
+                    record.Add(tag.Key, tag.Value.ToString());
+                }
+                
+                //Convert non-required fields
+                record.Add("subtitle", item.Subtitle);
+                record.Add("price", item.Price.ToString());
+                
+                
+                if (item.HeatingInstructionOven != null)
+                    record.Add("heatingInstructionOven", item.HeatingInstructionOven);
+
+                if (item.HeatingInstructionMicrowave != null)
+                    record.Add("heatingInstructionMicrowave", item.HeatingInstructionMicrowave);
+
+                record.Add("isPackaged", item.NutritionalInfo.IsPackaged.ToString());
+
+                //adding these to the record in case we have use for them
+                record.Add("characteristicsMeat", item.NutritionalInfo.Characteristics.Meat.ToString());
+                record.Add("characteristicsPork", item.NutritionalInfo.Characteristics.Pork.ToString());
+                record.Add("characteristicsCorn", item.NutritionalInfo.Characteristics.Corn.ToString());
+                record.Add("characteristicsPoultry", item.NutritionalInfo.Characteristics.Poultry.ToString());
+
+                record.Add("itemNumber", item.ItemNumber);
+                record.Add("managementItemNumber", item.ManagementItemNumber);
+                record.Add("lastModified", item.LastModified.ToString());
+                record.Add("isSubrecipe", item.IsSubrecipe.ToString()); //pretty sure that we can disregard if this is true
+
+                PLURecords.Add(record);
+            }
+
         }
         //end copied code
+
+        public Dictionary<string, string> SetNutrientInfo(Dictionary<string, string> record, MenuItemDetails item)
+        {
+            foreach (var nutrient in item.NutritionalInfo.Nutrients.Values)
+            {
+                //TODO Match the name of the nutrients present with one that we have, though if they do
+                switch (nutrient)
+                {
+
+                    default:
+                        break;
+                }
+            }
+            return record;
+        }
     }
 }

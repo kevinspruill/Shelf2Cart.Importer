@@ -8,6 +8,7 @@ namespace Importer.Module.Parsley.Models
 {
     public class NutritionalInfo
     {
+        public bool IsPackaged { get; set; }
         public ServingSize ServingSize { get; set; }
         public double? ServingsPerPackage { get; set; }
         public string NutritionServingSize { get; set; }
