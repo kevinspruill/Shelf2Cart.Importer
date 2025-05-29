@@ -222,7 +222,11 @@ namespace Importer.Module.Parsley.Parser
                 record.Add("nutritionServingSize", item.NutritionalInfo.NutritionServingSize);
                 record.Add("servingsPerPackage", item.NutritionalInfo.ServingsPerPackage.ToString());
 
-                SetNutrientInfo(record, item);
+                //No need for a whole other method, we can just combine value and unit to make our value
+                foreach (var nutrient in item.NutritionalInfo.Nutrients)
+                {
+                    record.Add(nutrient.Name, $"{nutrient.Value}{nutrient.Unit}");
+                }
 
                 //TODO allergensString seems unreliable according to the example, and these will always either be true/non-empty or null
                 if (item.NutritionalInfo.Allergens.Milk != null)
@@ -294,20 +298,5 @@ namespace Importer.Module.Parsley.Parser
 
         }
         //end copied code
-
-        public Dictionary<string, string> SetNutrientInfo(Dictionary<string, string> record, MenuItemDetails item)
-        {
-            foreach (var nutrient in item.NutritionalInfo.Nutrients.Values)
-            {
-                //TODO Match the name of the nutrients present with one that we have, though if they do
-                switch (nutrient)
-                {
-
-                    default:
-                        break;
-                }
-            }
-            return record;
-        }
     }
 }
