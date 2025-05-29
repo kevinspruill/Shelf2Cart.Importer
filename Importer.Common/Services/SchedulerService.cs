@@ -14,6 +14,11 @@ namespace Importer.Common.Services
     {
         public IScheduler Scheduler;
 
+        public SchedulerService() 
+        {
+            Scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
+        }
+
         public Task ScheduleJob<T>(string jobName, TimeSpan interval) where T : IJob
         {
             var job = JobBuilder.Create<T>()

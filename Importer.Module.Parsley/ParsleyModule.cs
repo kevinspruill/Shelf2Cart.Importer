@@ -24,9 +24,8 @@ namespace Importer.Module.Parsley
         public bool Flush { get; set; }
 
         ICustomerProcess _customerProcess;
-        RestAPIMonitor _importerType;
         ParsleyJSONParser parser = null;
-        SchedulerService schedulerService;
+        SchedulerService _importerType;
 
         public int GetPendingFileCount()
         {
@@ -62,15 +61,14 @@ namespace Importer.Module.Parsley
             ImporterInstance = importerInstance;
             _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
 
-            _importerType = new RestAPIMonitor(this);
+            _importerType = new SchedulerService();
 
             SetupImporterType();
         }
         public void SetupImporterType()
         {
             // Use SchedulerService to set up the RestAPIMonitor
-            schedulerService = new SchedulerService();
-            schedulerService.ScheduleJob<RestAPIMonitor>("Parsley", new TimeSpan(0,5,0));
+            _importerType.ScheduleJob<RestAPIMonitor>("Parsley", new TimeSpan(0,5,0));
         }
         public async void StartModule()
         {
@@ -78,7 +76,7 @@ namespace Importer.Module.Parsley
             if (_importerType != null)
             {
                 //this will start the quartz scheduler for the RestAPIMonitor
-                await schedulerService.StartSchedulerAsync();
+                await _importerType.StartSchedulerAsync();
             }
             else
             {

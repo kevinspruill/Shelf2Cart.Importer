@@ -89,12 +89,14 @@ namespace Importer.Module.Parsley.Parser
             var product = ProductTemplate.Clone();
 
             //TODO Accidentally hardcode mapped in ConvertMenuItem to PLURecord, so putting my accidental mapping here
-            product.PLU = pluItem.GetValue("id");
-            product.Description1 = pluItem.GetValue("name");
+            //Make a GetValue method to not have to do two lines for everything
+            pluItem.TryGetValue("id", out string idValue);
+            product.PLU = idValue;
+            //product.Description1 = pluItem.GetValue("name");
 
             ////TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
-            product.NetWt = $"{pluItem.GetValue("servingSizeAmount")} {pluItem.GetValue("servingSizeUom")}";
-            product.NFServingSize = pluItem.GetValue("nutritionServingSize");
+            //product.NetWt = $"{pluItem.GetValue("servingSizeAmount")} {pluItem.GetValue("servingSizeUom")}";
+            //product.NFServingSize = pluItem.GetValue("nutritionServingSize");
 
             //SetNutrientInfo(record, item);
 
@@ -182,7 +184,7 @@ namespace Importer.Module.Parsley.Parser
                 record.Add("servingsPerPackage", item.NutritionalInfo.ServingsPerPackage.ToString());
 
                 //No need for a whole other method, we can just combine value and unit to make our value
-                foreach (var nutrient in item.NutritionalInfo.Nutrients)
+                foreach (var nutrient in item.NutritionalInfo.Nutrients.Values)
                 {
                     record.Add(nutrient.Name, $"{nutrient.Value}{nutrient.Unit}");
                 }
