@@ -8,21 +8,35 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Importer.Common.Services
+namespace Importer.Common.ImporterTypes
 {
-    public class SchedulerService
+    public class SchedulerService: IImporterType
     {
+
+        public string Name { get; set; }
+        public Dictionary<string, object> Settings { get; set; }
+
         public IScheduler Scheduler;
 
-        public SchedulerService() 
+        IImporterModule _importerModule;
+
+        public SchedulerService(IImporterModule importerModule) 
         {
+            _importerModule = importerModule;
             Scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
+        }
+
+        public void ApplySettings(Dictionary<string, object> settings)
+        {
+            Settings = settings;
         }
 
         public Task ScheduleJob<T>(string jobName, TimeSpan interval) where T : IJob
         {
             var job = JobBuilder.Create<T>()
                 .WithIdentity(jobName)
+                .UsingJobData("ImporterModuleKey", _importerModule.GetType().AssemblyQualifiedName)
+                .UsingJobData("Endpoint", Settings["Endpoint"].ToString())
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}_Trigger")
@@ -39,6 +53,8 @@ namespace Importer.Common.Services
         {
             var job = JobBuilder.Create<T>()
                 .WithIdentity(jobName)
+                .UsingJobData("ImporterModuleKey", _importerModule.GetType().AssemblyQualifiedName)
+                .UsingJobData("Endpoint", Settings["Endpoint"].ToString())
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}_Trigger")

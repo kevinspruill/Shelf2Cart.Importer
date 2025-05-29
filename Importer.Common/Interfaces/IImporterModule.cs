@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Importer.Common.Interfaces
 {
+
     public interface IImporterModule
     {
         string Name { get; set; }

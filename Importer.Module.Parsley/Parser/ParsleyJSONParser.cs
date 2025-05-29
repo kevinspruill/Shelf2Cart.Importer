@@ -1,15 +1,17 @@
 ﻿using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Models;
-using Importer.Common.Services;
 using Importer.Common.Modifiers;
+using Importer.Common.Services;
 using Importer.Module.Parsley.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,14 +26,16 @@ namespace Importer.Module.Parsley.Parser
         List<MenuItemDetails> menuItemsToUpdate = new List<MenuItemDetails>();
         MerchandiserAPIClient _restClient;
 
+        public string APIKey { get; set; } = string.Empty; //Set this to your API Key
+
         public ParsleyJSONParser(tblProducts productTemplate, ICustomerProcess customerProcess = null)
         {
             ProductTemplate = productTemplate;
             _customerProcess = customerProcess ?? new BaseProcess();
             _restClient = new MerchandiserAPIClient();
             //Set API Key
-            _restClient.SetHeader("Key", "f5d25b532fd70793a2863f82963a637ba52cb4836b8589b9a67ee0d9dd25cb5278bb087905a9f4d2dc3abea7077ff22335af4f937ed8a03ba6af1afbc5d858886633fe687766a68f854ddc9782719c350662c");
-            
+            _restClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", APIKey);
+
         }
 
         public void ParseMenuItemSimpleList(string jsonString)

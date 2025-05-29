@@ -58,10 +58,11 @@
     <Compile Include="Helpers\InstanceLoader.cs" />
     <Compile Include="Helpers\jsonLoader.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Registries\ImporterModuleRegistry.cs" />
     <Compile Include="Services\MerchandiserAPIClient.cs" />
     <Compile Include="Helpers\ProductProcessor.cs" />
     <Compile Include="Helpers\SettingsLoader.cs" />
-    <Compile Include="ImporterTypes\RestAPIMonitor.cs" />
+    <Compile Include="QuartzJobs\GetAPIJob.cs" />
     <Compile Include="ImporterTypes\FilePollMonitor.cs" />
     <Compile Include="ImporterTypes\FilePollMonitorSettings.cs" />
     <Compile Include="ImporterTypes\FileWatcher.cs" />
@@ -91,7 +92,7 @@
     <Compile Include="Modifiers\ProductLabelUpdater.cs" />
     <Compile Include="Modifiers\TitleCaseConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\SchedulerService.cs" />
+    <Compile Include="ImporterTypes\SchedulerService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Enums\" />

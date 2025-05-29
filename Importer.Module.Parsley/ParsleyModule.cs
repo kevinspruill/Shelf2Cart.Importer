@@ -3,6 +3,8 @@ using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Main;
 using Importer.Common.Models;
+using Importer.Common.QuartzJobs;
+using Importer.Common.Registries;
 using Importer.Common.Services;
 using Importer.Module.Parsley.Models;
 using Importer.Module.Parsley.Parser;
@@ -61,21 +63,24 @@ namespace Importer.Module.Parsley
             ImporterInstance = importerInstance;
             _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
 
-            _importerType = new SchedulerService();
+            _importerType = new SchedulerService(this);
+
+            // Register this module instance
+            ImporterModuleRegistry.Modules[this.GetType().AssemblyQualifiedName] = this;
 
             SetupImporterType();
         }
         public void SetupImporterType()
         {
-            // Use SchedulerService to set up the RestAPIMonitor
-            _importerType.ScheduleJob<RestAPIMonitor>("Parsley", new TimeSpan(0,5,0));
+            // Use SchedulerService to set up the GetAPIJob
+            _importerType.ScheduleJob<GetAPIJob>("Parsley", new TimeSpan(0,5,0));
         }
         public async void StartModule()
         {
             // Start the file watcher
             if (_importerType != null)
             {
-                //this will start the quartz scheduler for the RestAPIMonitor
+                //this will start the quartz scheduler for the GetAPIJob
                 await _importerType.StartSchedulerAsync();
             }
             else
@@ -86,6 +91,7 @@ namespace Importer.Module.Parsley
         public async void TriggerProcess()
         {
             parser = new ParsleyJSONParser(ProductTemplate, _customerProcess);
+            parser.APIKey = ImporterInstance.TypeSettings["ApiKey"].ToString();
 
             parser.ParseMenuItemSimpleList(ImporterTypeData.ToString());
             parser.ConvertMenuItemsToPLURecords();
