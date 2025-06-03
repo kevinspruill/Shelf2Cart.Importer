@@ -51,7 +51,14 @@ namespace Importer.Common.Main
                 item = _customerProcess.PreProductProcess(item);
 
                 // format price to 2 decimal places, parsing first
-                item.Price = decimal.Parse(item.Price).ToString("0.00");
+                try
+                {
+                    item.Price = string.IsNullOrEmpty(item.Price) ? string.Empty : decimal.Parse(item.Price).ToString("0.00");
+                }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex.Message, ex);
+                }
                 item.SalePrice = string.IsNullOrEmpty(item.SalePrice) ? string.Empty : decimal.Parse(item.SalePrice).ToString("0.00");
 
                 var processedProduct = await productProcessor.ProcessProduct(item);

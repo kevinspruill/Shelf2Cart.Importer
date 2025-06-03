@@ -15,7 +15,7 @@ namespace Importer.Module.Parsley.Models
         public bool Incomplete { get; set; }
         public Dictionary<string, Nutrient> Nutrients { get; set; }
         public Allergens Allergens { get; set; }
-        public string AllergensString { get; set; }
+        public string AllergenString { get; set; }
         public Characteristics Characteristics { get; set; }
         public string Ingredients { get; set; }
         public List<IngredientListItem> IngredientList { get; set; }

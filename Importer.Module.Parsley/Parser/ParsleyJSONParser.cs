@@ -100,12 +100,13 @@ namespace Importer.Module.Parsley.Parser
             product.Description1 = GetValue(pluItem, "name");
 
             ////TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
-            product.NetWt = $"{GetValue(pluItem, "servingSizeAmount")} {GetValue(pluItem, "servingSizeUom")}";
-            product.NFServingSize = GetValue(pluItem, "nutritionServingSize");
+            product.NFServingSize = $"{GetValue(pluItem, "servingSizeAmount")} {GetValue(pluItem, "servingSizeUom")}";
+            //product.NFServingSize = GetValue(pluItem, "nutritionServingSize");
 
             product = MapNutrientInfo(pluItem, product);
 
-            product.Description11 = $"CONTAINS: {GetValue(pluItem, "allergenString")}";
+            if (GetValue(pluItem, "allergenString") != null && !string.IsNullOrWhiteSpace(GetValue(pluItem, "allergenString")))
+                product.Description11 = $"CONTAINS: {GetValue(pluItem, "allergenString")}";
 
             product.Ingredients = GetValue(pluItem, "ingredients");
 
@@ -114,13 +115,17 @@ namespace Importer.Module.Parsley.Parser
 
             //Convert non-required fields
             product.Description2 = GetValue(pluItem, "subtitle");
-            product.Price = GetValue(pluItem, "price");
+            var tempPrice = GetValue(pluItem, "price");
+            if (tempPrice != null && !string.IsNullOrWhiteSpace(tempPrice))
+                product.Price = GetValue(pluItem, "price");
+            else
+                Logger.Warn($"Invalid price for {product.PLU}, using default");
 
-            product.Description14 = GetValue(pluItem, "heatingInstructionOven");
+                product.Description14 = GetValue(pluItem, "heatingInstructionOven");
             product.Description14 += GetValue(pluItem, "heatingInstructionMicrowave");
 
             ////TODO Confirm that IsPackaged is Scaleable
-            //record.Scaleable = item.NutritionalInfo.IsPackaged;
+            product.Scaleable = bool.Parse(GetValue(pluItem, "isPackaged"));
 
             return product;
         }
@@ -228,9 +233,54 @@ namespace Importer.Module.Parsley.Parser
                 }
 
                 //Ya Hala fills out their allergenString well
-                record.Add("allergenString", item.NutritionalInfo.AllergensString);
+                if (item.NutritionalInfo.AllergenString != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.AllergenString))
+                {
+                    record.Add("allergenString", item.NutritionalInfo.AllergenString);
+                }
+                else
+                {
+                    var tempAllergenString = "";
+                    if (item.NutritionalInfo.Allergens.Celery != null && (bool)item.NutritionalInfo.Allergens.Celery)
+                        tempAllergenString += "CELERY, ";
+                    if (item.NutritionalInfo.Allergens.CerealsGluten != null && (bool)item.NutritionalInfo.Allergens.CerealsGluten)
+                        tempAllergenString += "CEREALS GLUTEN, ";
+                    if (item.NutritionalInfo.Allergens.CrustaceanShellfish != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.CrustaceanShellfish))
+                        tempAllergenString += $"{item.NutritionalInfo.Allergens.CrustaceanShellfish}, ";
+                    if (item.NutritionalInfo.Allergens.Eggs != null && (bool)item.NutritionalInfo.Allergens.Eggs)
+                        tempAllergenString += "EGGS, ";
+                    if (item.NutritionalInfo.Allergens.Fish != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.Fish))
+                        tempAllergenString += $"{item.NutritionalInfo.Allergens.Fish}, ";
+                    if (item.NutritionalInfo.Allergens.Lupin != null && (bool)item.NutritionalInfo.Allergens.Lupin)
+                        tempAllergenString += "LUPIN, ";
+                    if (item.NutritionalInfo.Allergens.Milk != null && (bool)item.NutritionalInfo.Allergens.Milk)
+                        tempAllergenString += "MILK, ";
+                    if (item.NutritionalInfo.Allergens.Molluscs != null && (bool)item.NutritionalInfo.Allergens.Molluscs)
+                        tempAllergenString += "MOLLUSCS, ";
+                    if (item.NutritionalInfo.Allergens.Molluscs != null && (bool)item.NutritionalInfo.Allergens.Molluscs)
+                        tempAllergenString += "MOLLUSCS, ";
+                    if (item.NutritionalInfo.Allergens.Mustard != null && (bool)item.NutritionalInfo.Allergens.Mustard)
+                        tempAllergenString += "MUSTARD, ";
+                    if (item.NutritionalInfo.Allergens.Peanuts != null && (bool)item.NutritionalInfo.Allergens.Peanuts)
+                        tempAllergenString += "PEANUTS, ";
+                    if (item.NutritionalInfo.Allergens.SesameSeeds != null && (bool)item.NutritionalInfo.Allergens.SesameSeeds)
+                        tempAllergenString += "SESAME SEEDS, ";
+                    if (item.NutritionalInfo.Allergens.Soybeans != null && (bool)item.NutritionalInfo.Allergens.Soybeans)
+                        tempAllergenString += "SOYBEANS, ";
+                    if (item.NutritionalInfo.Allergens.SulphurDioxideSulphites != null && (bool)item.NutritionalInfo.Allergens.SulphurDioxideSulphites)
+                        tempAllergenString += "SULPHUR DIOXIDE SULPHITES, ";
+                    if (item.NutritionalInfo.Allergens.TreeNuts != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.TreeNuts))
+                        tempAllergenString += $"{item.NutritionalInfo.Allergens.TreeNuts}, ";
+                    if (item.NutritionalInfo.Allergens.Wheat != null && (bool)item.NutritionalInfo.Allergens.Wheat)
+                        tempAllergenString += "WHEAT, ";
 
-                record.Add("Ingredients", item.NutritionalInfo.Ingredients);
+                    if (tempAllergenString.Length > 0)
+                    {
+                        tempAllergenString = tempAllergenString.Substring(0, tempAllergenString.Length - 2);
+                        record.Add("allergenString", tempAllergenString);
+                    }
+                }
+
+                    record.Add("Ingredients", item.NutritionalInfo.Ingredients);
                 if (item.CustomTags != null)
                 {
                     foreach (var tag in item.CustomTags)

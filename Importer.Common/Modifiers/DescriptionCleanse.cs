@@ -31,7 +31,7 @@ namespace Importer.Common.Modifiers
             product.Description5, product.Description6, product.Description7, product.Description8,
             product.Description9, product.Description10, product.Description11, product.Description12,
             product.Description13, product.Description14, product.Description15, product.Description16
-        };
+            };
 
             foreach (var rule in _cleanseRules)
             {

@@ -5,7 +5,7 @@
   "Flush": false,
   "ProperCase": true,
   "DepartmentPLU": true,
-  "DescriptionCleanse": true,
+  "DescriptionCleanse": false,
   "HoldDataFilesDays": 7,
   "ProperCaseFields": [
     "Description 1",
