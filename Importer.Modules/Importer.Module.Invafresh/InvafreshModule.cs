@@ -70,6 +70,8 @@ namespace Importer.Module.Invafresh
 
             _importerType = new FilePollMonitor(this);
 
+            ProductTemplate = ProductTemplate.CreateProductTemplate();
+
             SetupImporterType();
         }
         public void SetupImporterType()

@@ -39,7 +39,7 @@ namespace Importer.Common.Helpers
             Logger.Debug("ProductProcessor initialized");
         }
 
-        public tblProducts CreateProductTemplate()
+        public tblProducts CreateProductTemplate() //TODO Extract and refactor from ProductProcessor so modules can create this
         {
             Logger.Trace("Creating product template");
             tblProducts product = new tblProducts();

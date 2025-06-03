@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Importer.Common.Helpers;
+using System;
 
 namespace Importer.Common.Models
 {
@@ -383,6 +384,16 @@ namespace Importer.Common.Models
                     }
                 }
             }
+        }
+
+        public tblProducts CreateProductTemplate()
+        {
+            Logger.Trace("Creating product template");
+            tblProducts product = new tblProducts();
+            DefaultValueLoader _defaultValues = new DefaultValueLoader();
+            product = _defaultValues.ApplyDefaultValues(product);
+            Logger.Trace("Product template created");
+            return product;
         }
 
     }

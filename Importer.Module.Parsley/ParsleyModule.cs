@@ -68,6 +68,8 @@ namespace Importer.Module.Parsley
             // Register this module instance
             ImporterModuleRegistry.Modules[this.GetType().AssemblyQualifiedName] = this;
 
+            ProductTemplate = ProductTemplate.CreateProductTemplate();
+
             SetupImporterType();
         }
         public void SetupImporterType()
@@ -99,6 +101,7 @@ namespace Importer.Module.Parsley
 
             await MainProcess.ProcessAsync(this);
         }
+
         public void StopModule()
         {
             // Stop the file watcher

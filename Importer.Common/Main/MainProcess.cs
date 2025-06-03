@@ -21,9 +21,7 @@ namespace Importer.Common.Main
             var _customerProcess = InstanceLoader.GetCustomerProcess(importerModule.ImporterInstance.CustomerProcess);
 
             ProductProcessor productProcessor = new ProductProcessor(_customerProcess);
-            var productTemplate = productProcessor.CreateProductTemplate();
 
-            importerModule.ProductTemplate = productTemplate;
             var items = importerModule.GetTblProductsList();
             var deleteItems = importerModule.GetTblProductsDeleteList();
 
