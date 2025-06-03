@@ -108,7 +108,8 @@ namespace Importer.Module.Parsley.Parser
             if (GetValue(pluItem, "allergenString") != null && !string.IsNullOrWhiteSpace(GetValue(pluItem, "allergenString")))
                 product.Description11 = $"CONTAINS: {GetValue(pluItem, "allergenString")}";
 
-            product.Ingredients = GetValue(pluItem, "ingredients");
+            if (GetValue(pluItem, "ingredients") != null && !string.IsNullOrWhiteSpace(GetValue(pluItem, "ingredients")))
+                product.Ingredients = $"INGREDIENTS: {GetValue(pluItem, "ingredients")}";
 
             //TODO Need to fill this in
             product = MapCustomTags(pluItem, product);
@@ -280,7 +281,7 @@ namespace Importer.Module.Parsley.Parser
                     }
                 }
 
-                    record.Add("Ingredients", item.NutritionalInfo.Ingredients);
+                record.Add("ingredients", item.NutritionalInfo.Ingredients);
                 if (item.CustomTags != null)
                 {
                     foreach (var tag in item.CustomTags)
