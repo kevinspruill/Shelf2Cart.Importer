@@ -158,19 +158,83 @@ namespace Importer.Common.Helpers
             }
         }
 
-        public void InsertDrilldownTables(string tblName, string sourceDBConnectionString)
+        public void InsertHierarchyTables()
         {
+            //TODO Adapt this to just do one call for all three, will make the return stuff easier
             try
             {
                 using (var connection = new OleDbConnection(_connectionString))
                 {
                     connection.Open();
-                    connection.Execute($"DELETE * FROM {tblName}");
+                    connection.Execute($"DELETE * FROM tblDepartments");
+                    connection.Execute($"DELETE * FROM tblClasses");
+                    connection.Execute($"DELETE * FROM tblCategories");
                 }
+
+                var importDBConnString = GetConnectionString(DatabaseType.ImportDatabase);
+
+                List<tblDepartments> depts = new List<tblDepartments>();
+                List<tblClasses> classes = new List<tblClasses>();
+                List<tblCategories> categories = new List<tblCategories>();
+
+                //TODO Copied code from getproducts
+                using (OleDbConnection connection = new OleDbConnection(importDBConnString))
+                {
+                    connection.Open();
+
+                    //DEPARTMENTS
+                    // Get schema information
+                    var schemaTable = connection.GetSchema("Columns", new[] { null, null, "tblDepartments", null });
+
+                    // Build the SQL query dynamically
+                    var columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
+                    {
+                        var columnName = row["COLUMN_NAME"].ToString();
+                        return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+                    }));
+
+                    string query = $"SELECT {columns} FROM tblDepartments";
+
+                    depts = connection.Query<tblDepartments>(query).ToList();
+
+                    //CLASSES
+                    // Get schema information
+                    schemaTable = connection.GetSchema("Columns", new[] { null, null, "tblClasses", null });
+
+                    // Build the SQL query dynamically
+                    columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
+                    {
+                        var columnName = row["COLUMN_NAME"].ToString();
+                        return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+                    }));
+
+                    query = $"SELECT {columns} FROM tblClasses";
+
+                    classes = connection.Query<tblClasses>(query).ToList();
+
+                    //CATEGORIES
+                    // Get schema information
+                    schemaTable = connection.GetSchema("Columns", new[] { null, null, "tblCategories", null });
+
+                    // Build the SQL query dynamically
+                    columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
+                    {
+                        var columnName = row["COLUMN_NAME"].ToString();
+                        return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+                    }));
+
+                    query = $"SELECT {columns} FROM tblCategories";
+
+                    categories = connection.Query<tblCategories>(query).ToList();
+                }
+                //end copied code
+
+                
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error clearing {tblName}: {ex.Message}");
+                Console.WriteLine($"Error inserting hierarchy tables: {ex.Message}");
             }
         }
 
