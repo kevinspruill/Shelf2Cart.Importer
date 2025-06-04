@@ -5,14 +5,17 @@ namespace Importer.Common.Models
 
     public class tblClasses
     {
-        //[ImportDBField("DeptNum")]
-        //public int DeptNum { get; set; }
+        [ImportDBField("ClassNum")]
+        public int ClassNum { get; set; }
 
-        //[ImportDBField("DeptName")]
-        //public string DeptName { get; set; } = string.Empty;
+        [ImportDBField("Class")]
+        public string Class { get; set; } = string.Empty;
 
-        //[ImportDBField("Sequence")]
-        //public int Sequence { get; set; }
+        [ImportDBField("DeptNum")]
+        public int DeptNum { get; set; }
+
+        [ImportDBField("PageNum")]
+        public string PageNum { get; set; }
     }
 
 }

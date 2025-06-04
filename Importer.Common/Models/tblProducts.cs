@@ -255,8 +255,8 @@ namespace Importer.Common.Models
             [ImportDBField("NutrifactNum")]
             public string NutrifactNum { get; set; } = string.Empty;
 
-            //[ImportDBField("PageNum")]
-            //public string PageNum { get; set; } = string.Empty;
+            [ImportDBField("PageNum")]
+            public string PageNum { get; set; } = string.Empty;
 
             [ImportDBField("PLU")]
             public string PLU { get; set; } = string.Empty;

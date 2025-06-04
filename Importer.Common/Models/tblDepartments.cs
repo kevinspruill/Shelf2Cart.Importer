@@ -11,8 +11,8 @@ namespace Importer.Common.Models
         [ImportDBField("DeptName")]
         public string DeptName { get; set; } = string.Empty;
 
-        [ImportDBField("Sequence")]
-        public int Sequence { get; set; }
+        [ImportDBField("PageNum")]
+        public string PageNum { get; set; }
     }
 
 }

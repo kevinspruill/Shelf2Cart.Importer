@@ -47,55 +47,50 @@ namespace Importer.Common.Main
 
         public async Task ProcessImport()
         {
-            // Copy Resident/AdminConsole/Base Database to Processing Database
-            if (!GetProcessDatabaseFile())
+            try
             {
-                Logger.LogErrorEvent("Failed to copy database.");
+                // Copy Resident/AdminConsole/Base Database to Processing Database
+                if (!GetProcessDatabaseFile())
+                {
+                    Logger.LogErrorEvent("Failed to copy database.");
+                    return;
+                }
+
+                Logger.LogInfoEvent("Processing database copied successfully.");
+
+                List<tblProducts> importTblProducts = ImportDatabaseHelper.GetProducts().ToList();
+
+                importTblProducts = ImportDatabaseHelper.PopulatePageNum<tblProducts>(importTblProducts);
+
+                if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts))
+                {
+                    Logger.LogErrorEvent("Failed to upsert into tblProducts.");
+                    return;
+                }
+                Logger.Info($"Completed Bulk Upsert into tblProducts");
+
+                var editFields = ProcessingDatabaseHelper.GetLocalEditFields();
+
+                if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts, "PLU", "tblLocalEdits", editFields))
+                {
+                    Logger.LogErrorEvent("Failed to update tblLocalEdits.");
+                    return;
+                }
+                Logger.Info($"Completed update of tblLocalEdits");
+
+                ProcessingDatabaseHelper.InsertHierarchyTables();
+
+                CopyProcessDatabaseToResident();
+
+                //TODO Purge Log Files
+
+
                 return;
             }
-
-            Logger.LogInfoEvent("Processing database copied successfully.");
-
-            List<tblProducts> importTblProducts = ImportDatabaseHelper.GetProducts().ToList();
-
-            //TODO All of the below steps should happen in memory, and anything to do with the database should be put in DatabaseHelper
-            //Basic idea is doing all this in memory and then committing once per database table
-
-            // Action 10: Import data from Importer to Processing (tblProducts)
-            if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts))
+            catch (Exception ex)
             {
-                Logger.LogErrorEvent("Failed to upsert into tblProducts.");
-                return;
+                Logger.Error($"Error processing import - {ex.Message}");
             }
-            Logger.Info($"Completed Bulk Upsert into tblProducts");
-
-            // Action 17: Update Local Edits Before Applying tblProducts to Processing Database
-
-            //TODO DatabaseHelper needs the ability to get the Edit_Fields from LocalEditFields, as well as the ability to
-            //insert just what we need from the Edit_Fields
-
-            var editFields = ProcessingDatabaseHelper.GetLocalEditFields();
-
-            if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts, "PLU", "tblLocalEdits", editFields))
-            {
-                Logger.LogErrorEvent("Failed to update tblLocalEdits.");
-                return;
-            }
-            Logger.Info($"Completed update of tblLocalEdits");
-
-            //Can make one method for importing tables like this and send the table types
-            // Actions 11-13: Import Tables (tblDepartments, tblClasses, tblCategories)
-            ProcessingDatabaseHelper.InsertHierarchyTables();
-
-            //Can make one method for UpdatePageNum, and I just send the table type (like classes, categories, products)
-            // Actions 19-22: If Legacy is enabled, Update PageNum (make these as part of the above methods)
-
-            // Action 25: Copy to Resident Database
-
-            // Purge Log Files
-
-
-            return;
         }
 
         private bool GetProcessDatabaseFile()
@@ -121,5 +116,25 @@ namespace Importer.Common.Main
             }
         }
 
+        private bool CopyProcessDatabaseToResident()
+        {
+            try
+            {
+                // if the AdminConsole database exists, and the UseAdminConsoleDatabase is true, use that, or if BaseDatabase is true and exists, use that, otherwise use the ResidentDatabase
+                string sourcePath = ProcessingDatabase;
+
+                // destination path is set in the settings file
+                string destPath = ResidentDatabase;
+
+                File.Copy(sourcePath, destPath, true);
+                Logger.LogInfoEvent("Database copied successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogErrorEvent($"Error copying database: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

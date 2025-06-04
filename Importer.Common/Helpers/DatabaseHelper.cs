@@ -158,19 +158,11 @@ namespace Importer.Common.Helpers
             }
         }
 
-        public void InsertHierarchyTables()
+        public void InsertHierarchyTables(bool legacyEnabled = true)
         {
             //TODO Adapt this to just do one call for all three, will make the return stuff easier
             try
             {
-                using (var connection = new OleDbConnection(_connectionString))
-                {
-                    connection.Open();
-                    connection.Execute($"DELETE * FROM tblDepartments");
-                    connection.Execute($"DELETE * FROM tblClasses");
-                    connection.Execute($"DELETE * FROM tblCategories");
-                }
-
                 var importDBConnString = GetConnectionString(DatabaseType.ImportDatabase);
 
                 List<tblDepartments> depts = new List<tblDepartments>();
@@ -196,6 +188,9 @@ namespace Importer.Common.Helpers
                     string query = $"SELECT {columns} FROM tblDepartments";
 
                     depts = connection.Query<tblDepartments>(query).ToList();
+                    
+                    if (legacyEnabled)
+                        depts = PopulatePageNum<tblDepartments>(depts);
 
                     //CLASSES
                     // Get schema information
@@ -212,6 +207,9 @@ namespace Importer.Common.Helpers
 
                     classes = connection.Query<tblClasses>(query).ToList();
 
+                    if (legacyEnabled)
+                        classes = PopulatePageNum<tblClasses>(classes);
+
                     //CATEGORIES
                     // Get schema information
                     schemaTable = connection.GetSchema("Columns", new[] { null, null, "tblCategories", null });
@@ -226,8 +224,52 @@ namespace Importer.Common.Helpers
                     query = $"SELECT {columns} FROM tblCategories";
 
                     categories = connection.Query<tblCategories>(query).ToList();
+
+                    if (legacyEnabled)
+                        categories = PopulatePageNum<tblCategories>(categories);
                 }
                 //end copied code
+
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            connection.Execute($"DELETE * FROM tblDepartments");
+                            connection.Execute($"DELETE * FROM tblClasses");
+                            connection.Execute($"DELETE * FROM tblCategories");
+
+                            foreach (var dept in depts)
+                            {
+                                string insertQuery = $"INSERT INTO tblDepartments (DeptNum, DeptName, PageNum) VALUES ({dept.DeptNum}, {dept.DeptName}, {dept.PageNum})";
+                                connection.Execute(insertQuery);
+                            }
+
+                            foreach (var classItem in classes)
+                            {
+                                string insertQuery = $"INSERT INTO tblClasses (ClassNum, Class, DeptNum, PageNum) VALUES ({classItem.ClassNum}, {classItem.Class}, {classItem.DeptNum}, {classItem.PageNum})";
+                                connection.Execute(insertQuery);
+                            }
+
+                            foreach (var category in categories)
+                            {
+                                string insertQuery = $"INSERT INTO tblCategories (CategoryNum, Category, ClassNum, PageNum) VALUES ({category.CategoryNum}, {category.Category}, {category.ClassNum}, {category.PageNum})";
+                                connection.Execute(insertQuery);
+                            }
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.Error($"Error clearing and inserting hierarchy tables - {ex.Message}");
+                            transaction.Rollback();
+                        }
+                    }
+
+                }
 
                 
 
@@ -236,6 +278,136 @@ namespace Importer.Common.Helpers
             {
                 Console.WriteLine($"Error inserting hierarchy tables: {ex.Message}");
             }
+        }
+
+        public List<T> PopulatePageNum<T>(List<T> tblValues)
+        {
+            int maxPerPage = 21;
+            int pageCount = 1;
+            int counter = 0;
+
+            if (typeof(T) == typeof(tblDepartments))
+            {
+                var sortedList = tblValues.Cast<tblDepartments>()
+                    .OrderBy(d => d.DeptName)
+                    .ToList();
+
+                foreach (var dept in sortedList)
+                {
+                    dept.PageNum = pageCount.ToString();
+                    counter++;
+                    if (counter == maxPerPage)
+                    {
+                        counter = 0;
+                        pageCount++;
+                    }
+                }
+                return sortedList.Cast<T>().ToList();
+            }
+            else if (typeof(T) == typeof(tblClasses))
+            {
+                var castedList = tblValues.Cast<tblClasses>().ToList();
+
+                var groupedList = castedList
+                    .GroupBy(c => c.DeptNum)
+                    .ToList();
+
+                foreach (var group in groupedList)
+                {
+                    int buttonCount = 0;
+                    int colCount = 1;
+                    foreach (var classItem in group.OrderBy(c => c.Class))
+                    {
+                        classItem.PageNum = colCount.ToString();
+                        buttonCount++;
+                        if (buttonCount == maxPerPage)
+                        {
+                            buttonCount = 0;
+                            colCount++;
+                        }
+                    }
+                }
+                foreach (var classItem in castedList)
+                {
+                    if (string.IsNullOrWhiteSpace(classItem.PageNum))
+                    {
+                        classItem.PageNum = "0";
+                    }
+                }
+
+
+                return castedList.Cast<T>().ToList();
+            }
+            else if (typeof(T) == typeof(tblCategories))
+            {
+                var castedList = tblValues.Cast<tblCategories>().ToList();
+
+                var groupedList = castedList
+                    .GroupBy(c => c.ClassNum)
+                    .ToList();
+
+                foreach (var group in groupedList)
+                {
+                    int buttonCount = 0;
+                    int colCount = 1;
+                    foreach (var category in group.OrderBy(c => c.Category))
+                    {
+                        category.PageNum = colCount.ToString();
+                        buttonCount++;
+                        if (buttonCount == maxPerPage)
+                        {
+                            buttonCount = 0;
+                            colCount++;
+                        }
+                    }
+                }
+                foreach (var category in castedList)
+                {
+                    if (string.IsNullOrWhiteSpace(category.PageNum))
+                    {
+                        category.PageNum = "0";
+                    }
+                }
+
+
+                return castedList.Cast<T>().ToList();
+            }
+            else if (typeof(T) == typeof(tblProducts))
+            {
+                var castedList = tblValues.Cast<tblProducts>().ToList();
+
+                var groupedList = castedList
+                    .GroupBy(c => c.CategoryNum)
+                    .ToList();
+
+                foreach (var group in groupedList)
+                {
+                    int buttonCount = 0;
+                    int colCount = 1;
+                    foreach (var product in group.OrderBy(p => p.Button1).ThenBy(p => p.Button2))
+                    {
+                        product.PageNum = colCount.ToString();
+                        buttonCount++;
+                        if (buttonCount == maxPerPage)
+                        {
+                            buttonCount = 0;
+                            colCount++;
+                        }
+                    }
+                }
+                foreach (var product in castedList)
+                {
+                    if (string.IsNullOrWhiteSpace(product.PageNum))
+                    {
+                        product.PageNum = "0";
+                    }
+                }
+
+
+                return castedList.Cast<T>().ToList();
+            }
+
+            return tblValues;
         }
 
         /// <summary>
