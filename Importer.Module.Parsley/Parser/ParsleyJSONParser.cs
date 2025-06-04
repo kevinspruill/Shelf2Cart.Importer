@@ -58,12 +58,12 @@ namespace Importer.Module.Parsley.Parser
                 //we add to filteredItems as below
                 filteredItems.Add(record);
 
-                //PLURecords.Add(record.ToDictionary(k => k.Key, v => v.Value.ToString()));
             }
 
             foreach (var item in filteredItems)
             {
-                menuItemsToUpdate.Add(GetMenuItemDetails(item.Id).Result);
+                if (!string.IsNullOrWhiteSpace(item.ItemNumber))
+                    menuItemsToUpdate.Add(GetMenuItemDetails(item.Id).Result);
             }
         }
 

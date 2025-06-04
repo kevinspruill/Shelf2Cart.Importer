@@ -49,14 +49,16 @@ namespace Importer.Common.Main
         {
             try
             {
-                // Copy Resident/AdminConsole/Base Database to Processing Database
                 if (!GetProcessDatabaseFile())
                 {
                     Logger.LogErrorEvent("Failed to copy database.");
                     return;
                 }
+                
+                Logger.Info("Processing database copied successfully.");
 
-                Logger.LogInfoEvent("Processing database copied successfully.");
+                ProcessingDatabaseHelper.DeleteAllProducts();
+                Logger.Trace("Cleared tblProducts from Processing Database.");
 
                 List<tblProducts> importTblProducts = ImportDatabaseHelper.GetProducts().ToList();
 
@@ -69,21 +71,24 @@ namespace Importer.Common.Main
                 }
                 Logger.Info($"Completed Bulk Upsert into tblProducts");
 
-                var editFields = ProcessingDatabaseHelper.GetLocalEditFields();
-
-                if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts, "PLU", "tblLocalEdits", editFields))
+                if (ImportLocalEdits)
                 {
-                    Logger.LogErrorEvent("Failed to update tblLocalEdits.");
-                    return;
-                }
-                Logger.Info($"Completed update of tblLocalEdits");
+                    var editFields = ProcessingDatabaseHelper.GetLocalEditFields();
 
-                ProcessingDatabaseHelper.InsertHierarchyTables();
+                    //TODO May need a separate method for tblLocalEdits, as ImportLocalEdits is update only, and KeepLocalItems is
+                    //insert only
+                    if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts, "PLU", "tblLocalEdits", editFields))
+                    {
+                        Logger.LogErrorEvent("Failed to update tblLocalEdits.");
+                        return;
+                    }
+                    Logger.Info($"Completed update of tblLocalEdits");
+                }
+
+                if (ImportTables)
+                    ProcessingDatabaseHelper.InsertHierarchyTables(UseLegacy);
 
                 CopyProcessDatabaseToResident();
-
-                //TODO Purge Log Files
-
 
                 return;
             }

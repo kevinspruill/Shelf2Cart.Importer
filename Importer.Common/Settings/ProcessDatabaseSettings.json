@@ -1,13 +1,13 @@
 {
   "ResidentDatabase": "C:\\Program Files\\MM_Label\\Database\\Nutrition.mdb",
-  "ProcessDatabase": "C:\\Shelf2Cart\\Importer\\Databases\\ProcessDatabase.mdb",
-  "ImportDatabase": "C:\\Shelf2Cart\\Importer\\Databases\\ImportDB.db",
+  "ProcessDatabase": "C:\\Program Files\\MM_Label\\ProcessDatabase\\Nutrition.mdb",
+  "ImportDatabase": "C:\\Program Files\\MM_Label_Import\\System Database\\MM_IMPORT_DB.mdb",
   "AdminConsoleDatabase": "C:\\Shelf2Cart\\Importer\\Databases\\AdminConsoleDB.db",
   "BaseDatabase": "C:\\Shelf2Cart\\Importer\\Databases\\BaseDB.db",
-  "UseAdminConsoleDatabase": true,
-  "UseBaseDatabase": true,
-  "ImportTables": true,
-  "ImportLocalEdits": true,
+  "UseAdminConsoleDatabase": false,
+  "UseBaseDatabase": false,
+  "ImportTables": false,
+  "ImportLocalEdits": false,
   "KeepLocalItems": true,
   "UseLegacy": true
 }

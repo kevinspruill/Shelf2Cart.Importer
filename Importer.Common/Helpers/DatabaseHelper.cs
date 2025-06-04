@@ -182,7 +182,7 @@ namespace Importer.Common.Helpers
                     var columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
                     {
                         var columnName = row["COLUMN_NAME"].ToString();
-                        return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+                        return $"[{columnName}]";
                     }));
 
                     string query = $"SELECT {columns} FROM tblDepartments";
@@ -200,7 +200,7 @@ namespace Importer.Common.Helpers
                     columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
                     {
                         var columnName = row["COLUMN_NAME"].ToString();
-                        return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+                        return $"[{columnName}]";
                     }));
 
                     query = $"SELECT {columns} FROM tblClasses";
@@ -218,7 +218,7 @@ namespace Importer.Common.Helpers
                     columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
                     {
                         var columnName = row["COLUMN_NAME"].ToString();
-                        return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
+                        return $"[{columnName}]";
                     }));
 
                     query = $"SELECT {columns} FROM tblCategories";
@@ -481,12 +481,14 @@ namespace Importer.Common.Helpers
 
                             if (!dt.Columns.Contains(columnName))
                             {
-                                throw new Exception($"Column '{columnName}' not found in DataTable.");
+                                Logger.Warn($"Column '{columnName}' not found in DataTable.");
                             }
-
-                            propertyToColumnName[prop.Name] = columnName;
-                            columnNameToFieldName[columnName] = fieldName;
-                            fieldNameToPropertyName[fieldName] = prop.Name;
+                            else
+                            {
+                                propertyToColumnName[prop.Name] = columnName;
+                                columnNameToFieldName[columnName] = fieldName;
+                                fieldNameToPropertyName[fieldName] = prop.Name;
+                            }
                         }
 
                         // Use actual primary key field name

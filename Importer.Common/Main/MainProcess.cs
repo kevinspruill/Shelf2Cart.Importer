@@ -136,9 +136,8 @@ namespace Importer.Common.Main
             // Use Task.Run to ensure the method runs asynchronously
             await Task.Run(() => File.WriteAllText(path, time));
 
-            // TODO
-            // ProcessDatabase processDatabase = new ProcessDatabase();
-            // await processDatabase.ProcessImport();
+            ProcessDatabase processDatabase = new ProcessDatabase();
+            await processDatabase.ProcessImport();
         }
     }
 }

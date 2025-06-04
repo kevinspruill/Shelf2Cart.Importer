@@ -108,7 +108,9 @@
     <None Include="Settings\ImporterInstances.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Settings\ProcessDatabaseSettings.json" />
+    <None Include="Settings\ProcessDatabaseSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Settings\settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
