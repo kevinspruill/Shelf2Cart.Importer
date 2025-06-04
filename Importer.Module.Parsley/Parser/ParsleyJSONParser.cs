@@ -83,7 +83,8 @@ namespace Importer.Module.Parsley.Parser
             foreach (var pluItem in PLURecords)
             {
                 var product = ConvertPLURecordToTblproducts(pluItem);
-                products.Add(product);
+                if (!string.IsNullOrWhiteSpace(product.PLU)) //items without a PLU are not meant for sale
+                    products.Add(product);
             }
             return products;
         }
@@ -96,8 +97,12 @@ namespace Importer.Module.Parsley.Parser
         {
             var product = ProductTemplate.Clone();
 
-            product.PLU = GetValue(pluItem, "id");
+            product.PLU = GetValue(pluItem, "itemNumber");
             product.Description1 = GetValue(pluItem, "name");
+
+            //barcode is based on the PLU
+            if (!string.IsNullOrWhiteSpace(GetValue(pluItem, "itemNumber")))
+                product.Barcode = "2"+ GetValue(pluItem, "itemNumber"); 
 
             ////TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
             product.NFServingSize = $"{GetValue(pluItem, "servingSizeAmount")} {GetValue(pluItem, "servingSizeUom")}";
@@ -106,7 +111,7 @@ namespace Importer.Module.Parsley.Parser
             product = MapNutrientInfo(pluItem, product);
 
             if (GetValue(pluItem, "allergenString") != null && !string.IsNullOrWhiteSpace(GetValue(pluItem, "allergenString")))
-                product.Description11 = $"CONTAINS: {GetValue(pluItem, "allergenString")}";
+                product.Description10 = $"CONTAINS: {GetValue(pluItem, "allergenString")}";
 
             if (GetValue(pluItem, "ingredients") != null && !string.IsNullOrWhiteSpace(GetValue(pluItem, "ingredients")))
                 product.Ingredients = $"INGREDIENTS: {GetValue(pluItem, "ingredients")}";
@@ -126,7 +131,7 @@ namespace Importer.Module.Parsley.Parser
             product.Description14 += GetValue(pluItem, "heatingInstructionMicrowave");
 
             ////TODO Confirm that IsPackaged is Scaleable
-            product.Scaleable = bool.Parse(GetValue(pluItem, "isPackaged"));
+            //product.Scaleable = bool.Parse(GetValue(pluItem, "isPackaged"));
 
             return product;
         }
@@ -159,7 +164,7 @@ namespace Importer.Module.Parsley.Parser
                     case "sodium":
                         product.NFSodiumMG = item.Value;
                         break;
-                    case "total_carbohydrates":
+                    case "total_carbohydrate":
                         product.NFTotCarboG = item.Value;
                         break;
                     case "dietary_fiber":
