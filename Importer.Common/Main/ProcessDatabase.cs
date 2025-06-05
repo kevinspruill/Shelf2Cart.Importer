@@ -73,16 +73,22 @@ namespace Importer.Common.Main
 
                 if (ImportLocalEdits)
                 {
-                    var editFields = ProcessingDatabaseHelper.GetLocalEditFields();
-
-                    //TODO May need a separate method for tblLocalEdits, as ImportLocalEdits is update only, and KeepLocalItems is
-                    //insert only
-                    if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts, "PLU", "tblLocalEdits", editFields))
+                    if (!ProcessingDatabaseHelper.UpdateLocalEdits())
                     {
-                        Logger.LogErrorEvent("Failed to update tblLocalEdits.");
+                        Logger.LogErrorEvent("Failed to update Local Edits.");
                         return;
                     }
-                    Logger.Info($"Completed update of tblLocalEdits");
+                    Logger.Info($"Completed update of Local Edits");
+
+                    if (KeepLocalItems)
+                    {
+                        if (!ProcessingDatabaseHelper.InsertLocalItems())
+                        {
+                            Logger.LogErrorEvent("Failed to insert Local Items.");
+                            return;
+                        }
+                        Logger.Info($"Completed insert of Local Items");
+                    }
                 }
 
                 if (ImportTables)

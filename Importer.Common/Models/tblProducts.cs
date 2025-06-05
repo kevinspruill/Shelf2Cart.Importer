@@ -1,5 +1,6 @@
 ﻿using Importer.Common.Helpers;
 using System;
+using System.Linq;
 
 namespace Importer.Common.Models
 {
@@ -396,6 +397,17 @@ namespace Importer.Common.Models
             return product;
         }
 
+        public object GetProductPropertyValueByAttributeName(tblProducts product, string attributeName)
+        {
+            var property = typeof(tblProducts)
+                .GetProperties()
+                .FirstOrDefault(p =>
+                    p.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
+                     .Cast<ImportDBFieldAttribute>()
+                     .Any(attr => attr.Name == attributeName));
+
+            return property?.GetValue(product);
+        }
     }
 
 }

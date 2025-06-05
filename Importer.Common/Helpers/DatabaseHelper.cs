@@ -59,8 +59,71 @@ namespace Importer.Common.Helpers
                 return items;
             }
         }
-        public Dictionary<string, bool> GetLocalEditFields()
+
+        public bool InsertLocalItems()
         {
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    var selectQuery = $"SELECT LE.PLU FROM tblLocalEdits AS LE LEFT JOIN tblProducts AS P ON LE.PLU = P.PLU" +
+                                $" WHERE P.PLU IS NULL";
+
+                    var localPLUs = connection.Query<string>(selectQuery).ToList();
+                    if (localPLUs.Count > 0)
+                    {
+                        using (var transaction = connection.BeginTransaction())
+                        {
+                            try
+                            {
+                                int insertedLocalItems = 0;
+                                foreach (var item in localPLUs)
+                                {
+                                    var insertQuery = $"INSERT INTO TBLPRODUCTS SELECT * FROM TBLLOCALEDITS WHERE PLU ='{item}'";
+                                    connection.Execute(insertQuery, null, transaction);
+                                    insertedLocalItems++;
+
+                                    /* This can be used if we run into problems with the above
+                                     * // With this to insert the whole record (all ImportDBField properties):
+                                        var properties = typeof(tblProducts).GetProperties()
+                                            .Where(p => p.GetCustomAttribute<ImportDBFieldAttribute>() != null);
+                                         
+                                        var columnNames = string.Join(", ", properties.Select(p => $"[{p.GetCustomAttribute<ImportDBFieldAttribute>().Name}]"));
+                                        var parameterNames = string.Join(", ", properties.Select(p => $"@{p.Name}"));
+                                         
+                                        var insertSql = $"INSERT INTO tblProducts ({columnNames}) VALUES ({parameterNames})";
+                                        inserted += connection.Execute(insertSql, new { PLU = plu }, transaction);
+                                     */
+                                }
+                                transaction.Commit();
+                                return insertedLocalItems > 0;
+                            }
+                            catch (Exception ex)
+                            {
+                                transaction.Rollback();
+                                Logger.Error($"Error in transaction - {ex.Message}");
+                                return false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Logger.Trace("No local items to insert found");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error inserting local items - {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool UpdateLocalEdits()
+        {
+
             using (OleDbConnection connection = new OleDbConnection(_connectionString))
             {
                 connection.Open();
@@ -75,12 +138,29 @@ namespace Importer.Common.Helpers
                     return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
                 }));
 
-                string query = $"SELECT {columns} FROM LocalEditFields";
+                string query = $"SELECT [Edit_Field] FROM LocalEditFields WHERE [Editable] = 'Yes'";
 
                 //TODO Change this line to suit our query
-                var items = connection.QuerySingle<Dictionary<string, bool>>(query);
+                var editableFields = connection.Query<string>(query);
 
-                return items;
+                var localEditValues = new Dictionary<string, Dictionary<string, object>>();
+
+                string getProductsQuery = $"SELECT * FROM tblLocalEdits";
+                var localEdits = connection.Query<tblProducts>(getProductsQuery).ToList();
+
+                foreach (var item in localEdits)
+                {
+                    Dictionary<string, object> vals = new Dictionary<string, object>();
+                    foreach (var localEdit in editableFields)
+                    {
+                        vals.Add(localEdit, item.GetProductPropertyValueByAttributeName(item, localEdit)); //TODO we're going to get the index of the field from tblProducts
+                    }
+                    localEditValues.Add(item.PLU, vals);
+                }
+
+                var success = UpdateFieldsByDictionary(localEditValues, "PLU");
+                Logger.Trace($"Updated {success.Item1} records from tblLocalEdits");
+                return success.Item2;
             }
         }
 
@@ -245,19 +325,19 @@ namespace Importer.Common.Helpers
                             foreach (var dept in depts)
                             {
                                 string insertQuery = $"INSERT INTO tblDepartments (DeptNum, DeptName, PageNum) VALUES ({dept.DeptNum}, {dept.DeptName}, {dept.PageNum})";
-                                connection.Execute(insertQuery);
+                                connection.Execute(insertQuery, null, transaction);
                             }
 
                             foreach (var classItem in classes)
                             {
                                 string insertQuery = $"INSERT INTO tblClasses (ClassNum, Class, DeptNum, PageNum) VALUES ({classItem.ClassNum}, {classItem.Class}, {classItem.DeptNum}, {classItem.PageNum})";
-                                connection.Execute(insertQuery);
+                                connection.Execute(insertQuery, null, transaction);
                             }
 
                             foreach (var category in categories)
                             {
                                 string insertQuery = $"INSERT INTO tblCategories (CategoryNum, Category, ClassNum, PageNum) VALUES ({category.CategoryNum}, {category.Category}, {category.ClassNum}, {category.PageNum})";
-                                connection.Execute(insertQuery);
+                                connection.Execute(insertQuery, null, transaction);
                             }
 
                             transaction.Commit();
@@ -434,7 +514,7 @@ namespace Importer.Common.Helpers
         /// <param name="tblName">Name of the target database table (default: "tblProducts")</param>
         /// <param name="fieldsToUpdate">Optional dictionary specifying which fields to update when tblName is "tblLocalEdits". 
         ///     Key is field name, value indicates whether to update (true) or skip (false) the field. Only applies to tblLocalEdits table.</param>
-        public bool BulkInsertOrUpdate(List<tblProducts> products, string primaryKeyField = "PLU", string tblName = "tblProducts", Dictionary<string, bool> fieldsToUpdate = null)
+        public bool BulkInsertOrUpdate(List<tblProducts> products, string primaryKeyField = "PLU", string tblName = "tblProducts", Dictionary<string, bool> fieldsToUpdate = null, bool keepLocalItems = false)
         {
             int updated = 0;
             int inserted = 0;
@@ -909,7 +989,7 @@ namespace Importer.Common.Helpers
                         foreach (var product in products)
                         {
                             string deleteQuery = $"DELETE FROM tblProducts WHERE PLU = {product.PLU}";
-                            connection.Execute(deleteQuery, transaction);
+                            connection.Execute(deleteQuery, null, transaction);
                         }
                         transaction.Commit();
                         Logger.Info($"Bulk delete completed. {products.Count} records deleted.");
