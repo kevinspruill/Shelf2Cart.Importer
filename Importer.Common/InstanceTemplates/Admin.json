@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "[Customer] Admin Importer",
+    "Description": "Admin Console DB and UpdatePackage Importer",
+    "ImporterModule": "Admin",
+    "Enabled": true,
+    "TypeSettings": {
+      // FilePollMonitor Type Settings to be added here
+    }
+  }
+]

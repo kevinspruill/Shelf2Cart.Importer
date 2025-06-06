@@ -1,14 +1,17 @@
-﻿using System;
+﻿using Importer.Common.Helpers;
+using Importer.Common.Interfaces;
+using Microsoft.Win32.SafeHandles;
+using SimpleImpersonation;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using Importer.Common.Helpers;
-using Importer.Common.Interfaces;
 
 namespace Importer.Common.ImporterTypes
 {
@@ -61,11 +64,33 @@ namespace Importer.Common.ImporterTypes
 
         public void Start()
         {
-            // First, check and enqueue any files that are already in the queued folder.
-            Task.Run(() => EnqueueExistingQueuedFilesAsync(_cts.Token));
+            // if network credienals are configured, run using SimpleImpersanation to impersonate the user
+            if (Settings.UseLogin)
+            {
+                UserCredentials credentials = new UserCredentials(Settings.LoginDomain, Settings.LoginUsername, Settings.LoginPassword);
 
-            // Then, start the main monitoring loop.
-            Task.Run(() => MonitorLoopAsync(_cts.Token));
+                using (SafeAccessTokenHandle userHandle = credentials.LogonUser(LogonType.NewCredentials))
+                {
+                    WindowsIdentity.RunImpersonated(userHandle, () =>
+                    {
+                        // First, check and enqueue any files that are already in the queued folder.
+                        Task.Run(() => EnqueueExistingQueuedFilesAsync(_cts.Token));
+                        
+                        // Then, start the main monitoring loop.
+                        Task.Run(() => MonitorLoopAsync(_cts.Token));
+                    });
+                }
+                            
+            }
+            else
+            {
+                // First, check and enqueue any files that are already in the queued folder.
+                Task.Run(() => EnqueueExistingQueuedFilesAsync(_cts.Token));
+
+                // Then, start the main monitoring loop.
+                Task.Run(() => MonitorLoopAsync(_cts.Token));
+            }
+
         }
 
 
@@ -485,6 +510,10 @@ namespace Importer.Common.ImporterTypes
             Settings.PollIntervalMilliseconds = ApplySetting<int>("PollIntervalMilliseconds");
             Settings.TargetPath = ApplySetting<string>("TargetPath");
             Settings.DatabaseFile = ApplySetting<string>("DatabaseFile");
+            Settings.UseLogin = ApplySetting<bool>("UseLogin");
+            Settings.LoginUsername = ApplySetting<string>("LoginUsername") ?? string.Empty;
+            Settings.LoginPassword = ApplySetting<string>("LoginPassword") ?? string.Empty;
+            Settings.LoginDomain = ApplySetting<string>("LoginDomain") ?? string.Empty;
 
             // Convert List<string> to HashSet<string> to fix the type mismatch
             var allowedExtensionsList = ApplySetting<List<string>>("AllowedExtensions");
