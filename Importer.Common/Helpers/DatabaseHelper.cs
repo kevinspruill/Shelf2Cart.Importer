@@ -129,7 +129,7 @@ namespace Importer.Common.Helpers
                 connection.Open();
 
                 // Get schema information
-                var schemaTable = connection.GetSchema("Columns", new[] { null, null, "LocalEditFields", null });
+                var schemaTable = connection.GetSchema("Columns", new[] { null, null, "LocalEditField", null });
 
                 // Build the SQL query dynamically
                 var columns = string.Join(", ", schemaTable.Rows.OfType<DataRow>().Select(row =>
@@ -138,7 +138,7 @@ namespace Importer.Common.Helpers
                     return columnName.Contains(" ") ? $"[{columnName}] AS {columnName.Replace(" ", "")}" : columnName;
                 }));
 
-                string query = $"SELECT [Edit_Field] FROM LocalEditFields WHERE [Editable] = 'Yes'";
+                string query = $"SELECT [Edit_Field] FROM LocalEditField WHERE [Editable] = 'Yes'";
 
                 //TODO Change this line to suit our query
                 var editableFields = connection.Query<string>(query);
@@ -160,7 +160,7 @@ namespace Importer.Common.Helpers
 
                 var success = UpdateFieldsByDictionary(localEditValues, "PLU");
                 Logger.Trace($"Updated {success.Item1} records from tblLocalEdits");
-                return success.Item2;
+                return success.Item1 > 0;
             }
         }
 
@@ -313,30 +313,28 @@ namespace Importer.Common.Helpers
                 using (var connection = new OleDbConnection(_connectionString))
                 {
                     connection.Open();
-
+                    connection.Execute($"DELETE * FROM tblDepartments");
+                    connection.Execute($"DELETE * FROM tblClasses");
+                    connection.Execute($"DELETE * FROM tblCategories");
                     using (var transaction = connection.BeginTransaction())
                     {
                         try
                         {
-                            connection.Execute($"DELETE * FROM tblDepartments");
-                            connection.Execute($"DELETE * FROM tblClasses");
-                            connection.Execute($"DELETE * FROM tblCategories");
-
                             foreach (var dept in depts)
                             {
-                                string insertQuery = $"INSERT INTO tblDepartments (DeptNum, DeptName, PageNum) VALUES ({dept.DeptNum}, {dept.DeptName}, {dept.PageNum})";
+                                string insertQuery = $"INSERT INTO tblDepartments (DeptNum, DeptName, PageNum) VALUES ({dept.DeptNum}, '{dept.DeptName}', {dept.PageNum})";
                                 connection.Execute(insertQuery, null, transaction);
                             }
 
                             foreach (var classItem in classes)
                             {
-                                string insertQuery = $"INSERT INTO tblClasses (ClassNum, Class, DeptNum, PageNum) VALUES ({classItem.ClassNum}, {classItem.Class}, {classItem.DeptNum}, {classItem.PageNum})";
+                                string insertQuery = $"INSERT INTO tblClasses (ClassNum, [Class], DeptNum, PageNum) VALUES ({classItem.ClassNum}, '{classItem.Class}', {classItem.DeptNum}, {classItem.PageNum})";
                                 connection.Execute(insertQuery, null, transaction);
                             }
 
                             foreach (var category in categories)
                             {
-                                string insertQuery = $"INSERT INTO tblCategories (CategoryNum, Category, ClassNum, PageNum) VALUES ({category.CategoryNum}, {category.Category}, {category.ClassNum}, {category.PageNum})";
+                                string insertQuery = $"INSERT INTO tblCategories (CategoryNum, Category, ClassNum, PageNum) VALUES ({category.CategoryNum}, '{category.Category}', {category.ClassNum}, {category.PageNum})";
                                 connection.Execute(insertQuery, null, transaction);
                             }
 
@@ -1310,6 +1308,7 @@ namespace Importer.Common.Helpers
         {
             int updated = 0;
             bool defaultValuesUpdated = false;
+            bool hasChanges = false;
             if (fieldsToUpdate == null || fieldsToUpdate.Count == 0)
             {
                 Logger.Warn("No fields to update.");
@@ -1349,11 +1348,13 @@ namespace Importer.Common.Helpers
 
                             if (!dt.Columns.Contains(columnName))
                             {
-                                throw new Exception($"Column '{columnName}' not found in DataTable.");
+                                Logger.Warn($"Column '{columnName}' not found in DataTable.");
                             }
-
-                            propertyToColumnName[prop.Name] = columnName;
-                            columnNameToFieldName[columnName] = fieldName;
+                            else
+                            {
+                                propertyToColumnName[prop.Name] = columnName;
+                                columnNameToFieldName[columnName] = fieldName;
+                            }
                         }
 
                         // Use actual primary key field name
@@ -1375,7 +1376,6 @@ namespace Importer.Common.Helpers
                             if (existingRows.Length > 0)
                             {
                                 DataRow row = existingRows[0];
-                                bool hasChanges = false;
 
                                 foreach (var field in fields)
                                 {
@@ -1444,7 +1444,7 @@ namespace Importer.Common.Helpers
                     Logger.Info($"Update operation completed. {updated} records updated.");
 
                     // return true if any records were updated, otherwise false
-                    return Tuple.Create(updated, defaultValuesUpdated);
+                    return Tuple.Create(updated, hasChanges);
                 }
             }
             catch (Exception ex)
