@@ -147,20 +147,25 @@ namespace Importer.Common.Helpers
 
                 string getProductsQuery = $"SELECT * FROM tblLocalEdits";
                 var localEdits = connection.Query<tblProducts>(getProductsQuery).ToList();
-
-                foreach (var item in localEdits)
+                try
                 {
-                    Dictionary<string, object> vals = new Dictionary<string, object>();
-                    foreach (var localEdit in editableFields)
+                    foreach (var item in localEdits)
                     {
-                        vals.Add(localEdit, item.GetProductPropertyValueByAttributeName(item, localEdit)); //TODO we're going to get the index of the field from tblProducts
+                        Dictionary<string, object> vals = new Dictionary<string, object>();
+                        foreach (var localEdit in editableFields)
+                        {
+                            vals.Add(localEdit, item.GetProductPropertyValueByAttributeName(item, localEdit)); //TODO we're going to get the index of the field from tblProducts
+                        }
+                        localEditValues.Add(item.PLU, vals);
                     }
-                    localEditValues.Add(item.PLU, vals);
-                }
 
-                var success = UpdateFieldsByDictionary(localEditValues, "PLU");
-                Logger.Trace($"Updated {success.Item1} records from tblLocalEdits");
-                return success.Item1 > 0;
+                    var success = UpdateFieldsByDictionary(localEditValues, "PLU");
+                    Logger.Trace($"Updated {success.Item1} records from tblLocalEdits");
+                    return true;
+                } catch (Exception ex) {
+                    Logger.Error($"Error updating tblLocalEdits - {ex.Message}");
+                    return false;
+                }
             }
         }
 

@@ -93,6 +93,11 @@ namespace Importer.Common.Helpers
                             value = TitleCaseConverter.ConvertToAllCaps(value);
                         }
 
+                        if (_settings.ShouldApplyFindReplace(prop))
+                        {
+                            value = _findReplace.ApplyReplacements(value);
+                        }
+
                         prop.SetValue(product, value);
                     }
                 }
