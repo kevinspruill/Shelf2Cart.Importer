@@ -25,6 +25,7 @@ namespace Importer.Module.Parsley.Models
         public Dictionary<string, object> CustomTags { get; set; }
         public string ChefID { get; set; }
         public int? ChefParsleyId { get; set; }
+        public string ShelfLife { get; set; }
         public NutritionalInfo NutritionalInfo { get; set; }
         public string ItemNumber { get; set; }
         public string ManagementItemNumber { get; set; }

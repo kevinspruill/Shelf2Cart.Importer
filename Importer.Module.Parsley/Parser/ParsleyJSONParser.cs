@@ -108,6 +108,9 @@ namespace Importer.Module.Parsley.Parser
             product.NFServingSize = $"{GetValue(pluItem, "servingSizeAmount")} {GetValue(pluItem, "servingSizeUom")}";
             //product.NFServingSize = GetValue(pluItem, "nutritionServingSize");
 
+            if (!string.IsNullOrWhiteSpace(GetValue(pluItem, "shelfLife").ToString()))
+                product.ShelfLife = GetValue(pluItem, "shelfLife").ToString();
+
             product = MapNutrientInfo(pluItem, product);
 
             if (GetValue(pluItem, "allergenString") != null && !string.IsNullOrWhiteSpace(GetValue(pluItem, "allergenString")))
@@ -231,6 +234,9 @@ namespace Importer.Module.Parsley.Parser
                 record.Add("servingSizeUom", item.NutritionalInfo.ServingSize.Uom);
                 record.Add("nutritionServingSize", item.NutritionalInfo.NutritionServingSize);
                 record.Add("servingsPerPackage", item.NutritionalInfo.ServingsPerPackage.ToString());
+
+                if (item.ShelfLife != null)
+                    record.Add("shelfLife", item.ShelfLife.ToString());
 
                 //No need for a whole other method, we can just combine value and unit to make our value
                 foreach (var nutrient in item.NutritionalInfo.Nutrients.Values)
