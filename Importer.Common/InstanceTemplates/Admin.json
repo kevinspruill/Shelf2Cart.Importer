@@ -5,7 +5,14 @@
     "ImporterModule": "Admin",
     "Enabled": true,
     "TypeSettings": {
-      // FilePollMonitor Type Settings to be added here
+      "TargetPath": "C:\\Shelf2Cart\\Importer\\AdminConsole",
+      "IsAdminFile": true,
+      "AllowedExtensions": [ ".mdb", ".zip" ],
+      "PollIntervalMilliseconds": 5000,
+      "UseLogin": false,
+      "LoginUsername": "",
+      "LoginPassword": "",
+      "LoginDomain": ""
     }
   }
 ]
