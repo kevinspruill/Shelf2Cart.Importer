@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Importer.Module.Invafresh.Helpers
+namespace Importer.Module.Generic.Helpers
 {
     public class GenericSettingsLoader
     {
