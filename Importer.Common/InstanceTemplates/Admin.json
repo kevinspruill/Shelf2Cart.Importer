@@ -5,7 +5,7 @@
     "ImporterModule": "Admin",
     "Enabled": true,
     "TypeSettings": {
-      "TargetPath": "C:\\Shelf2Cart\\Importer\\AdminConsole",
+      "TargetPath": "[FileMonitorLocation]",
       "IsAdminFile": true,
       "AllowedExtensions": [ ".mdb", ".zip" ],
       "PollIntervalMilliseconds": 5000,

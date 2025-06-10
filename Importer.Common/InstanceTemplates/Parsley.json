@@ -1,6 +1,6 @@
 [
   {
-    "Name": "[Customer] Importer",
+    "Name": "[Customer] Parsley Importer",
     "Description": "Parsley Rest API Importer",
     "ImporterModule": "Parsley",
     "Enabled": true,

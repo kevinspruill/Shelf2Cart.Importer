@@ -1,0 +1,18 @@
+[
+  {
+    "Name": "[Customer] Invafresh Importer",
+    "Description": "Invafresh Importer using File Monitoring",
+    "ImporterModule": "Invafresh",
+    "Enabled": true,
+    "TypeSettings": {
+      "TargetPath": "[FileMonitorLocation]",
+      "IsAdminFile": false,
+      "AllowedExtensions": [".dat"],
+      "PollIntervalMilliseconds": 500,
+      "UseLogin": false,
+      "LoginUsername": "",
+      "LoginPassword": "",
+      "LoginDomain": ""
+    }
+  }
+]

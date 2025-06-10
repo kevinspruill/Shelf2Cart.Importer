@@ -1,0 +1,18 @@
+[
+  {
+    "Name": "[Customer] Generic Importer",
+    "Description": "Generic Importer using File Monitoring",
+    "ImporterModule": "Generic",
+    "Enabled": true,
+    "TypeSettings": {
+      "TargetPath": "[FileMonitorLocation]",
+      "IsAdminFile": false,
+      "AllowedExtensions": [],
+      "PollIntervalMilliseconds": 500,
+      "UseLogin": false,
+      "LoginUsername": "",
+      "LoginPassword": "",
+      "LoginDomain": ""
+    }
+  }
+]

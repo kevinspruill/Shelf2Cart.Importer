@@ -99,6 +99,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="InstanceTemplates\Invafresh.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="InstanceTemplates\Generic.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="InstanceTemplates\Parsley.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
