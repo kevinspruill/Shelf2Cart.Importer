@@ -66,6 +66,10 @@
       <Project>{cd8391e8-1d38-4d54-9a85-be531ce17304}</Project>
       <Name>Wakefern.CustomerProcess</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Admin\Importer.Module.Admin.csproj">
+      <Project>{ae6c12e6-6ce1-4a98-aff2-e1fdfdf2a936}</Project>
+      <Name>Importer.Module.Admin</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Importer.Module.Debug\Importer.Module.Debug.csproj">
       <Project>{ff9b6926-313a-4d87-aa92-6fcae85a3e9a}</Project>
       <Name>Importer.Module.Debug</Name>
