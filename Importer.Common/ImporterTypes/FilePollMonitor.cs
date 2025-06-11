@@ -224,6 +224,9 @@ namespace Importer.Common.ImporterTypes
                     // Use a windows temporary file path for admin processing.
                     string _adminProcessingFilePath = Path.Combine(Path.GetTempPath(), "AdminProcessing", Path.GetFileName(GenerateUniqueFileName(filePath)));
                     
+                    if (!Directory.Exists(Path.GetDirectoryName(_adminProcessingFilePath)))
+                        Directory.CreateDirectory(Path.GetDirectoryName(_adminProcessingFilePath));
+
                     try
                     {
                         File.Copy(filePath, _adminProcessingFilePath, true);
