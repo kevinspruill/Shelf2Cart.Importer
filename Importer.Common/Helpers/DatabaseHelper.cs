@@ -110,7 +110,7 @@ namespace Importer.Common.Helpers
                     else
                     {
                         Logger.Trace("No local items to insert found");
-                        return false;
+                        return true;
                     }
                 }
             }
