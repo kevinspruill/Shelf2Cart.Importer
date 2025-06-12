@@ -58,6 +58,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExecuteProcessDatabase\ExecuteProcessDatabase.csproj">
+      <Project>{e908b943-0fa4-4fca-b72e-c0746aa66b62}</Project>
+      <Name>ExecuteProcessDatabase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Importer.Common\Importer.Common.csproj">
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
