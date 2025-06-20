@@ -247,7 +247,7 @@ namespace Importer.Module.Parsley.Parser
                 //Ya Hala fills out their allergenString well
                 if (item.NutritionalInfo.AllergenString != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.AllergenString))
                 {
-                    record.Add("allergenString", item.NutritionalInfo.AllergenString);
+                    record.Add("allergenString", item.NutritionalInfo.AllergenString.Replace("CEREALS CONTAINING GLUTEN", "GLUTEN"));
                 }
                 else
                 {
@@ -255,7 +255,7 @@ namespace Importer.Module.Parsley.Parser
                     if (item.NutritionalInfo.Allergens.Celery != null && (bool)item.NutritionalInfo.Allergens.Celery)
                         tempAllergenString += "CELERY, ";
                     if (item.NutritionalInfo.Allergens.CerealsGluten != null && (bool)item.NutritionalInfo.Allergens.CerealsGluten)
-                        tempAllergenString += "CEREALS GLUTEN, ";
+                        tempAllergenString += "GLUTEN, ";
                     if (item.NutritionalInfo.Allergens.CrustaceanShellfish != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.CrustaceanShellfish))
                         tempAllergenString += $"{item.NutritionalInfo.Allergens.CrustaceanShellfish}, ";
                     if (item.NutritionalInfo.Allergens.Eggs != null && (bool)item.NutritionalInfo.Allergens.Eggs)

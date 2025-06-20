@@ -741,83 +741,92 @@ namespace Importer.Module.Invafresh.Parser
                 }
             }
 
+            //we use nulls to indicate that columns should be skipped during update, so if there is no ingredientRecord or no
+            //nutritionRecord, we set their values to null so they do not get erased during an update
             if (ingredientRecord != null)
             {
                 // Add ingredient information to tblProducts
                 product.Ingredients = ingredientRecord.IngredientText;
             }
-
-            if (nutritionRecord != null)
+            else
             {
+                product.Ingredients = null;
+            }
+
+            if (!_legacyNutritionEnabled)
+            {
+                bool isNull = nutritionRecord == null;
                 // Add nutrition information to tblProducts
-                product.NFDesc = nutritionRecord.ServingsPerContainer;
-                product.NFServingSize = nutritionRecord.ServingSizeDescription;
+                product.NFDesc = isNull ? null : nutritionRecord.ServingsPerContainer;
+                product.NFServingSize = isNull ? null : nutritionRecord.ServingSizeDescription;
 
                 // Vitamins and Minerals (Percentages)
                 // TODO: Add more nutrition fields here
             }
-
-            if (legacyNutritionRecord != null)
+            else
             {
-                product.NFDesc = legacyNutritionRecord.ServingsPerContainer;
-                product.NFServingSize = legacyNutritionRecord.ServingSizeDescription;
+                bool isNull = legacyNutritionRecord == null;
+
+                product.NFDesc = isNull ? null : legacyNutritionRecord.ServingsPerContainer;
+                product.NFServingSize = isNull ? null : legacyNutritionRecord.ServingSizeDescription;
 
                 // Vitamins and Minerals (Percentages)
-                product.NFVitA = GetLegacyNutrtionValue(legacyNutritionRecord, "N001-P"); // Vitamin A Percent
-                product.NFVitC = GetLegacyNutrtionValue(legacyNutritionRecord, "N002-P"); // Vitamin C Percent
-                product.NF3 = GetLegacyNutrtionValue(legacyNutritionRecord, "N003-P"); // Thiamine Percent
-                product.NF4 = GetLegacyNutrtionValue(legacyNutritionRecord, "N004-P"); // Riboflavin Percent
-                product.NF5 = GetLegacyNutrtionValue(legacyNutritionRecord, "N005-P"); // Niacin Percent
-                product.NFCalcium = GetLegacyNutrtionValue(legacyNutritionRecord, "N006-P"); // Calcium Percent
-                product.NFCalciummcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N006-V"); // Calcium Value
-                product.NFIron = GetLegacyNutrtionValue(legacyNutritionRecord, "N007-P"); // Iron Percent
-                product.NFIronmcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N007-V"); // Iron Value
-                product.NFVitD = GetLegacyNutrtionValue(legacyNutritionRecord, "N008-P"); // Vitamin D Percent
-                product.NFVitDmcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N008-V"); // Vitamin D Value
-                product.NF9 = GetLegacyNutrtionValue(legacyNutritionRecord, "N010-P"); // Vitamin B6 Percent
-                product.NF6 = GetLegacyNutrtionValue(legacyNutritionRecord, "N011-P"); // Folic Acid Percent
-                product.NF10 = GetLegacyNutrtionValue(legacyNutritionRecord, "N012-P"); // Vitamin B12 Percent
+                product.NFVitA = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N001-P"); // Vitamin A Percent
+                product.NFVitC = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N002-P"); // Vitamin C Percent
+                product.NF3 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N003-P"); // Thiamine Percent
+                product.NF4 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N004-P"); // Riboflavin Percent
+                product.NF5 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N005-P"); // Niacin Percent
+                product.NFCalcium = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N006-P"); // Calcium Percent
+                product.NFCalciummcg = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N006-V"); // Calcium Value
+                product.NFIron = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N007-P"); // Iron Percent
+                product.NFIronmcg = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N007-V"); // Iron Value
+                product.NFVitD = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N008-P"); // Vitamin D Percent
+                product.NFVitDmcg = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N008-V"); // Vitamin D Value
+                product.NF9 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N010-P"); // Vitamin B6 Percent
+                product.NF6 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N011-P"); // Folic Acid Percent
+                product.NF10 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N012-P"); // Vitamin B12 Percent
 
                 // Calories and Macronutrients
-                product.NFCalories = GetLegacyNutrtionValue(legacyNutritionRecord, "N100-V"); // Calories Value
-                product.NFCaloriesFromFat = GetLegacyNutrtionValue(legacyNutritionRecord, "N101-V"); // Calories From Fat Value
+                product.NFCalories = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N100-V"); // Calories Value
+                product.NFCaloriesFromFat = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N101-V"); // Calories From Fat Value
 
                 // Fats
-                product.NFTotalFat = GetLegacyNutrtionValue(legacyNutritionRecord, "N102-P"); // Total Fat Percent
-                product.NFTotalFatG = GetLegacyNutrtionValue(legacyNutritionRecord, "N102-V"); // Total Fat Value
-                product.NF1 = GetLegacyNutrtionValue(legacyNutritionRecord, "N103-P"); // Saturated Fat Percent
-                product.NFSatFatG = GetLegacyNutrtionValue(legacyNutritionRecord, "N103-V"); // Saturated Fat Value
-                product.NF8 = GetLegacyNutrtionValue(legacyNutritionRecord, "N113-V"); // Trans Fatty Acid Value
+                product.NFTotalFat = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N102-P"); // Total Fat Percent
+                product.NFTotalFatG = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N102-V"); // Total Fat Value
+                product.NF1 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N103-P"); // Saturated Fat Percent
+                product.NFSatFatG = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N103-V"); // Saturated Fat Value
+                product.NF8 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N113-V"); // Trans Fatty Acid Value
 
                 // Cholesterol
-                product.NFCholesterol = GetLegacyNutrtionValue(legacyNutritionRecord, "N104-P"); // Cholesterol Percent
-                product.NFCholesterolMG = GetLegacyNutrtionValue(legacyNutritionRecord, "N104-V"); // Cholesterol Value
+                product.NFCholesterol = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N104-P"); // Cholesterol Percent
+                product.NFCholesterolMG = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N104-V"); // Cholesterol Value
 
                 // Carbohydrates
-                product.NFTotCarbo = GetLegacyNutrtionValue(legacyNutritionRecord, "N105-P"); // Total Carbohydrates Percent
-                product.NFTotCarboG = GetLegacyNutrtionValue(legacyNutritionRecord, "N105-V"); // Total Carbohydrates Value
-                product.NFDietFiber = GetLegacyNutrtionValue(legacyNutritionRecord, "N106-P"); // Dietary Fiber Percent
-                product.NF2 = GetLegacyNutrtionValue(legacyNutritionRecord, "N106-V"); // Dietary Fiber Value
-                product.NFSugars = GetLegacyNutrtionValue(legacyNutritionRecord, "N108-V"); // Sugars Value
-                product.NF7 = GetLegacyNutrtionValue(legacyNutritionRecord, "N120-V"); // Sugar Alcohol Value
-                product.NFSugarsAdded = GetLegacyNutrtionValue(legacyNutritionRecord, "N127-P"); // Added Sugars Percent
-                product.NFSugarsAddedG = GetLegacyNutrtionValue(legacyNutritionRecord, "N127-V"); // Added Sugars Value
+                product.NFTotCarbo = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N105-P"); // Total Carbohydrates Percent
+                product.NFTotCarboG = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N105-V"); // Total Carbohydrates Value
+                product.NFDietFiber = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N106-P"); // Dietary Fiber Percent
+                product.NF2 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N106-V"); // Dietary Fiber Value
+                product.NFSugars = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N108-V"); // Sugars Value
+                product.NF7 = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N120-V"); // Sugar Alcohol Value
+                product.NFSugarsAdded = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N127-P"); // Added Sugars Percent
+                product.NFSugarsAddedG = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N127-V"); // Added Sugars Value
 
                 // Sodium and Potassium
-                product.NFSodium = GetLegacyNutrtionValue(legacyNutritionRecord, "N107-P"); // Sodium Percent
-                product.NFSodiumMG = GetLegacyNutrtionValue(legacyNutritionRecord, "N107-V"); // Sodium Value
-                product.NFPotassium = GetLegacyNutrtionValue(legacyNutritionRecord, "N110-P"); // Potassium Percent
-                product.NFPotassiummcg = GetLegacyNutrtionValue(legacyNutritionRecord, "N110-V"); // Potassium Value
+                product.NFSodium = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N107-P"); // Sodium Percent
+                product.NFSodiumMG = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N107-V"); // Sodium Value
+                product.NFPotassium = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N110-P"); // Potassium Percent
+                product.NFPotassiummcg = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N110-V"); // Potassium Value
 
                 // Protein
-                product.NFProtein = GetLegacyNutrtionValue(legacyNutritionRecord, "N109-V"); // Protein Value
+                product.NFProtein = isNull ? null : GetLegacyNutritionValue(legacyNutritionRecord, "N109-V"); // Protein Value
             }
+
 
             // TODO: Add Legacy Nutrition Custom Remapping here (Only Implement if needed)
 
             return product;
         }
-        private string GetLegacyNutrtionValue(LegacyNutritionItemRecord legacyNutritionRecord, string NEN)
+        private string GetLegacyNutritionValue(LegacyNutritionItemRecord legacyNutritionRecord, string NEN)
         {
             // get the Value and PercentageValue of the first 4 characters NEN
             var LegacyNF = legacyNutritionRecord.NutritionEntries.FirstOrDefault(n => n.NutritionType == NEN.Substring(0, 4));
@@ -834,5 +843,7 @@ namespace Importer.Module.Invafresh.Parser
             }
             return string.Empty;
         }
+
+
     }
 }

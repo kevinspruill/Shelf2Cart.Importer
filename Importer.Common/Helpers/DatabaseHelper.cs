@@ -629,15 +629,21 @@ namespace Importer.Common.Helpers
                                     if (propertyToColumnName.ContainsKey(prop.Name))
                                     {
                                         string columnName = propertyToColumnName[prop.Name];
-                                        var newValue = prop.GetValue(product) ?? DBNull.Value;
+                                        var newValue = prop.GetValue(product);
                                         var oldValue = row[columnName];
-
-                                        if (!ValuesAreEqual(oldValue, newValue))
+                                        if (newValue != null)
+                                        { //we use nulls to indicate that column should be ignored during update, so null means we skip it
+                                            if (!ValuesAreEqual(oldValue, newValue))
+                                            {
+                                                // Log the differences for debugging
+                                                Logger.Debug($"Value changed for column '{columnName}': Old='{oldValue}' ({oldValue?.GetType()}), New='{newValue}' ({newValue?.GetType()})");
+                                                row[columnName] = newValue;
+                                                hasChanges = true;
+                                            }
+                                        }
+                                        else
                                         {
-                                            // Log the differences for debugging
-                                            Logger.Debug($"Value changed for column '{columnName}': Old='{oldValue}' ({oldValue?.GetType()}), New='{newValue}' ({newValue?.GetType()})");
-                                            row[columnName] = newValue;
-                                            hasChanges = true;
+                                            Logger.Trace($"{columnName} is set to null, will not be updated. Using existing value='{oldValue}'");
                                         }
                                     }
                                 }
@@ -660,8 +666,17 @@ namespace Importer.Common.Helpers
                                 {
                                     if (propertyToColumnName.ContainsKey(prop.Name))
                                     {
+                                        object value = prop.GetValue(product);
                                         string columnName = propertyToColumnName[prop.Name];
-                                        row[columnName] = prop.GetValue(product) ?? DBNull.Value;
+                                        if (value == null)
+                                        { //we use nulls to indicate not to update column value, so on insert it should be default
+                                            var columnType = dt.Columns[columnName].DataType;
+                                            row[columnName] = GetDefaultValue(columnType);
+                                        }
+                                        else
+                                        {
+                                            row[columnName] = prop.GetValue(product);
+                                        }
                                     }
                                 }
                                 dt.Rows.Add(row);
