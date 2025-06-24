@@ -20,6 +20,9 @@ namespace Importer.Common.Services
             SetHeaders();
         }
 
+        /// <summary>
+        /// TODO Will Override SetHeaders based on the SchedulerService when we import ECRS here
+        /// </summary>
         public void SetHeaders()
         {
             APIClient.DefaultRequestHeaders.Accept.Clear();

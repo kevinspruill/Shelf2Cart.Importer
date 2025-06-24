@@ -1,5 +1,6 @@
 {
   // "MMFieldName": "TrueVal"
   // i.e. "Scableable": "Lb"
-  "Scaleable": "Y"
+  "Scaleable": "Y",
+  "QtyEn":  "Y"
 }

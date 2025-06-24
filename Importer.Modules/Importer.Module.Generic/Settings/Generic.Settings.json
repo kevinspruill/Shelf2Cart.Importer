@@ -1,5 +1,5 @@
 {
   "FieldDelimiter": "\t",
-  "Parser": "Generic", // "Generic" or "JSON"
+  "Parser": "JSON", // "Generic" or "JSON"
   "RecordSeparator": "\r\n"
 }
