@@ -54,7 +54,7 @@ namespace Importer.Common.QuartzJobs
                         // Trigger the process in the module
                         module.TriggerProcess(); // Trigger the process in the module
 
-                        Logger.Info("Process triggered in the module successfully.");
+                        Logger.Info("GetAPIJob executed successfully.");
                     }
                     else
                     {
