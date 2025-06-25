@@ -60,9 +60,8 @@ namespace Importer.Common.Services
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error fetching menu item details from {endpoint}: {ex.Message}");
+                Logger.Error($"Error fetching menu item details from {endpoint}: {ex.Message} - {ex.InnerException.Message}");
                 return null;
-
             }
         }
 

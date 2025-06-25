@@ -33,26 +33,38 @@ namespace Importer.Common.QuartzJobs
         public async Task Execute(IJobExecutionContext context)
         {
             Logger.Info("Executing GetAPIJob...");
-
-            // Retrieve the module reference
-            var moduleKey = context.JobDetail.JobDataMap.GetString("ImporterModuleKey");
-            var endpoint = context.JobDetail.JobDataMap.GetString("Endpoint");
-            var apiKey = context.JobDetail.JobDataMap.GetString("ApiKey");
-            //Set API Key
-            merchandiserAPIClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-
-            if (ImporterModuleRegistry.Modules.TryGetValue(moduleKey, out var module))
+            try
             {
-                // Fetch data
-                var result = await merchandiserAPIClient.GetAsync(endpoint);
+                // Retrieve the module reference
+                var moduleKey = context.JobDetail.JobDataMap.GetString("ImporterModuleKey");
+                var endpoint = context.JobDetail.JobDataMap.GetString("Endpoint");
+                var apiKey = context.JobDetail.JobDataMap.GetString("ApiKey");
+                //Set API Key
+                merchandiserAPIClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-                // Pass data back to the module
-                module.ImporterTypeData = result; // or call a custom method if needed
+                if (ImporterModuleRegistry.Modules.TryGetValue(moduleKey, out var module))
+                {
+                    // Fetch data
+                    var result = await merchandiserAPIClient.GetAsync(endpoint);
+                    if (result != null)
+                    {
+                        // Pass data back to the module
+                        module.ImporterTypeData = result; // or call a custom method if needed
 
-                // Trigger the process in the module
-                module.TriggerProcess(); // Trigger the process in the module
+                        // Trigger the process in the module
+                        module.TriggerProcess(); // Trigger the process in the module
 
-                Logger.Info("Process triggered in the module successfully.");
+                        Logger.Info("Process triggered in the module successfully.");
+                    }
+                    else
+                    {
+                        Logger.Error("Null value returned from GetAsync, error retrieving data");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error executing scheduled GetAPIJob - {ex.Message} - {ex.InnerException.Message}");
             }
         }
     }
