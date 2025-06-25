@@ -145,11 +145,18 @@ namespace Importer.Module.Generic.Parser
                             }
                             else
                             {
-                                var convertedValue = Convert.ChangeType(value, propertyType);
-                                //if there is a null or whitespace then we go with our default values
-                                if (propertyType != typeof(string)
-                                    || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
-                                    propertyWithAttribute.SetValue(product, convertedValue);
+                                if (!(propertyType == typeof(DateTime?) && string.IsNullOrWhiteSpace(value)))
+                                {
+                                    var convertedValue = Convert.ChangeType(value, propertyType);
+                                    //if there is a null or whitespace then we go with our default values
+                                    if (propertyType != typeof(string)
+                                        || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
+                                        propertyWithAttribute.SetValue(product, convertedValue);
+                                }
+                                else
+                                {
+                                    Logger.Trace($"DateTime? Field {field.Key} is blank, skipping");
+                                }
                             }
 
                         }
