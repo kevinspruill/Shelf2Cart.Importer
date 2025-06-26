@@ -244,53 +244,40 @@ namespace Importer.Module.Parsley.Parser
                     record.Add(nutrient.Name, nutrient.Value.ToString()); //not including the unit as we add that
                 }
 
-                //Ya Hala fills out their allergenString well
-                if (item.NutritionalInfo.AllergenString != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.AllergenString))
+                //Ya Hala fills out an allergen string but they only want their "Top 9 Allergens" so we're not using it
+                //keeping this here and commented out though as another customer using Parsley might actually use all the allergens
+                /*if (item.NutritionalInfo.AllergenString != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.AllergenString))
                 {
                     record.Add("allergenString", item.NutritionalInfo.AllergenString.Replace("CEREALS CONTAINING GLUTEN", "GLUTEN"));
                 }
                 else
-                {
+                {*/
                     var tempAllergenString = "";
-                    if (item.NutritionalInfo.Allergens.Celery != null && (bool)item.NutritionalInfo.Allergens.Celery)
-                        tempAllergenString += "CELERY, ";
                     if (item.NutritionalInfo.Allergens.CerealsGluten != null && (bool)item.NutritionalInfo.Allergens.CerealsGluten)
                         tempAllergenString += "GLUTEN, ";
                     if (item.NutritionalInfo.Allergens.CrustaceanShellfish != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.CrustaceanShellfish))
-                        tempAllergenString += $"{item.NutritionalInfo.Allergens.CrustaceanShellfish}, ";
+                        tempAllergenString += $"{item.NutritionalInfo.Allergens.CrustaceanShellfish.ToUpper()}, ";
                     if (item.NutritionalInfo.Allergens.Eggs != null && (bool)item.NutritionalInfo.Allergens.Eggs)
                         tempAllergenString += "EGGS, ";
                     if (item.NutritionalInfo.Allergens.Fish != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.Fish))
-                        tempAllergenString += $"{item.NutritionalInfo.Allergens.Fish}, ";
-                    if (item.NutritionalInfo.Allergens.Lupin != null && (bool)item.NutritionalInfo.Allergens.Lupin)
-                        tempAllergenString += "LUPIN, ";
+                        tempAllergenString += $"{item.NutritionalInfo.Allergens.Fish.ToUpper()}, ";
                     if (item.NutritionalInfo.Allergens.Milk != null && (bool)item.NutritionalInfo.Allergens.Milk)
                         tempAllergenString += "MILK, ";
-                    if (item.NutritionalInfo.Allergens.Molluscs != null && (bool)item.NutritionalInfo.Allergens.Molluscs)
-                        tempAllergenString += "MOLLUSCS, ";
-                    if (item.NutritionalInfo.Allergens.Molluscs != null && (bool)item.NutritionalInfo.Allergens.Molluscs)
-                        tempAllergenString += "MOLLUSCS, ";
-                    if (item.NutritionalInfo.Allergens.Mustard != null && (bool)item.NutritionalInfo.Allergens.Mustard)
-                        tempAllergenString += "MUSTARD, ";
                     if (item.NutritionalInfo.Allergens.Peanuts != null && (bool)item.NutritionalInfo.Allergens.Peanuts)
                         tempAllergenString += "PEANUTS, ";
                     if (item.NutritionalInfo.Allergens.SesameSeeds != null && (bool)item.NutritionalInfo.Allergens.SesameSeeds)
                         tempAllergenString += "SESAME SEEDS, ";
                     if (item.NutritionalInfo.Allergens.Soybeans != null && (bool)item.NutritionalInfo.Allergens.Soybeans)
                         tempAllergenString += "SOYBEANS, ";
-                    if (item.NutritionalInfo.Allergens.SulphurDioxideSulphites != null && (bool)item.NutritionalInfo.Allergens.SulphurDioxideSulphites)
-                        tempAllergenString += "SULPHUR DIOXIDE SULPHITES, ";
                     if (item.NutritionalInfo.Allergens.TreeNuts != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.TreeNuts))
-                        tempAllergenString += $"{item.NutritionalInfo.Allergens.TreeNuts}, ";
-                    if (item.NutritionalInfo.Allergens.Wheat != null && (bool)item.NutritionalInfo.Allergens.Wheat)
-                        tempAllergenString += "WHEAT, ";
+                        tempAllergenString += $"{item.NutritionalInfo.Allergens.TreeNuts.ToUpper()}, ";
 
                     if (tempAllergenString.Length > 0)
                     {
                         tempAllergenString = tempAllergenString.Substring(0, tempAllergenString.Length - 2);
                         record.Add("allergenString", tempAllergenString);
                     }
-                }
+                //}
 
                 record.Add("ingredients", item.NutritionalInfo.Ingredients);
                 if (item.CustomTags != null)
