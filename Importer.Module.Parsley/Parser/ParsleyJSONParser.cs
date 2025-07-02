@@ -97,19 +97,28 @@ namespace Importer.Module.Parsley.Parser
         {
             var product = ProductTemplate.Clone();
 
-            product.PLU = GetValue(pluItem, "itemNumber");
             product.Description1 = GetValue(pluItem, "name");
 
             //barcode is based on the PLU
-            if (!string.IsNullOrWhiteSpace(GetValue(pluItem, "itemNumber")))
-                product.Barcode = "2"+ GetValue(pluItem, "itemNumber"); 
+            if (!string.IsNullOrWhiteSpace(GetValue(pluItem, "itemNumber")) && GetValue(pluItem, "itemNumber").Length == 5)
+            {
+                product.PLU = GetValue(pluItem, "itemNumber");
+                product.Barcode = "2" + GetValue(pluItem, "itemNumber");
+                product.Description11 = string.Empty;
+            }
+            else if (!string.IsNullOrWhiteSpace(GetValue(pluItem, "itemNumber")) && GetValue(pluItem, "itemNumber").Length == 12)
+            {   //some items have a longer UPC, so Barcode will be zeroed out and Description11 will get the entire thing
+                product.PLU = GetValue(pluItem, "itemNumber").Substring(4);
+                product.Barcode = "000000";
+                product.Description11 = GetValue(pluItem, "itemNumber");
+            }
 
             ////TODO Confirm the ServingSize vs nutritionServingSize and how we care about weight
             product.NFServingSize = $"{GetValue(pluItem, "servingSizeAmount")} {GetValue(pluItem, "servingSizeUom")}";
             //product.NFServingSize = GetValue(pluItem, "nutritionServingSize");
 
             if (!string.IsNullOrWhiteSpace(GetValue(pluItem, "shelfLife").ToString()))
-                product.ShelfLife = GetValue(pluItem, "shelfLife").ToString();
+                product.ShelfLife = (int.Parse(GetValue(pluItem, "shelfLife"))-1).ToString();
 
             product = MapNutrientInfo(pluItem, product);
 
@@ -260,7 +269,7 @@ namespace Importer.Module.Parsley.Parser
                     if (item.NutritionalInfo.Allergens.Eggs != null && (bool)item.NutritionalInfo.Allergens.Eggs)
                         tempAllergenString += "EGGS, ";
                     if (item.NutritionalInfo.Allergens.Fish != null && !string.IsNullOrWhiteSpace(item.NutritionalInfo.Allergens.Fish))
-                        tempAllergenString += $"{item.NutritionalInfo.Allergens.Fish.ToUpper()}, ";
+                        tempAllergenString += "FISH, ";
                     if (item.NutritionalInfo.Allergens.Milk != null && (bool)item.NutritionalInfo.Allergens.Milk)
                         tempAllergenString += "MILK, ";
                     if (item.NutritionalInfo.Allergens.Peanuts != null && (bool)item.NutritionalInfo.Allergens.Peanuts)

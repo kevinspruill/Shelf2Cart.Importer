@@ -57,13 +57,13 @@ namespace Importer.Module.Generic.Parser
                     {//TODO Configurable line feed removal
                         recordDict[header[j]] = record[j].Trim();
                     }
-                    PLURecords.Add(recordDict);
-                    Console.WriteLine("Parsed line number " + i + " - " + recordDict["inv_receiptalias"].ToString());
+                    var tmpRecordDict = _customerProcess.DataFileCondtioning(recordDict);
+                    PLURecords.Add(tmpRecordDict);
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Logger.Error($"Error parsing delimited text file - {e.Message}");
             }
         }
         public List<tblProducts> ConvertPLURecordsToTblProducts()
