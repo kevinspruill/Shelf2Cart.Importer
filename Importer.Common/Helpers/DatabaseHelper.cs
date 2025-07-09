@@ -145,8 +145,9 @@ namespace Importer.Common.Helpers
 
                 var localEditValues = new Dictionary<string, Dictionary<string, object>>();
 
-                string getProductsQuery = $"SELECT * FROM tblLocalEdits";
-                var localEdits = connection.Query<tblProducts>(getProductsQuery).ToList();
+                //string getProductsQuery = $"SELECT * FROM tblLocalEdits";
+                //var localEdits = connection.Query<tblProducts>(getProductsQuery).ToList();
+                var localEdits = GetProducts("tblLocalEdits").ToList();
                 try
                 {
                     foreach (var item in localEdits)
