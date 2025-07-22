@@ -1,4 +1,31 @@
 [
+  {
+    "Name": "Kowalski's Admin Importer",
+    "Description": "Admin Console DB and UpdatePackage Importer",
+    "ImporterModule": "Admin",
+    "Enabled": true,
+    "TypeSettings": {
+      "TargetPath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1\\DATABASE\\UPDATEPACKAGE.ZIP",
+      "IsAdminFile": true,
+      "AllowedExtensions": [ ".mdb", ".zip" ],
+      "PollIntervalMilliseconds": 5000,
+      "UseLogin": false,
+      "LoginUsername": "",
+      "LoginPassword": "",
+      "LoginDomain": ""
+    }
+  },
+  {
+    "Name": "Kowalski's Importer",
+    "Description": "",
+    "ImporterModule": "Invafresh",
+    "Enabled": true,
+    "TypeSettings": {
+      "TargetPath": "C:\\Program Files\\MM_Label_Import\\NiceWatch\\FTPServer\\Site1",
+      "PollIntervalMilliseconds": 150,
+      "AllowedExtensions": []
+    }
+  }
   /*{
     "Name": "Ya Hala Importer",
     "Description": "Parsley Rest API Importer",
@@ -20,11 +47,12 @@
       "PollIntervalMilliseconds": 150,
       "AllowedExtensions": []
     }
-  }*/
+  }
   {
     "Name": "Vallarta JSON Importer",
     "Description": "Generic Importer using File Monitoring",
     "ImporterModule": "Generic",
+    "CustomerProcess":  "Vallarta",
     "Enabled": true,
     "TypeSettings": {
       "TargetPath": "C:\\Program Files\\MM_GEN_Import\\Server\\DropFolder",
@@ -36,6 +64,6 @@
       "LoginPassword": "",
       "LoginDomain": ""
     }
-  }
+  }*/
 
 ]

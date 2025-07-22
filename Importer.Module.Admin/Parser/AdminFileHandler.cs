@@ -24,10 +24,37 @@ namespace Importer.Module.Admin.Parser
             {
                 throw new FileNotFoundException("The specified zip file does not exist.", zipFilePath);
             }
+
             // Ensure the destination directory exists
             Directory.CreateDirectory(destinationDirectory);
-            // Use System.IO.Compression to unzip the file
-            ZipFile.ExtractToDirectory(zipFilePath, destinationDirectory);
+
+            // Use ZipArchive with FileStream for older versions
+            using (var fileStream = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read))
+            using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    // Skip directory entries
+                    if (string.IsNullOrEmpty(entry.Name))
+                        continue;
+
+                    string destinationPath = Path.Combine(destinationDirectory, entry.FullName);
+
+                    // Create directory if needed
+                    string directoryPath = Path.GetDirectoryName(destinationPath);
+                    if (!string.IsNullOrEmpty(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+
+                    // Extract file with overwrite capability
+                    using (var entryStream = entry.Open())
+                    using (var outputStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                    {
+                        entryStream.CopyTo(outputStream);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -103,5 +130,7 @@ namespace Importer.Module.Admin.Parser
 
             return Path.GetExtension(filePath).Equals(".zip", StringComparison.OrdinalIgnoreCase);
         }
+
+
     }
 }
