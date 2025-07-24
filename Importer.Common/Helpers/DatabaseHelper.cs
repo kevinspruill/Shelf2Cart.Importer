@@ -1007,7 +1007,7 @@ namespace Importer.Common.Helpers
                     {                        
                         foreach (var product in products)
                         {
-                            string deleteQuery = $"DELETE FROM tblProducts WHERE PLU = {product.PLU}";
+                            string deleteQuery = $"DELETE FROM tblProducts WHERE PLU = '{product.PLU}'";
                             connection.Execute(deleteQuery, null, transaction);
                         }
                         transaction.Commit();

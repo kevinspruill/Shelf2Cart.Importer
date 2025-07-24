@@ -90,7 +90,7 @@ namespace Importer.Common.Main
             DatabaseHelper.SetFieldsToNonIndexedExceptPLU();
 
             // only if there are products to insert
-            if (processedItems.Count > 0)
+            if (processedItems.Count > 0 || deleteItems.Count > 0)
             {
                 // Use bulk operation
                 var recordsUpdated = DatabaseHelper.BulkInsertOrUpdate(processedItems);
