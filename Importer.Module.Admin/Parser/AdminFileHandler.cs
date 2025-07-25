@@ -28,6 +28,36 @@ namespace Importer.Module.Admin.Parser
             // Ensure the destination directory exists
             Directory.CreateDirectory(destinationDirectory);
 
+            // Copy zip file to destination directory with original name
+            string zipFileName = Path.GetFileName(zipFilePath);
+            string copiedZipPath = Path.Combine(destinationDirectory, zipFileName);
+
+            try
+            {
+                // Copy and overwrite any existing zip file
+                File.Copy(zipFilePath, copiedZipPath, overwrite: true);
+
+                // Extract from the copied location
+                ExtractZipFile(copiedZipPath, destinationDirectory);
+            }
+            finally
+            {
+                // Clean up: delete the copied zip file
+                if (File.Exists(copiedZipPath))
+                {
+                    try
+                    {
+                        File.Delete(copiedZipPath);
+                    }
+                    catch
+                    {
+                        // Silently handle cleanup failure
+                    }
+                }
+            }
+        }
+        private void ExtractZipFile(string zipFilePath, string destinationDirectory)
+        {
             // Use ZipArchive with FileStream for older versions
             using (var fileStream = new FileStream(zipFilePath, FileMode.Open, FileAccess.Read))
             using (var archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
@@ -38,20 +68,27 @@ namespace Importer.Module.Admin.Parser
                     if (string.IsNullOrEmpty(entry.Name))
                         continue;
 
-                    string destinationPath = Path.Combine(destinationDirectory, entry.FullName);
-
-                    // Create directory if needed
-                    string directoryPath = Path.GetDirectoryName(destinationPath);
-                    if (!string.IsNullOrEmpty(directoryPath))
+                    try
                     {
-                        Directory.CreateDirectory(directoryPath);
+                        string destinationPath = Path.Combine(destinationDirectory, entry.FullName);
+
+                        // Create directory if needed
+                        string directoryPath = Path.GetDirectoryName(destinationPath);
+                        if (!string.IsNullOrEmpty(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
+
+                        // Extract file with overwrite capability
+                        using (var entryStream = entry.Open())
+                        using (var outputStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                        {
+                            entryStream.CopyTo(outputStream);
+                        }
                     }
-
-                    // Extract file with overwrite capability
-                    using (var entryStream = entry.Open())
-                    using (var outputStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write))
+                    catch (Exception ex)
                     {
-                        entryStream.CopyTo(outputStream);
+                        Logger.Error($"Error extracting {entry.Name}: {ex.Message}");
                     }
                 }
             }
@@ -86,7 +123,6 @@ namespace Importer.Module.Admin.Parser
             {
                 throw new DirectoryNotFoundException($"Source directory not found: {sourceDir.FullName}");
             }
-
             if (!destDir.Exists)
             {
                 Directory.CreateDirectory(destDir.FullName);
@@ -95,19 +131,26 @@ namespace Importer.Module.Admin.Parser
             // Copy files
             foreach (FileInfo fileInSource in sourceDir.GetFiles())
             {
-                // Skip "Thumbs.db" files, case-insensitively
-                if (string.Equals(fileInSource.Name, "Thumbs.db", StringComparison.OrdinalIgnoreCase))
+                try
                 {
-                    continue;
+                    // Skip "Thumbs.db" files, case-insensitively
+                    if (string.Equals(fileInSource.Name, "Thumbs.db", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    string targetFilePath = Path.Combine(destDir.FullName, fileInSource.Name);
+                    FileInfo destFile = new FileInfo(targetFilePath);
+
+                    // Copy if destination file doesn't exist or source file is newer
+                    if (!destFile.Exists || fileInSource.LastWriteTime > destFile.LastWriteTime)
+                    {
+                        CopyFileWithRetry(fileInSource.FullName, targetFilePath);
+                    }
                 }
-
-                string targetFilePath = Path.Combine(destDir.FullName, fileInSource.Name);
-                FileInfo destFile = new FileInfo(targetFilePath);
-
-                // Copy if destination file doesn't exist or source file is newer
-                if (!destFile.Exists || fileInSource.LastWriteTime > destFile.LastWriteTime)
+                catch (Exception ex)
                 {
-                    fileInSource.CopyTo(targetFilePath, true); // true to overwrite
+                    Logger.Error($"Error copying {fileInSource.Name} to {destDir.FullName}: {ex.Message}");
                 }
             }
 
@@ -116,6 +159,75 @@ namespace Importer.Module.Admin.Parser
             {
                 string destinationSubDirPath = Path.Combine(destDir.FullName, sourceSubDir.Name);
                 SyncFolders(sourceSubDir.FullName, destinationSubDirPath); // Recursive call
+            }
+        }
+
+        private void CopyFileWithRetry(string sourcePath, string destinationPath, int maxRetries = 3)
+        {
+            for (int attempt = 0; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    // Prepare destination file for overwriting
+                    if (File.Exists(destinationPath))
+                    {
+                        PrepareFileForOverwrite(destinationPath);
+                    }
+
+                    // Copy the file
+                    File.Copy(sourcePath, destinationPath, overwrite: true);
+
+                    break; // Success, exit retry loop
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    if (attempt == maxRetries)
+                    {
+                        Logger.Error($"Permission denied after {maxRetries + 1} attempts copying {sourcePath} to {destinationPath}: {ex.Message}");
+                        throw;
+                    }
+
+                    Logger.Warn($"Permission denied on attempt {attempt + 1} for {destinationPath}, retrying...");
+                    System.Threading.Thread.Sleep(100 * (attempt + 1));
+                }
+                catch (IOException ex) when (ex.Message.Contains("being used by another process"))
+                {
+                    if (attempt == maxRetries)
+                    {
+                        Logger.Error($"File in use after {maxRetries + 1} attempts copying {sourcePath} to {destinationPath}: {ex.Message}");
+                        throw;
+                    }
+
+                    Logger.Warn($"File in use on attempt {attempt + 1} for {destinationPath}, retrying...");
+                    System.Threading.Thread.Sleep(500 * (attempt + 1));
+                }
+                catch (IOException ex) when (ex.Message.Contains("disk full") || ex.Message.Contains("not enough space"))
+                {
+                    Logger.Error($"Insufficient disk space copying {sourcePath} to {destinationPath}: {ex.Message}");
+                    throw; // Don't retry for disk space issues
+                }
+            }
+        }
+
+        private void PrepareFileForOverwrite(string filePath)
+        {
+            try
+            {
+                // Remove read-only, hidden, and system attributes that might prevent overwriting
+                var attributes = File.GetAttributes(filePath);
+                var problematicAttributes = FileAttributes.ReadOnly | FileAttributes.Hidden | FileAttributes.System;
+
+                if ((attributes & problematicAttributes) != 0)
+                {
+                    var newAttributes = attributes & ~problematicAttributes;
+                    File.SetAttributes(filePath, newAttributes);
+                    Logger.Debug($"Removed problematic attributes from {filePath}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn($"Could not modify attributes for {filePath}: {ex.Message}");
+                // Continue anyway - the copy might still work
             }
         }
 
