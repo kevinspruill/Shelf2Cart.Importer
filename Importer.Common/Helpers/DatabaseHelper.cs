@@ -794,7 +794,7 @@ namespace Importer.Common.Helpers
             {
                 oldStr = oldStr.Trim();
                 newStr = newStr.Trim();
-                return string.Equals(oldStr, newStr, StringComparison.InvariantCultureIgnoreCase);
+                return string.Equals(oldStr, newStr);
             }
 
             // Handle numeric comparison
