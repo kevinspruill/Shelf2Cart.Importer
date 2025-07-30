@@ -1,4 +1,6 @@
-﻿using Importer.Common.Helpers;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using Importer.Common.Helpers;
 using Importer.Common.Interfaces;
 using Importer.Common.Models;
 using Importer.Common.Modifiers;
@@ -6,6 +8,8 @@ using Importer.Module.Generic.Helpers;
 using Importer.Module.Generic.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Runtime;
 using System.Text;
@@ -13,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Importer.Module.Generic.Parser
 {
-    public class TextParser : IParser
+    public class TextParser : Interfaces.IParser
     {
         private string _fieldDelimiter { get; set; }
         private string _recordSeparator { get; set; }
@@ -41,31 +45,106 @@ namespace Importer.Module.Generic.Parser
 
         public void ParseFile(string filePath)
         {
-            // read file as a tab delimited file with a header, add each record to a dictionary
-
-            var lines = System.IO.File.ReadAllText(filePath).Split(new[] { _recordSeparator }, StringSplitOptions.RemoveEmptyEntries);
-            // get the header
-            var header = lines[0].Split(_fieldDelimiter.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            // get the records
             try
             {
-                for (int i = 1; i < lines.Length; i++)
+                if (_fieldDelimiter == ",")
                 {
-                    var record = lines[i].Split(_fieldDelimiter.ToCharArray());
-                    var recordDict = new Dictionary<string, string>();
-                    for (int j = 0; j < header.Length; j++)
-                    {//TODO Configurable line feed removal
-                        recordDict[header[j]] = record[j].Trim();
-                    }
-                    var tmpRecordDict = _customerProcess.DataFileCondtioning(recordDict);
-                    PLURecords.Add(tmpRecordDict);
+                    ParseCsvFile(filePath); // Uses CsvHelper
+                }
+                else
+                {
+                    ParseCustomDelimitedFile(filePath); // Uses above fallback
                 }
             }
             catch (Exception e)
             {
-                Logger.Error($"Error parsing delimited text file - {e.Message}");
+                Logger.Error($"Error parsing file '{filePath}': {e.Message}\n{e.StackTrace}");
             }
         }
+
+        private void ParseCsvFile(string filePath)
+        {
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                TrimOptions = TrimOptions.Trim,
+                BadDataFound = null,
+                MissingFieldFound = null
+            }))
+            {
+                var headerRead = false;
+                string[] headers = Array.Empty<string>();
+
+                while (csv.Read())
+                {
+                    if (!headerRead)
+                    {
+                        csv.ReadHeader();
+                        headers = csv.HeaderRecord ?? Array.Empty<string>();
+                        headerRead = true;
+                        continue;
+                    }
+
+                    var recordDict = new Dictionary<string, string>();
+                    foreach (var header in headers)
+                    {
+                        var val = csv.GetField(header);
+                        recordDict[header] = val?.Trim() ?? "";
+                    }
+
+                    var processed = _customerProcess.DataFileCondtioning(recordDict);
+                    PLURecords.Add(processed);
+                }
+            }
+        }
+
+        private void ParseCustomDelimitedFile(string filePath)
+        {
+            using (var reader = new StreamReader(filePath))
+            {
+                string headerLine = reader.ReadLine();
+                if (string.IsNullOrWhiteSpace(headerLine))
+                {
+                    Logger.Warn($"File '{filePath}' has no header line.");
+                    return;
+                }
+
+                var headers = headerLine.Split(_fieldDelimiter.ToCharArray(), StringSplitOptions.None);
+
+                string line;
+                int lineNumber = 1;
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    lineNumber++;
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    var fields = line.Split(_fieldDelimiter.ToCharArray(), StringSplitOptions.None);
+
+                    var recordDict = new Dictionary<string, string>();
+
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        string header = headers[i];
+                        string value = (i < fields.Length ? fields[i] : "").Trim();
+                        recordDict[header] = value;
+                    }
+
+                    try
+                    {
+                        var processed = _customerProcess.DataFileCondtioning(recordDict);
+                        PLURecords.Add(processed);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Warn($"Error processing line {lineNumber} in file '{filePath}': {ex.Message}");
+                    }
+                }
+            }
+        }
+
         public List<tblProducts> ConvertPLURecordsToTblProducts()
         {
             var products = new List<tblProducts>();
