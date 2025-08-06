@@ -66,6 +66,10 @@
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Bagliani.CustomerProcess\Bagliani.CustomerProcess.csproj">
+      <Project>{9920b72d-3c61-41b9-a386-01f9b250baf4}</Project>
+      <Name>Bagliani.CustomerProcess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Importer.CustomerProcesses\Vallarta.CustomerProcess\Vallarta.CustomerProcess.csproj">
       <Project>{f1f3488f-691c-4de5-8b44-c254a7d059d7}</Project>
       <Name>Vallarta.CustomerProcess</Name>

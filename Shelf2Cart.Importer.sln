@@ -44,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExecuteProcessDatabase", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vallarta.CustomerProcess", "Importer.CustomerProcesses\Vallarta.CustomerProcess\Vallarta.CustomerProcess.csproj", "{F1F3488F-691C-4DE5-8B44-C254A7D059D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagliani.CustomerProcess", "Importer.CustomerProcesses\Bagliani.CustomerProcess\Bagliani.CustomerProcess.csproj", "{9920B72D-3C61-41B9-A386-01F9B250BAF4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -135,6 +137,12 @@ Global
 		{F1F3488F-691C-4DE5-8B44-C254A7D059D7}.DefaultBuild|Any CPU.Build.0 = Release|Any CPU
 		{F1F3488F-691C-4DE5-8B44-C254A7D059D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F1F3488F-691C-4DE5-8B44-C254A7D059D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9920B72D-3C61-41B9-A386-01F9B250BAF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9920B72D-3C61-41B9-A386-01F9B250BAF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9920B72D-3C61-41B9-A386-01F9B250BAF4}.DefaultBuild|Any CPU.ActiveCfg = Release|Any CPU
+		{9920B72D-3C61-41B9-A386-01F9B250BAF4}.DefaultBuild|Any CPU.Build.0 = Release|Any CPU
+		{9920B72D-3C61-41B9-A386-01F9B250BAF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9920B72D-3C61-41B9-A386-01F9B250BAF4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -150,6 +158,7 @@ Global
 		{AE6C12E6-6CE1-4A98-AFF2-E1FDFDF2A936} = {DC921E85-F1C3-4C7F-A900-D8B574E57F77}
 		{36EE06BA-BA26-48FB-87E4-FF1BD83955F4} = {86D3060C-1E65-4BAB-AE61-A28CB996D73A}
 		{F1F3488F-691C-4DE5-8B44-C254A7D059D7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{9920B72D-3C61-41B9-A386-01F9B250BAF4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A9D0812-4B35-41B4-B408-452EC26907E4}
