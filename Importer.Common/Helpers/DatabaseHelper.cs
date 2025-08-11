@@ -29,12 +29,10 @@ namespace Importer.Common.Helpers
     public class DatabaseHelper
     {
         private readonly string _connectionString = string.Empty;
-
         public DatabaseHelper(DatabaseType databaseType= DatabaseType.ImportDatabase)
         {
             _connectionString = GetConnectionString(databaseType);
         }
-
         public IEnumerable<tblProducts> GetProducts(string tblName = "tblProducts")
 
         {
@@ -59,7 +57,6 @@ namespace Importer.Common.Helpers
                 return items;
             }
         }
-
         public bool InsertLocalItems()
         {
             try
@@ -120,7 +117,6 @@ namespace Importer.Common.Helpers
                 return false;
             }
         }
-
         public bool UpdateLocalEdits()
         {
 
@@ -169,81 +165,6 @@ namespace Importer.Common.Helpers
                 }
             }
         }
-
-        public void Insert(tblProducts item)
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-
-                var properties = typeof(tblProducts).GetProperties()
-                    .Where(p => p.GetCustomAttribute<ImportDBFieldAttribute>() != null);
-
-                var columnNames = string.Join(", ", properties.Select(p => $"[{p.GetCustomAttribute<ImportDBFieldAttribute>().Name}]"));
-                var parameterNames = string.Join(", ", properties.Select(p => $"@{p.Name}"));
-
-                string query = $"INSERT INTO tblProducts ({columnNames}) VALUES ({parameterNames})";
-
-                string queryWithValues = GetQueryWithValues(query, item);
-
-                Console.WriteLine("Insert Query:");
-                Console.WriteLine(queryWithValues);
-
-                connection.Execute(query, item);
-            }
-        }
-        private string GetQueryWithValues(string query, object parameters)
-        {
-            foreach (var property in parameters.GetType().GetProperties())
-            {
-                var parameterValue = property.GetValue(parameters);
-                string valueString;
-
-                if (parameterValue == null && property.PropertyType.Name == "String")
-                {
-                    valueString = "''";
-                }
-                else if (parameterValue is string || parameterValue is DateTime)
-                {
-                    valueString = $"'{parameterValue}'";
-                }
-                else if (parameterValue is bool)
-                {
-                    valueString = (bool)parameterValue ? "1" : "0";
-                }
-                else
-                {
-                    valueString = parameterValue.ToString();
-                }
-
-                query = query.Replace($"@{property.Name} ", valueString);
-            }
-            return query;
-        }
-        public void Update(tblProducts item)
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-
-                var properties = typeof(tblProducts).GetProperties()
-                    .Where(p => p.GetCustomAttribute<ImportDBFieldAttribute>() != null);
-
-                var setClause = string.Join(", ", properties
-                    .Where(p => p.Name != nameof(tblProducts.PLU)) // Assuming PLU is the primary key
-                    .Select(p => $"[{p.GetCustomAttribute<ImportDBFieldAttribute>().Name}] = @{p.Name} "));
-
-                string query = $"UPDATE tblProducts SET {setClause} WHERE [PLU] = '{item.PLU}'"; // Assuming PLU is the primary key
-
-                string queryWithValues = GetQueryWithValues(query, item);
-
-                Console.WriteLine("Update Query:");
-                Console.WriteLine(queryWithValues);
-
-                connection.Execute(queryWithValues);
-            }
-        }
-
         public void InsertHierarchyTables(bool legacyEnabled = true)
         {
             //TODO Adapt this to just do one call for all three, will make the return stuff easier
@@ -363,7 +284,6 @@ namespace Importer.Common.Helpers
                 Console.WriteLine($"Error inserting hierarchy tables: {ex.Message}");
             }
         }
-
         public List<T> PopulatePageNum<T>(List<T> tblValues)
         {
             int maxPerPage = 21;
@@ -493,7 +413,6 @@ namespace Importer.Common.Helpers
 
             return tblValues;
         }
-
         /// <summary>
         /// Performs a bulk insert or update operation on a specified database table using a specified primary key field.
         /// Supports selective field updates when working with the tblLocalEdits table.
@@ -637,14 +556,15 @@ namespace Importer.Common.Helpers
                                             if (!ValuesAreEqual(oldValue, newValue))
                                             {
                                                 // Log the differences for debugging
-                                                Logger.Debug($"Value changed for column '{columnName}': Old='{oldValue}' ({oldValue?.GetType()}), New='{newValue}' ({newValue?.GetType()})");
+                                                Logger.Trace($"Value changed for column '{columnName}': Old='{oldValue}' ({oldValue?.GetType()}), New='{newValue}' ({newValue?.GetType()})");
                                                 row[columnName] = newValue;
+                                                Logger.Trace($"Updated PLU: '{product.PLU}' - {product.Description1} {product.Description2}");
                                                 hasChanges = true;
                                             }
                                         }
                                         else
                                         {
-                                            Logger.Trace($"{columnName} is set to null, will not be updated. Using existing value='{oldValue}'");
+                                            Logger.Trace($"PLU: '{product.PLU}' - {columnName} is set to null, will not be updated. Using existing value='{oldValue}'");
                                         }
                                     }
                                 }
@@ -681,6 +601,9 @@ namespace Importer.Common.Helpers
                                     }
                                 }
                                 dt.Rows.Add(row);
+
+                                Logger.Trace($"New Record added for PLU '{product.PLU}' - {product.Description1} {product.Description2}");
+
                                 inserted++;
                             }
                         }
@@ -921,81 +844,6 @@ namespace Importer.Common.Helpers
             }
 
         }
-
-        /// <summary>
-        /// Performs a bulk upsert (insert or update) operation on the tblProducts table using individual SQL statements within a transaction.
-        /// 
-        /// Performance:
-        /// - Generally slower than BulkInsertOrUpdate for very large datasets.
-        /// - Performance can be good for small to medium-sized datasets.
-        /// - Uses less memory than BulkInsertOrUpdate as it processes records individually.
-        /// 
-        /// Use Case:
-        /// - Provides more control over the insert/update process for each record.
-        /// - Allows for custom logic to be applied on a per-record basis.
-        /// - Useful when you need to know exactly which records were inserted vs updated.
-        /// 
-        /// Advantages:
-        /// - More flexible than BulkInsertOrUpdate, allowing for complex upsert logic.
-        /// - Can provide better error handling and reporting on a per-record basis.
-        /// - Uses a database transaction for better data integrity.
-        /// 
-        /// Limitations:
-        /// - May be slower than BulkInsertOrUpdate for very large datasets.
-        /// - Requires more careful management of database connections and transactions.
-        /// </summary>
-        /// <param name="products">List of tblProducts to upsert</param>
-        public void BulkUpsert(List<tblProducts> products)
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-                using (var transaction = connection.BeginTransaction())
-                {
-                    try
-                    {
-                        var properties = typeof(tblProducts).GetProperties()
-                            .Where(p => p.GetCustomAttribute<ImportDBFieldAttribute>() != null)
-                            .ToList();
-
-                        string updateFields = string.Join(", ", properties
-                            .Where(p => p.Name != "PLU")
-                            .Select(p => $"{p.GetCustomAttribute<ImportDBFieldAttribute>().Name} = @{p.Name}"));
-
-                        string insertFields = string.Join(", ", properties
-                            .Select(p => p.GetCustomAttribute<ImportDBFieldAttribute>().Name));
-
-                        string insertValues = string.Join(", ", properties.Select(p => $"@{p.Name}"));
-
-                        string upsertQuery = $@"
-                            UPDATE tblProducts 
-                            SET {updateFields}
-                            WHERE PLU = @PLU;
-
-                            IF @@ROWCOUNT = 0
-                            BEGIN
-                                INSERT INTO tblProducts ({insertFields})
-                                VALUES ({insertValues});
-                            END";
-
-                        foreach (var product in products)
-                        {
-                            connection.Execute(upsertQuery, product, transaction);
-                        }
-
-                        transaction.Commit();
-                        Console.WriteLine($"Bulk upsert completed. {products.Count} records processed.");
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                        Console.WriteLine($"Error during bulk upsert: {ex.Message}");
-                        throw;
-                    }
-                }
-            }
-        }
-
         public List<tblProducts> BulkDelete(List<tblProducts> products)
         {
             using (var connection = new OleDbConnection(_connectionString))
@@ -1022,171 +870,6 @@ namespace Importer.Common.Helpers
                     }
                 }
             }
-        }
-
-        public Dictionary<string, string> GetJoinedFields()
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                // TODO: Get the joined fields from the database
-            }
-
-            return new Dictionary<string, string>();
-        }
-        public List<tblProducts> DeserializeJsonToProduct(string json, tblProducts productTemplate)
-        {
-            var products = new List<tblProducts>();
-            var jsonArray = JArray.Parse(json);
-
-            int _invalidItems = 0;
-
-            foreach (JObject item in jsonArray)
-            {
-                // if PLU starts with any non-numeric character, it is a deleted item
-                if (!char.IsDigit(item["PLU"].ToString()[0])) { Logger.Warn($"PLU:{item["PLU"].ToString().Trim()} is invalid, Skipping..."); _invalidItems++; continue; }
-
-                // if PLU is 0, it is an invalid item
-                if (item["PLU"].ToString().Trim() == "0") { Logger.Warn("0 is invalid PLU number, Skipping..."); _invalidItems++; continue; }
-
-                // PLU is a required field, so skip any items without a PLU
-                if (item["PLU"] == null) { Logger.Warn("Null PLU Found, Skipping..."); _invalidItems++; continue; }
-
-                // if PromoPrice is greater than 0, set the Price to PromoPrice
-                if (item["PromoPrice"] != null && Convert.ToDecimal(item["PromoPrice"]) > 0)
-                {
-                    item["Price"] = item["PromoPrice"];
-                    Logger.Trace($"PromoPrice found for PLU: {item["PLU"]}, Price set to: {item["Price"]}");
-                }
-
-                // change ' to ` in all fields
-                foreach (var field in item.Properties())
-                {
-                    if (field.Value.Type == JTokenType.String)
-                    {
-                        field.Value = field.Value.ToString().Replace("'", "`");
-                    }
-                }
-
-                products.Add(ParseJsonToProducts(item.ToString(), productTemplate));
-            }
-
-            if (_invalidItems > 0) { Logger.Warn($"{_invalidItems} invalid items found and skipped."); }
-
-            return products;
-        }
-        private tblProducts ParseJsonToProducts(string json, tblProducts productTemplate)
-        {
-            var mappings = GetJoinedFields();
-            var jsonObject = JObject.Parse(json);
-            var product = new tblProducts(); // Create a new instance for each product
-
-            // Copy default values from the template
-            foreach (var prop in typeof(tblProducts).GetProperties())
-            {
-                prop.SetValue(product, prop.GetValue(productTemplate));
-            }
-
-            foreach (var mapping in mappings)
-            {
-                var jsonField = mapping.Key;
-                var productField = mapping.Value;
-
-                // if the product field has a comma in it, it needs to be split into multiple fields
-                if (productField.Contains(","))
-                {
-                    var fields = productField.Split(',');
-                    foreach (var field in fields)
-                    {
-                        var property = typeof(tblProducts).GetProperty(field);
-                        if (property != null && jsonObject[jsonField] != null)
-                        {
-                            var value = jsonObject[jsonField].ToObject(property.PropertyType);
-                            // if the property is a string, we need to trim leading/trailing whitespace
-                            if (property.PropertyType == typeof(string))
-                            {
-                                value = IntialFindReplace(value);
-                            }
-                            property.SetValue(product, value);
-                        }
-                    }
-                }
-                else
-                {
-                    var property = typeof(tblProducts).GetProperty(productField);
-                    if (property != null && jsonObject[jsonField] != null)
-                    {
-                        var value = jsonObject[jsonField].ToObject(property.PropertyType);
-                        // if the property is a string, we need to trim leading/trailing whitespace
-                        if (property.PropertyType == typeof(string))
-                        {
-                            value = IntialFindReplace(value);
-                        }
-                        property.SetValue(product, value);
-                    }
-                }
-            }
-
-            return product;
-        }
-
-        private readonly Dictionary<string, string> _replaceRules = new Dictionary<string, string>
-        {
-            { "''", "\"" },
-            { "Ʌ", "a" },
-            { "\\n", "<section>" },
-            { "\\", "" }
-        };
-        
-        private object IntialFindReplace(object value)
-        {
-            string stringValue = value.ToString().Trim();
-            foreach (var rule in _replaceRules)
-            {
-                stringValue = stringValue.Replace(rule.Key, rule.Value);
-            }
-            return stringValue;
-        }
-
-        public tblProducts DeserializeXMLToProduct(string xmlContent)
-        {
-            var _fieldMappings = GetJoinedFields();
-
-            var serializer = new XmlSerializer(typeof(tblProducts));
-            using (var reader = new StringReader(xmlContent))
-            {
-                var product = (tblProducts)serializer.Deserialize(reader);
-
-                var doc = new XmlDocument();
-                doc.LoadXml(xmlContent);
-
-                foreach (var mapping in _fieldMappings)
-                {
-                    var property = typeof(tblProducts).GetProperty(mapping.Key);
-                    if (property != null)
-                    {
-                        var element = doc.SelectSingleNode($"//{mapping.Value}");
-                        if (element != null)
-                        {
-                            var value = Convert.ChangeType(element.InnerText, property.PropertyType);
-                            property.SetValue(product, value);
-                        }
-                    }
-                }
-
-                return product;
-            }
-        }
-        public tblProducts GetProductByPLU(string pLU)
-        {
-            // lookup the product in the database
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-                string query = $"SELECT * FROM tblProducts WHERE PLU = '{pLU}'";
-                var item = connection.QueryFirstOrDefault<tblProducts>(query);
-                return item;
-            }
-
         }
         public List<CleanseRule> LoadCleanseRules()
         {
@@ -1239,42 +922,6 @@ namespace Importer.Common.Helpers
 
             return stockDescriptions;
         }
-        public List<string> GetPLUsToDelete(string deleteField)
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-                var sql = $"SELECT PLU FROM tblProducts WHERE [{deleteField}] = UCASE('DELETE')";
-                return connection.Query<string>(sql).AsList();
-            }
-        }
-        public int DeleteRecords(string deleteField)
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-                var sql = $"DELETE FROM tblProducts WHERE [{deleteField}] = UCASE('DELETE')";
-                return connection.Execute(sql);
-            }
-        }
-        public string GetBooleanVal(string mBooleanField)
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-                var sql = "SELECT TrueVal FROM BooleanVals WHERE MMFieldName = @MBooleanField";
-                return connection.QueryFirstOrDefault<string>(sql, new { MBooleanField = mBooleanField });
-            }
-        }
-        public List<BooleanVal> GetAllBooleanVals()
-        {
-            using (var connection = new OleDbConnection(_connectionString))
-            {
-                connection.Open();
-                var sql = "SELECT MMFieldName, TrueVal FROM BooleanVals";
-                return connection.Query<BooleanVal>(sql).AsList();
-            }
-        }
         public List<NumberFormatModel> GetAllNumberFormats()
         {
             using (var connection = new OleDbConnection(_connectionString))
@@ -1299,22 +946,6 @@ namespace Importer.Common.Helpers
             catch (Exception ex)
             {
                 Console.WriteLine($"Error clearing table: {ex.Message}");
-            }
-        }
-        public int ExecuteSQLCommand(string sqlCommand)
-        {
-            try
-            {
-                using (var connection = new OleDbConnection(_connectionString))
-                {
-                    connection.Open();
-                    return connection.Execute(sqlCommand);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Error Executing Command: {ex.Message} \n Command: {sqlCommand}");
-                return -1;
             }
         }
 
@@ -1476,7 +1107,6 @@ namespace Importer.Common.Helpers
                 return Tuple.Create(0, false);
             }
         }
-
         private object GetDefaultValue(Type type)
         {
             if (type == typeof(string))
@@ -1493,26 +1123,6 @@ namespace Importer.Common.Helpers
 
             throw new Exception($"Unsupported data type '{type}'.");
         }
-
-        public int GetRecordCount(string table)
-        {
-            try
-            {
-                using (var connection = new OleDbConnection(_connectionString))
-                {
-                    connection.Open();
-                    string sql = $"SELECT COUNT(*) FROM {table}";
-                    var count = connection.ExecuteScalar<int>(sql);
-                    return count;
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Error($"Error getting record count: {ex.Message}");
-                return -1;
-            }
-        }
-
         public string GetConnectionString(DatabaseType databaseType = DatabaseType.ImportDatabase)
         {
             Dictionary<string, object> ProcDbSettings = jsonLoader.LoadSettings(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Settings"), "ProcessDatabaseSettings.json");

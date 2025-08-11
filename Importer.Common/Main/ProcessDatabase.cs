@@ -55,7 +55,7 @@ namespace Importer.Common.Main
                     return;
                 }
                 
-                Logger.Info("Processing database copied successfully.");
+                Logger.Info("Processing database refreshed from Source successfully.");
 
                 ProcessingDatabaseHelper.DeleteAllProducts();
                 Logger.Trace("Cleared tblProducts from Processing Database.");
@@ -64,6 +64,7 @@ namespace Importer.Common.Main
 
                 importTblProducts = ImportDatabaseHelper.PopulatePageNum<tblProducts>(importTblProducts);
 
+                Logger.Trace($"Retrieved {importTblProducts.Count} products from Import Database. Moving to process...");
                 if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts))
                 {
                     Logger.LogErrorEvent("Failed to upsert into tblProducts.");
@@ -117,7 +118,7 @@ namespace Importer.Common.Main
                 string destPath = ProcessingDatabase;
 
                 File.Copy(sourcePath, destPath, true);
-                Logger.LogInfoEvent("Database copied successfully.");
+                Logger.LogInfoEvent("Database copied successfully from " + sourcePath);
                 return true;
             }
             catch (Exception ex)
