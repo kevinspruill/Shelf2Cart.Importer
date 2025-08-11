@@ -51,13 +51,13 @@ namespace Importer.Common.Main
                 // format price to 2 decimal places, parsing first
                 try
                 {
-                    item.Price = string.IsNullOrEmpty(item.Price) ? string.Empty : decimal.Parse(item.Price).ToString("0.00");
+                    item.Price = string.IsNullOrEmpty(item.Price) ? string.Empty : decimal.Parse(item.Price.Replace("$","")).ToString("0.00");
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(ex.Message, ex);
                 }
-                item.SalePrice = string.IsNullOrEmpty(item.SalePrice) ? string.Empty : decimal.Parse(item.SalePrice).ToString("0.00");
+                item.SalePrice = string.IsNullOrEmpty(item.SalePrice) ? string.Empty : decimal.Parse(item.SalePrice.Replace("$", "")).ToString("0.00");
 
                 var processedProduct = await productProcessor.ProcessProduct(item);
                 if (processedProduct.PLU != "0")

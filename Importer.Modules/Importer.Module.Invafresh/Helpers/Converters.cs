@@ -17,6 +17,7 @@ namespace Importer.Module.Invafresh.Helpers
                 case UnitOfMeasure.BC:
                 case UnitOfMeasure.FP:
                 case UnitOfMeasure.FW:
+                case UnitOfMeasure.OB:
                     return false;
                 case UnitOfMeasure.LB:
                 case UnitOfMeasure.KG:
@@ -27,7 +28,6 @@ namespace Importer.Module.Invafresh.Helpers
                 case UnitOfMeasure.OP:
                 case UnitOfMeasure.OG:
                 case UnitOfMeasure.OH:
-                case UnitOfMeasure.OB:
                 case UnitOfMeasure.OQ:
                     return true;
                 default:

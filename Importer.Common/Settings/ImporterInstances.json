@@ -1,5 +1,22 @@
 [
   {
+    "Name": "Bagliani's' Csv Importer",
+    "Description": "Generic Importer using File Monitoring",
+    "ImporterModule": "Generic",
+    "CustomerProcess": "Bagliani",
+    "Enabled": true,
+    "TypeSettings": {
+      "TargetPath": "C:\\Program Files\\MM_GEN_Import\\Server\\DropFolder",
+      "IsAdminFile": false,
+      "AllowedExtensions": [ ".csv" ],
+      "PollIntervalMilliseconds": 500,
+      "UseLogin": false,
+      "LoginUsername": "",
+      "LoginPassword": "",
+      "LoginDomain": ""
+    }
+  }
+  /*{
     "Name": "Kowalski's Admin Importer",
     "Description": "Admin Console DB and UpdatePackage Importer",
     "ImporterModule": "Admin",
@@ -26,7 +43,7 @@
       "AllowedExtensions": []
     }
   }
-  /*{
+  {
     "Name": "Ya Hala Importer",
     "Description": "Parsley Rest API Importer",
     "ImporterModule": "Parsley",
