@@ -45,7 +45,7 @@ namespace Importer.Module.Generic.Parser
             foreach (var record in deserializedJson)
             {
                 var tmpRecord = _customerProcess.DataFileCondtioning(record); //in the case of Vallarta/Logile, we need to set barcode correctly
-                PLURecords.Add(tmpRecord.ToDictionary(k => k.Key, v => v.Value.ToString()));
+                PLURecords.Add(tmpRecord.ToDictionary(k => k.Key, v => UnicodeConverter.ToAscii(v.Value.ToString())));
             }
         }
         public List<tblProducts> ConvertPLURecordsToTblProducts()

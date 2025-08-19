@@ -58,6 +58,7 @@
     <Compile Include="Helpers\InstanceLoader.cs" />
     <Compile Include="Helpers\jsonLoader.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Helpers\UnicodeConverter.cs" />
     <Compile Include="Registries\ImporterModuleRegistry.cs" />
     <Compile Include="Services\MerchandiserAPIClient.cs" />
     <Compile Include="Helpers\ProductProcessor.cs" />
