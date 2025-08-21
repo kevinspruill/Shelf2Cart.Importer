@@ -51,7 +51,7 @@ namespace Importer.Common.Main
             {
                 if (!GetProcessDatabaseFile())
                 {
-                    Logger.LogErrorEvent("Failed to copy database.");
+                    Logger.Error("Failed to copy database.");
                     return;
                 }
                 
@@ -67,7 +67,7 @@ namespace Importer.Common.Main
                 Logger.Trace($"Retrieved {importTblProducts.Count} products from Import Database. Moving to process...");
                 if (!ProcessingDatabaseHelper.BulkInsertOrUpdate(importTblProducts))
                 {
-                    Logger.LogErrorEvent("Failed to upsert into tblProducts.");
+                    Logger.Error("Failed to upsert into tblProducts.");
                     return;
                 }
                 Logger.Info($"Completed Bulk Upsert into tblProducts");
@@ -76,7 +76,7 @@ namespace Importer.Common.Main
                 {
                     if (!ProcessingDatabaseHelper.UpdateLocalEdits())
                     {
-                        Logger.LogErrorEvent("Failed to update Local Edits.");
+                        Logger.Error("Failed to update Local Edits.");
                         return;
                     }
                     Logger.Info($"Completed update of Local Edits");
@@ -85,7 +85,7 @@ namespace Importer.Common.Main
                     {
                         if (!ProcessingDatabaseHelper.InsertLocalItems())
                         {
-                            Logger.LogErrorEvent("Failed to insert Local Items.");
+                            Logger.Error("Failed to insert Local Items.");
                             return;
                         }
                         Logger.Info($"Completed insert of Local Items");
@@ -118,12 +118,12 @@ namespace Importer.Common.Main
                 string destPath = ProcessingDatabase;
 
                 File.Copy(sourcePath, destPath, true);
-                Logger.LogInfoEvent("Database copied successfully from " + sourcePath);
+                Logger.Info("Database copied successfully from " + sourcePath);
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.LogErrorEvent($"Error copying database: {ex.Message}");
+                Logger.Error($"Error copying database: {ex.Message}");
                 return false;
             }
         }
@@ -139,12 +139,12 @@ namespace Importer.Common.Main
                 string destPath = ResidentDatabase;
 
                 File.Copy(sourcePath, destPath, true);
-                Logger.LogInfoEvent("Database copied successfully.");
+                Logger.Info("Database copied successfully.");
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.LogErrorEvent($"Error copying database: {ex.Message}");
+                Logger.Error($"Error copying database: {ex.Message}");
                 return false;
             }
         }

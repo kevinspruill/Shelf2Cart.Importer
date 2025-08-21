@@ -20,7 +20,7 @@ namespace Importer.Common.Helpers
             }
             else
             {
-                Logger.LogErrorEvent($"JSON file not found. Expected path: {jsonFilePath}");
+                Logger.Error($"JSON file not found. Expected path: {jsonFilePath}");
                 return new Dictionary<string, object>();
             }
         }
