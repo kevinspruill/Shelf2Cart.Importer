@@ -24,7 +24,7 @@ namespace Importer.Module.Generic
         public string ImporterTypeData { get; set; } = string.Empty;
 
         ICustomerProcess _customerProcess;
-        FilePollMonitor _importerType;
+        FileMonitor _importerType;
         IParser parser = null;
 
         public List<tblProducts> GetTblProductsDeleteList()
@@ -64,7 +64,7 @@ namespace Importer.Module.Generic
             ImporterInstance = importerInstance;
             _customerProcess = InstanceLoader.GetCustomerProcess(importerInstance.CustomerProcess);
 
-            _importerType = new FilePollMonitor(this);
+            _importerType = new FileMonitor(this);
 
             ProductTemplate = ProductTemplate.CreateProductTemplate();
 
@@ -72,7 +72,7 @@ namespace Importer.Module.Generic
         }
         public void SetupImporterType()
         {
-            // No need to set up the importer type here, as it's done in the constructor of FilePollMonitor
+            // No need to set up the importer type here, as it's done in the constructor of FileMonitor
         }
         public void StartModule()
         {

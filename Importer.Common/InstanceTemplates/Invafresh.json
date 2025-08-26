@@ -5,9 +5,10 @@
     "ImporterModule": "Invafresh",
     "Enabled": true,
     "TypeSettings": {
+      "Type": "FileMonitor",
       "TargetPath": "[FileMonitorLocation]",
       "IsAdminFile": false,
-      "AllowedExtensions": [".dat"],
+      "AllowedExtensions": [ ".dat" ],
       "PollIntervalMilliseconds": 500,
       "UseLogin": false,
       "LoginUsername": "",

@@ -5,6 +5,7 @@
     "ImporterModule": "Parsley",
     "Enabled": true,
     "TypeSettings": {
+      "Type": "SchedulerService",
       "Endpoint": "https://app.parsleycooks.com/api/public/menu_items",
       "ApiKey": "[APIkey]"
     }

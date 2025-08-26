@@ -3,6 +3,7 @@ using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Main;
 using Importer.Common.Models;
+using Importer.Common.Models.TypeSettings;
 using Importer.Common.QuartzJobs;
 using Importer.Common.Registries;
 using Importer.Common.Services;
@@ -33,12 +34,10 @@ namespace Importer.Module.Parsley
         {
             return 0; //temporary
         }
-
         public List<tblProducts> GetTblProductsDeleteList()
         {
             return new List<tblProducts>();
         }
-
         public List<tblProducts> GetTblProductsList()
         {
             var products = new List<tblProducts>();
@@ -56,7 +55,6 @@ namespace Importer.Module.Parsley
             return products;
 
         }
-
         public void InitModule(ImporterInstance importerInstance)
         {
 
@@ -75,7 +73,6 @@ namespace Importer.Module.Parsley
         public void SetupImporterType()
         {
             // Use SchedulerService to set up the GetAPIJob
-            _importerType.ApplySettings(ImporterInstance.TypeSettings);
             _importerType.ScheduleJob<GetAPIJob>("Parsley", new TimeSpan(1,0,0));
         }
         public async void StartModule()
@@ -94,14 +91,13 @@ namespace Importer.Module.Parsley
         public async void TriggerProcess()
         {
             parser = new ParsleyJSONParser(ProductTemplate, _customerProcess);
-            parser.APIKey = ImporterInstance.TypeSettings["ApiKey"].ToString();
+            parser.APIKey = ((SchedulerServiceSettings)ImporterInstance.TypeSettings).ApiKey.ToString();
 
             parser.ParseMenuItemSimpleList(ImporterTypeData.ToString());
             parser.ConvertMenuItemsToPLURecords();
 
             await MainProcess.ProcessAsync(this);
         }
-
         public void StopModule()
         {
             // Stop the file watcher

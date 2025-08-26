@@ -1,10 +1,13 @@
-﻿using Importer.Common.ImporterTypes;
+﻿using Importer.Common.Helpers;
+using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
+using Importer.Common.Models.TypeSettings;
 using Quartz;
 using Quartz.Impl;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -13,31 +16,35 @@ namespace Importer.Common.ImporterTypes
     public class SchedulerService: IImporterType
     {
 
-        public string Name { get; set; }
-        public Dictionary<string, object> Settings { get; set; }
+        public string Name { get; set; } = "SchedulerService";
+
+        public SchedulerServiceSettings Settings = new SchedulerServiceSettings();
 
         public IScheduler Scheduler;
 
-        IImporterModule _importerModule;
+        IImporterModule ImporterModule;
 
         public SchedulerService(IImporterModule importerModule) 
         {
-            _importerModule = importerModule;
+            ImporterModule = importerModule;
             Scheduler = StdSchedulerFactory.GetDefaultScheduler().Result;
+
+            ApplySettings();
         }
 
-        public void ApplySettings(Dictionary<string, object> settings)
+        private void ApplySettings()
         {
-            Settings = settings;
+            var typeSettings = ImporterModule.ImporterInstance.TypeSettings;
+            Settings = typeSettings as SchedulerServiceSettings;
         }
 
         public Task ScheduleJob<T>(string jobName, TimeSpan interval) where T : IJob
         {
             var job = JobBuilder.Create<T>()
                 .WithIdentity(jobName)
-                .UsingJobData("ImporterModuleKey", _importerModule.GetType().AssemblyQualifiedName)
-                .UsingJobData("Endpoint", Settings["Endpoint"].ToString())
-                .UsingJobData("ApiKey", Settings["ApiKey"].ToString())
+                .UsingJobData("ImporterModuleKey", ImporterModule.GetType().AssemblyQualifiedName)
+                .UsingJobData("Endpoint", Settings.Endpoint.ToString())
+                .UsingJobData("ApiKey", Settings.ApiKey.ToString())
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}_Trigger")
@@ -54,8 +61,8 @@ namespace Importer.Common.ImporterTypes
         {
             var job = JobBuilder.Create<T>()
                 .WithIdentity(jobName)
-                .UsingJobData("ImporterModuleKey", _importerModule.GetType().AssemblyQualifiedName)
-                .UsingJobData("Endpoint", Settings["Endpoint"].ToString())
+                .UsingJobData("ImporterModuleKey", ImporterModule.GetType().AssemblyQualifiedName)
+                .UsingJobData("Endpoint", Settings.Endpoint.ToString())
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}_Trigger")

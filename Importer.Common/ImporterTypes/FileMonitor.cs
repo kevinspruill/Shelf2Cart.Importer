@@ -1,5 +1,6 @@
 ﻿using Importer.Common.Helpers;
 using Importer.Common.Interfaces;
+using Importer.Common.Models.TypeSettings;
 using Microsoft.Win32.SafeHandles;
 using SimpleImpersonation;
 using System;
@@ -16,10 +17,11 @@ using System.Threading.Tasks;
 
 namespace Importer.Common.ImporterTypes
 {
-    public class FilePollMonitor : IDisposable
+    public class FileMonitor : IImporterType, IDisposable
     {
-        public string Name { get; set; } = "FilePollMonitor";
-        public FilePollMonitorSettings Settings { get; set; } = new FilePollMonitorSettings();
+        public string Name { get; set; } = "FileMonitor";
+
+        public FileMonitorSettings Settings = new FileMonitorSettings();
         public IImporterModule ImporterModule { get; set; } = null;
 
         private bool _isDirectory;
@@ -40,7 +42,7 @@ namespace Importer.Common.ImporterTypes
         private readonly string _processingFolder;
         private readonly string _archiveFolder;
 
-        public FilePollMonitor(IImporterModule importerModule)
+        public FileMonitor(IImporterModule importerModule)
         {
             ImporterModule = importerModule;
 
@@ -123,7 +125,8 @@ namespace Importer.Common.ImporterTypes
                     if (_isDirectory)
                     {
                         var files = Directory.GetFiles(Settings.TargetPath)
-                           .Select(path => new { Path = path, LastModified = File.GetLastWriteTimeUtc(path)})
+                           .Where(path => IsFileExtensionAllowed(path)) // Add filter here
+                           .Select(path => new { Path = path, LastModified = File.GetLastWriteTimeUtc(path) })
                            .Where(fileInfo =>
                            {
                                try
@@ -144,12 +147,17 @@ namespace Importer.Common.ImporterTypes
                            .OrderBy(fileInfo => fileInfo.LastModified) // Orders in ascending order (oldest first)
                            .Select(fileInfo => fileInfo.Path)
                            .ToList();
+
                         var tasks = files.Select(file => CheckFileAsync(file, token)).ToArray();
                         await Task.WhenAll(tasks);
                     }
                     else
                     {
-                        await CheckFileAsync(Settings.TargetPath, token);
+                        // For single file monitoring, check if extension is allowed
+                        if (IsFileExtensionAllowed(Settings.TargetPath))
+                        {
+                            await CheckFileAsync(Settings.TargetPath, token);
+                        }
                     }
 
                     await Task.Delay(Settings.PollIntervalMilliseconds);
@@ -174,6 +182,18 @@ namespace Importer.Common.ImporterTypes
             Logger.Info("Stopped.");
         }
 
+        private bool IsFileExtensionAllowed(string filePath)
+        {
+            if (Settings.AllowedExtensions == null || !Settings.AllowedExtensions.Any())
+                return true; // No restrictions
+
+            if (Settings.AllowedExtensions.Contains("*.*"))
+                return true; // All extensions allowed
+
+            string fileExtension = Path.GetExtension(filePath).ToLowerInvariant();
+            return Settings.AllowedExtensions.Contains(fileExtension);
+        }
+
         private async Task CheckFileAsync(string filePath, CancellationToken token)
         {
             try
@@ -181,18 +201,18 @@ namespace Importer.Common.ImporterTypes
                 if (!File.Exists(filePath))
                     return;
 
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
-                using (StreamReader reader = new StreamReader(stream))
-                {
-                    Logger.Trace("File is not Locked, continuing checking file...");
-                }
-
                 // Optionally filter by allowed extensions.  
                 if (Settings.AllowedExtensions != null &&
                    !Settings.AllowedExtensions.Contains("*.*") &&
                    !Settings.AllowedExtensions.Count.Equals(0) &&
                    !Settings.AllowedExtensions.Contains(Path.GetExtension(filePath).ToLowerInvariant()))
                     return;
+
+                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    Logger.Trace("File is not Locked, continuing checking file...");
+                }
 
                 var info = new FileInfo(filePath);
                 var snapshot = new FileSnapshot(info.Length, info.LastWriteTimeUtc);
@@ -211,7 +231,7 @@ namespace Importer.Common.ImporterTypes
                 {
                     Logger.Trace($"Already processed: {filePath}");
                     return;
-                }
+                }                
 
                 if (Settings.IsAdminFile)
                 {
@@ -567,27 +587,8 @@ namespace Importer.Common.ImporterTypes
 
         public void ApplySettings()
         {
-            // Apply settings to the file poll monitor
-
-            Settings.PollIntervalMilliseconds = ApplySetting<int>("PollIntervalMilliseconds");
-            Settings.TargetPath = ApplySetting<string>("TargetPath");
-            Settings.DatabaseFile = ApplySetting<string>("DatabaseFile");
-            Settings.IsAdminFile = ApplySetting<bool>("IsAdminFile");
-            Settings.UseLogin = ApplySetting<bool>("UseLogin");
-            Settings.LoginUsername = ApplySetting<string>("LoginUsername") ?? string.Empty;
-            Settings.LoginPassword = ApplySetting<string>("LoginPassword") ?? string.Empty;
-            Settings.LoginDomain = ApplySetting<string>("LoginDomain") ?? string.Empty;
-
-            // Convert List<string> to HashSet<string> to fix the type mismatch
-            var allowedExtensionsList = ApplySetting<List<string>>("AllowedExtensions");
-            Settings.AllowedExtensions = allowedExtensionsList != null
-                ? new HashSet<string>(allowedExtensionsList)
-                : null;
-        }
-
-        public T ApplySetting<T>(string key)
-        {
-            return jsonLoader.GetSetting<T>(key, ImporterModule.ImporterInstance.TypeSettings);
+            var typeSettings = ImporterModule.ImporterInstance.TypeSettings;
+            Settings = typeSettings as FileMonitorSettings;
         }
 
         public int GetQueuedFileCount()

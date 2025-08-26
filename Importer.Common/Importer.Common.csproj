@@ -52,6 +52,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Converters\ImporterTypeSettingsConverter.cs" />
+    <Compile Include="Factories\ImporterTypeSettingsFactory.cs" />
     <Compile Include="Helpers\CustomerProcessLoader.cs" />
     <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Helpers\DefaultValueLoader.cs" />
@@ -59,14 +61,15 @@
     <Compile Include="Helpers\jsonLoader.cs" />
     <Compile Include="Helpers\Logger.cs" />
     <Compile Include="Helpers\UnicodeConverter.cs" />
+    <Compile Include="Interfaces\IImporterTypeSettings.cs" />
+    <Compile Include="Models\TypeSettings\SchedulerServiceSettings.cs" />
     <Compile Include="Registries\ImporterModuleRegistry.cs" />
     <Compile Include="Services\MerchandiserAPIClient.cs" />
     <Compile Include="Helpers\ProductProcessor.cs" />
     <Compile Include="Helpers\SettingsLoader.cs" />
     <Compile Include="QuartzJobs\GetAPIJob.cs" />
-    <Compile Include="ImporterTypes\FilePollMonitor.cs" />
-    <Compile Include="ImporterTypes\FilePollMonitorSettings.cs" />
-    <Compile Include="ImporterTypes\FileWatcher.cs" />
+    <Compile Include="ImporterTypes\FileMonitor.cs" />
+    <Compile Include="Models\TypeSettings\FileMonitorSettings.cs" />
     <Compile Include="Interfaces\ICustomerProcess.cs" />
     <Compile Include="Interfaces\IImporterModule.cs" />
     <Compile Include="Interfaces\IImporterType.cs" />

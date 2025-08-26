@@ -19,7 +19,7 @@ namespace Importer.Modules.GrocerySignage
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
-        FilePollMonitor _importerType;
+        FileMonitor _importerType;
 
         public List<tblProducts> GetTblProductsDeleteList()
         {
@@ -34,7 +34,7 @@ namespace Importer.Modules.GrocerySignage
         public void InitModule(ImporterInstance importerInstance)
         {
             ImporterInstance = importerInstance;
-            _importerType = new FilePollMonitor(this);
+            _importerType = new FileMonitor(this);
 
             SetupImporterType();
         }

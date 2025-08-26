@@ -19,11 +19,12 @@ namespace Importer.Common.Helpers
         private const string SETTINGS_FOLDER = "Settings";
         private const string SETTINGS_FILE = "ImporterInstances.json";
 
+        // InstanceLoader.cs (partial)
         public static List<ImporterInstance> LoadInstances()
         {
             string settingsFolderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, SETTINGS_FOLDER);
             string jsonFilePath = Path.Combine(settingsFolderPath, SETTINGS_FILE);
-            List < ImporterInstance > instances = new List<ImporterInstance>();
+            List<ImporterInstance> instances = new List<ImporterInstance>();
 
             if (File.Exists(jsonFilePath))
             {

@@ -1,6 +1,6 @@
 {
   "TareDigits": 3,
-  "UseCustomMapping": false,
+  "UseCustomMapping": true,
   "UseLegacyNutritionFormat": true,
   "CustomMapFileName": "InvaFresh.CustomMap.json"
 }

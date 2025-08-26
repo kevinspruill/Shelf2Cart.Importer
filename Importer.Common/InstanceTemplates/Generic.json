@@ -5,6 +5,7 @@
     "ImporterModule": "Generic",
     "Enabled": true,
     "TypeSettings": {
+      "Type": "FileMonitor",
       "TargetPath": "[FileMonitorLocation]",
       "IsAdminFile": false,
       "AllowedExtensions": [],

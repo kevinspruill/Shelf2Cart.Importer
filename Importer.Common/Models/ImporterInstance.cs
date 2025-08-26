@@ -1,4 +1,5 @@
 ﻿using Importer.Common.Interfaces;
+using Importer.Common.Models.TypeSettings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,12 +16,7 @@ namespace Importer.Common.Models
         public string ImporterModule { get; set; }
         public string CustomerProcess { get; set; }
         public bool Enabled { get; set; }
-        public Dictionary<string, object> TypeSettings { get; set; }
-
-        public void StartInstance()
-        {
-            // Constructor logic here
-        }
+        public ImporterTypeSettings TypeSettings { get; set; }
 
     }
 }

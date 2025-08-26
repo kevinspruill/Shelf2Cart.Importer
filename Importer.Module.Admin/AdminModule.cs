@@ -23,7 +23,7 @@ namespace Importer.Module.Admin
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
-        FilePollMonitor _importerType;
+        FileMonitor _importerType;
         string AdminConsoleFolder = string.Empty;
         string AdminConsoleFileName = "AdminConsole.mdb";
 
@@ -45,7 +45,7 @@ namespace Importer.Module.Admin
         public void InitModule(ImporterInstance importerInstance)
         {
             ImporterInstance = importerInstance;
-            _importerType = new FilePollMonitor(this);
+            _importerType = new FileMonitor(this);
                 
             AdminSettingsLoader Settings = new AdminSettingsLoader();
             AdminConsoleFolder = Settings.AdminConsoleProcessingFolder;
@@ -54,7 +54,7 @@ namespace Importer.Module.Admin
 
         public void SetupImporterType()
         {
-            // No need to set up the importer type here, as it's done in the constructor of FilePollMonitor
+            // No need to set up the importer type here, as it's done in the constructor of FileMonitor
         }
 
         public void StartModule()

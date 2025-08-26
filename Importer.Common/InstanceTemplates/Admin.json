@@ -5,6 +5,7 @@
     "ImporterModule": "Admin",
     "Enabled": true,
     "TypeSettings": {
+      "Type": "FileMonitor",
       "TargetPath": "[FileMonitorLocation]",
       "IsAdminFile": true,
       "AllowedExtensions": [ ".mdb", ".zip" ],

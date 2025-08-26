@@ -6,10 +6,11 @@
     "CustomerProcess": "Bagliani",
     "Enabled": true,
     "TypeSettings": {
+      "Type": "FileMonitor",
       "TargetPath": "C:\\Program Files\\MM_GEN_Import\\Server\\DropFolder",
       "IsAdminFile": false,
       "AllowedExtensions": [ ".csv" ],
-      "PollIntervalMilliseconds": 500,
+      "PollIntervalMilliseconds": 5000,
       "UseLogin": false,
       "LoginUsername": "",
       "LoginPassword": "",
