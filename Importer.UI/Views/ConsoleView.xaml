@@ -10,7 +10,17 @@
     d:DesignWidth="800"
     prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
-    <Grid Background="Black">
-        <TextBlock Foreground="White" Text="{Binding ConsoleData}" />
-    </Grid>
+    <Border
+        Margin="5"
+        Padding="3"
+        Background="Black"
+        CornerRadius="5">
+        <Grid Background="Black">
+            <TextBlock
+                Margin="5"
+                FontFamily="Consolas"
+                Foreground="White"
+                Text="{Binding ConsoleData}" />
+        </Grid>
+    </Border>
 </UserControl>
