@@ -163,7 +163,9 @@ namespace Importer.Common.ImporterTypes
                     }
 
                     await Task.Delay(Settings.PollIntervalMilliseconds);
-                    Logger.Trace("File Loop Finished");
+
+                    // Logger.Trace(Name + " is alive."); // Debug Heartbeat log for monitoring
+
                 }
                 catch (DirectoryNotFoundException)
                 {

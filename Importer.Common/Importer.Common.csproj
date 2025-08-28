@@ -60,6 +60,7 @@
     <Compile Include="Helpers\InstanceLoader.cs" />
     <Compile Include="Helpers\jsonLoader.cs" />
     <Compile Include="Helpers\Logger.cs" />
+    <Compile Include="Helpers\PipeMessageTarget.cs" />
     <Compile Include="Helpers\UnicodeConverter.cs" />
     <Compile Include="Interfaces\IImporterTypeSettings.cs" />
     <Compile Include="Interfaces\IPipeMessageService.cs" />
@@ -98,7 +99,7 @@
     <Compile Include="Modifiers\TitleCaseConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ImporterTypes\SchedulerService.cs" />
-    <Compile Include="Services\PipeServerService.cs" />
+    <Compile Include="Services\PipeMessageService.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Enums\" />
