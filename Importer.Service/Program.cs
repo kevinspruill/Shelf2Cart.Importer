@@ -4,6 +4,7 @@ using Importer.Common.Models;
 using Importer.Common.Modifiers;
 using Importer.Core.Modes;
 using Importer.Module.Invafresh;
+using Importer.Service.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,9 @@ namespace Importer.Service
             {
                 string filePath = string.Empty;
                 Logger.Info("Application starting");
+
+                Logger.Info("Initializing Dependency Injection");
+                Container.Initialize();
 
                 // TopShelf commands that we need to look for
                 string[] topshelfCommands = { "install", "uninstall", "start", "stop", "help" };

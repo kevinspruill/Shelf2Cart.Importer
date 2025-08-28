@@ -1,6 +1,9 @@
 ﻿using Importer.Common.Helpers;
 using Importer.Common.Interfaces;
 using Importer.Common.Models;
+using Importer.Common.Services;
+using Importer.Service.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -57,11 +60,20 @@ namespace Importer.Core.Modes
 
     public class ImporterService
     {
+        private const string PipeName = "S2C_ImporterPipe";
+        private IPipeMessageService _pipeMessageService;
+
         public async Task Start()
         {
             try
             {
-                // new line in the logger with the Date and Time in the middle
+                // Create and initialize the pipe service
+                _pipeMessageService = new PipeMessageService(PipeName);
+                _pipeMessageService.Initialize();
+
+                // Initialize the static Logger with the pipe service
+                Logger.InitializePipeService(_pipeMessageService);
+
                 Logger.Info("--------------------------------------------------");
                 Logger.Info($"Service started at: {DateTime.Now}");
                 Logger.Info("--------------------------------------------------");
@@ -75,9 +87,12 @@ namespace Importer.Core.Modes
                     if (instance.Enabled)
                     {
                         Logger.Info($"Loading module: {instance.ImporterModule} for instance: {instance.Name}");
+
                         importerModule = InstanceLoader.GetImporterModule(instance.ImporterModule);
                         importerModule.InitModule(instance);
+
                         importerModule.StartModule();
+
                         Logger.Info($"Instance: {instance.Name} is enabled is loaded.");
                         Logger.Info("--------------------------------------------------");
                         Logger.Info($"Awaiting Data...");
@@ -105,6 +120,12 @@ namespace Importer.Core.Modes
 
         public async Task Stop()
         {
+            // Send a final message before shutting down
+            Logger.Info("Service stopping");
+
+            // Dispose the pipe service
+            _pipeMessageService?.Dispose();
+
             await Task.CompletedTask;
             Logger.Info("--------------------------------------------------");
             Logger.Info($"Service Stopped at: {DateTime.Now}");

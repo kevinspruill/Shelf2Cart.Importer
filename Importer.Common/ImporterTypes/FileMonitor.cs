@@ -124,6 +124,8 @@ namespace Importer.Common.ImporterTypes
                 {
                     if (_isDirectory)
                     {
+
+
                         var files = Directory.GetFiles(Settings.TargetPath)
                            .Where(path => IsFileExtensionAllowed(path)) // Add filter here
                            .Select(path => new { Path = path, LastModified = File.GetLastWriteTimeUtc(path) })
@@ -161,6 +163,7 @@ namespace Importer.Common.ImporterTypes
                     }
 
                     await Task.Delay(Settings.PollIntervalMilliseconds);
+                    Logger.Trace("File Loop Finished");
                 }
                 catch (DirectoryNotFoundException)
                 {
