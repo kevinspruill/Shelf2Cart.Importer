@@ -63,18 +63,31 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Helpers\WindowsServiceHelper.cs" />
     <Compile Include="Services\PipeClientService.cs" />
     <Compile Include="ViewModels\ConsoleViewModel.cs" />
+    <Compile Include="ViewModels\DefaultValuesViewModel.cs" />
+    <Compile Include="ViewModels\ImporterSettingsViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\ProcessDatabaseSettingsViewModel.cs" />
     <Compile Include="Views\ConsoleView.xaml.cs">
       <DependentUpon>ConsoleView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DefaultValuesView.xaml.cs">
+      <DependentUpon>DefaultValuesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ImporterSettingsView.xaml.cs">
+      <DependentUpon>ImporterSettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\InstanceManagerView.xaml.cs">
       <DependentUpon>InstanceManagerView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ProcessDatabaseSettingsView.xaml.cs">
+      <DependentUpon>ProcessDatabaseSettingsView.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -141,11 +154,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\DefaultValuesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ImporterSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\InstanceManagerView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\MainWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ProcessDatabaseSettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

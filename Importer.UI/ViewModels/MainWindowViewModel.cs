@@ -21,6 +21,7 @@ namespace Importer.UI.ViewModels
     {
         private readonly IEventAggregator _eventAggregator;
         private readonly IRegionManager _regionManager;
+        private const string _serviceName = "S2C_ImporterService";
 
         public MainWindowViewModel(IEventAggregator eventAggregator, IRegionManager regionManager)
         {
@@ -32,9 +33,18 @@ namespace Importer.UI.ViewModels
 
             NavigateToContent = new DelegateCommand<string>(OnNavigateToContent);
             ServiceControlCommand = new DelegateCommand<string>(OnToggleService).ObservesProperty(() => IsAdmin);
-            ServiceStatus = WindowsServiceHelper.GetServiceStatus("S2C_ImporterService");
+            ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
             ExitCommand = new DelegateCommand(() => Application.Current.Shutdown());
 
+            // service commands - TODO: Put into own Methods
+            InstallServiceCommand = new DelegateCommand(() => WindowsServiceHelper.InstallService("./Importer.Service.exe")).ObservesProperty(() => IsAdmin).ObservesProperty(() => IsServiceInstalled);
+            StartServiceCommand = new DelegateCommand(() => WindowsServiceHelper.StartService(_serviceName)).ObservesProperty(() => IsAdmin);
+            RestartServiceCommand = new DelegateCommand(() => WindowsServiceHelper.RestartService(_serviceName)).ObservesProperty(() => IsAdmin);
+            StopServiceCommand = new DelegateCommand(() => WindowsServiceHelper.StopService(_serviceName)).ObservesProperty(() => IsAdmin);
+
+            IsServiceInstalled = WindowsServiceHelper.IsServiceInstalled(_serviceName);
+
+            CheckAdminRights();
         }
 
         private string _icon;
@@ -49,6 +59,13 @@ namespace Importer.UI.ViewModels
         {
             get { return _title; }
             set { SetProperty(ref _title, value); }
+        }
+
+        private bool _isServiceInstalled;
+        public bool IsServiceInstalled
+        {
+            get { return _isServiceInstalled; }
+            set { SetProperty(ref _isServiceInstalled, value); }
         }
 
         private string _serviceStatus;
@@ -75,7 +92,10 @@ namespace Importer.UI.ViewModels
             get { return _serviceButtonText; }
             set { SetProperty(ref _serviceButtonText, value); }
         }
-
+        public DelegateCommand InstallServiceCommand { get; set; }
+        public DelegateCommand StartServiceCommand { get; set; }
+        public DelegateCommand RestartServiceCommand { get; set; }
+        public DelegateCommand StopServiceCommand { get; set; }
         public DelegateCommand<string> ServiceControlCommand { get; set; }
         public DelegateCommand ExitCommand { get; set; }
         public DelegateCommand<string> NavigateToContent { get; set; }

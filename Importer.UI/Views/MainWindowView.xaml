@@ -27,24 +27,35 @@
 
         <Menu
             Grid.Row="0"
+            Padding="5"
             Background="{StaticResource GrayBrush}"
             FontSize="16"
             Foreground="{StaticResource BlueBrush}">
-            <MenuItem Header="File">
+            <MenuItem Header="_File">
                 <MenuItem Command="{Binding ExitCommand}" Header="Exit" />
+            </MenuItem>
+            <MenuItem Header="Instances">
+                <MenuItem
+                    Command="{Binding NavigateToContent}"
+                    CommandParameter="InstanceManagerView"
+                    Header="Manage" />
+                <MenuItem
+                    Command="{Binding NavigateToContent}"
+                    CommandParameter="AddInstanceView"
+                    Header="Add New" />
             </MenuItem>
             <MenuItem Header="Settings">
                 <MenuItem
                     Command="{Binding NavigateToContent}"
-                    CommandParameter=""
+                    CommandParameter="ImporterSettingsView"
                     Header="Importer Settings" />
                 <MenuItem
                     Command="{Binding NavigateToContent}"
-                    CommandParameter=""
+                    CommandParameter="DefaultValuesView"
                     Header="Default Values" />
                 <MenuItem
                     Command="{Binding NavigateToContent}"
-                    CommandParameter=""
+                    CommandParameter="ProcessDatabaseSettingsView"
                     Header="Process Database" />
                 <Separator />
                 <MenuItem Header="Modules">
@@ -77,15 +88,24 @@
 
             </MenuItem>
             <MenuItem Header="Service Control">
-                <MenuItem Command="{Binding InstallServiceCommand}" Header="Install" />
+                <MenuItem
+                    Command="{Binding InstallServiceCommand}"
+                    Header="Install"
+                    IsEnabled="{Binding IsServiceInstalled, Converter={StaticResource InverseBooleanConverter}}" />
                 <MenuItem Command="{Binding StartServiceCommand}" Header="Start" />
                 <MenuItem Command="{Binding RestartServiceCommand}" Header="Restart" />
                 <MenuItem Command="{Binding StopServiceCommand}" Header="Stop" />
             </MenuItem>
-            <MenuItem
-                Command="{Binding NavigateToContent}"
-                CommandParameter="ConsoleView"
-                Header="Console" />
+            <MenuItem Header="Logging">
+                <MenuItem
+                    Command="{Binding NavigateToContent}"
+                    CommandParameter="ConsoleView"
+                    Header="Service Console" />
+                <MenuItem Command="{Binding OpenLogFilesCommand}" Header="Log Files" />
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Command="{Binding OpenLogFilesCommand}" Header="About" />
+            </MenuItem>
         </Menu>
 
         <ContentControl

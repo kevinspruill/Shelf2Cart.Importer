@@ -16,11 +16,17 @@
         Background="Black"
         CornerRadius="5">
         <Grid Background="Black">
-            <TextBlock
-                Margin="5"
-                FontFamily="Consolas"
-                Foreground="White"
-                Text="{Binding ConsoleData}" />
+            <ScrollViewer
+                x:Name="ConsoleScrollViewer"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollBarVisibility="Auto">
+                <TextBlock
+                    Margin="5"
+                    FontFamily="Consolas"
+                    Foreground="White"
+                    Text="{Binding ConsoleData}"
+                    TextWrapping="Wrap" />
+            </ScrollViewer>
         </Grid>
     </Border>
 </UserControl>

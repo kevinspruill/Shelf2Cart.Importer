@@ -36,6 +36,9 @@ namespace Importer.UI
             // Register ViewModels for navigation
             containerRegistry.RegisterForNavigation<InstanceManagerView>();
             containerRegistry.RegisterForNavigation<ConsoleView, ConsoleViewModel>();
+            containerRegistry.RegisterForNavigation<ImporterSettingsView>();
+            containerRegistry.RegisterForNavigation<DefaultValuesView>();
+            containerRegistry.RegisterForNavigation<ProcessDatabaseSettingsView>();
 
             // Register dialogs
             // containerRegistry.RegisterDialog<ImporterInstanceEditDialog, ImporterInstanceEditDialogViewModel>();

@@ -1,17 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using System.ComponentModel;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Importer.UI.Views
 {
@@ -23,6 +12,27 @@ namespace Importer.UI.Views
         public ConsoleView()
         {
             InitializeComponent();
+            this.DataContextChanged += ConsoleView_DataContextChanged;
+        }
+
+        private void ConsoleView_DataContextChanged(object sender, System.Windows.DependencyPropertyChangedEventArgs e)
+        {
+            var oldNotify = e.OldValue as INotifyPropertyChanged;
+            if (oldNotify != null)
+                oldNotify.PropertyChanged -= Notify_PropertyChanged;
+
+            var notify = e.NewValue as INotifyPropertyChanged;
+            if (notify != null)
+                notify.PropertyChanged += Notify_PropertyChanged;
+        }
+
+        private void Notify_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == "ConsoleData")
+            {
+                var sv = this.FindName("ConsoleScrollViewer") as ScrollViewer;
+                sv?.ScrollToEnd();
+            }
         }
     }
 }

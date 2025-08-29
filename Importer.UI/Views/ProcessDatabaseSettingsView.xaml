@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="Importer.UI.Views.ProcessDatabaseSettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="900">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="240" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <!-- Paths -->
+                <TextBlock Margin="0,4" Text="Resident Database Path" />
+                <TextBox Grid.Column="1" Margin="5,4" Text="{Binding ResidentDatabase}" />
+                <Button Grid.Column="2" Margin="5,4" Content="..." Width="30" Command="{Binding BrowseResidentCommand}" />
+
+                <TextBlock Grid.Row="1" Margin="0,4" Text="Process Database Path" />
+                <TextBox Grid.Row="1" Grid.Column="1" Margin="5,4" Text="{Binding ProcessDatabase}" />
+                <Button Grid.Row="1" Grid.Column="2" Margin="5,4" Content="..." Width="30" Command="{Binding BrowseProcessCommand}" />
+
+                <TextBlock Grid.Row="2" Margin="0,4" Text="Import Database Path" />
+                <TextBox Grid.Row="2" Grid.Column="1" Margin="5,4" Text="{Binding ImportDatabase}" />
+                <Button Grid.Row="2" Grid.Column="2" Margin="5,4" Content="..." Width="30" Command="{Binding BrowseImportCommand}" />
+
+                <TextBlock Grid.Row="3" Margin="0,4" Text="Admin Console Database Path" />
+                <TextBox Grid.Row="3" Grid.Column="1" Margin="5,4" Text="{Binding AdminConsoleDatabase}" />
+                <Button Grid.Row="3" Grid.Column="2" Margin="5,4" Content="..." Width="30" Command="{Binding BrowseAdminConsoleCommand}" />
+
+                <TextBlock Grid.Row="4" Margin="0,4" Text="Base Database Path" />
+                <TextBox Grid.Row="4" Grid.Column="1" Margin="5,4" Text="{Binding BaseDatabase}" />
+                <Button Grid.Row="4" Grid.Column="2" Margin="5,4" Content="..." Width="30" Command="{Binding BrowseBaseDbCommand}" />
+
+                <!-- Booleans -->
+                <TextBlock Grid.Row="5" Margin="0,4" Text="Use Admin Console Database" />
+                <CheckBox Grid.Row="5" Grid.Column="1" Margin="5,4" IsChecked="{Binding UseAdminConsoleDatabase}" />
+
+                <TextBlock Grid.Row="6" Margin="0,4" Text="Use Base Database" />
+                <CheckBox Grid.Row="6" Grid.Column="1" Margin="5,4" IsChecked="{Binding UseBaseDatabase}" />
+
+                <TextBlock Grid.Row="7" Margin="0,4" Text="Import Tables" />
+                <CheckBox Grid.Row="7" Grid.Column="1" Margin="5,4" IsChecked="{Binding ImportTables}" />
+
+                <TextBlock Grid.Row="8" Margin="0,4" Text="Import Local Edits" />
+                <CheckBox Grid.Row="8" Grid.Column="1" Margin="5,4" IsChecked="{Binding ImportLocalEdits}" />
+
+                <TextBlock Grid.Row="9" Margin="0,4" Text="Keep Local Items" />
+                <CheckBox Grid.Row="9" Grid.Column="1" Margin="5,4" IsChecked="{Binding KeepLocalItems}" />
+
+                <TextBlock Grid.Row="10" Margin="0,4" Text="Use Legacy" />
+                <CheckBox Grid.Row="10" Grid.Column="1" Margin="5,4" IsChecked="{Binding UseLegacy}" />
+            </Grid>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="1" Margin="0,10,0,0" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Width="100" Height="35" Margin="0,0,8,0" Command="{Binding ReloadCommand}" Content="Reload" />
+            <Button Width="100" Command="{Binding SaveCommand}" Content="Save" />
+        </StackPanel>
+    </Grid>
+</UserControl>
