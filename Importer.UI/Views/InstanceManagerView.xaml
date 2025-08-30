@@ -5,8 +5,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Importer.UI.Views"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
     d:DesignHeight="450"
     d:DesignWidth="800"
+    prism:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
     <UserControl.Resources>
         <Style x:Key="HeaderStyle" TargetType="TextBlock">
@@ -45,6 +47,7 @@
             <Setter Property="CanUserAddRows" Value="False" />
             <Setter Property="CanUserDeleteRows" Value="False" />
             <Setter Property="AutoGenerateColumns" Value="False" />
+            <Setter Property="IsReadOnly" Value="True" />
         </Style>
 
         <Style TargetType="DataGridColumnHeader">
@@ -66,9 +69,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!--  Menu Bar  -->
-        
-
         <!--  Header  -->
         <TextBlock
             Grid.Row="1"
@@ -80,53 +80,46 @@
         <!--  Toolbar  -->
         <ToolBarTray Grid.Row="2" Background="#ECF0F1">
             <ToolBar Background="Transparent" ToolBarTray.IsLocked="True">
-                <Button Content="New Instance" Style="{StaticResource ToolbarButtonStyle}">
+                <Button
+                    Command="{Binding AddCommand}"
+                    Content="New Instance"
+                    Style="{StaticResource ToolbarButtonStyle}">
                     <Button.ToolTip>Create a new importer instance</Button.ToolTip>
                 </Button>
                 <Separator />
                 <Button
                     x:Name="btnEdit"
+                    Command="{Binding EditCommand}"
                     Content="Edit"
                     Style="{StaticResource ToolbarButtonStyle}">
                     <Button.ToolTip>Edit selected instance</Button.ToolTip>
                 </Button>
                 <Button
-                    x:Name="btnDuplicate"
-                    Content="Duplicate"
-                    Style="{StaticResource ToolbarButtonStyle}">
-                    <Button.ToolTip>Duplicate selected instance</Button.ToolTip>
-                </Button>
-                <Button
                     x:Name="btnDelete"
+                    Command="{Binding DeleteCommand}"
                     Content="Delete"
                     Style="{StaticResource ToolbarButtonStyle}">
                     <Button.ToolTip>Delete selected instance</Button.ToolTip>
                 </Button>
                 <Separator />
                 <Button
-                    x:Name="btnStart"
-                    Content="Start"
+                    Command="{Binding ImportCommand}"
+                    Content="Import Config"
                     Style="{StaticResource ToolbarButtonStyle}">
-                    <Button.ToolTip>Start selected instance</Button.ToolTip>
-                </Button>
-                <Button
-                    x:Name="btnStop"
-                    Content="Stop"
-                    Style="{StaticResource ToolbarButtonStyle}">
-                    <Button.ToolTip>Stop selected instance</Button.ToolTip>
-                </Button>
-                <Separator />
-                <Button Content="Import Config" Style="{StaticResource ToolbarButtonStyle}">
                     <Button.ToolTip>Import configuration from file</Button.ToolTip>
                 </Button>
                 <Button
                     x:Name="btnExport"
+                    Command="{Binding ExportCommand}"
                     Content="Export Config"
                     Style="{StaticResource ToolbarButtonStyle}">
                     <Button.ToolTip>Export selected configuration</Button.ToolTip>
                 </Button>
                 <Separator />
-                <Button Content="Refresh" Style="{StaticResource ToolbarButtonStyle}">
+                <Button
+                    Command="{Binding RefreshCommand}"
+                    Content="Refresh"
+                    Style="{StaticResource ToolbarButtonStyle}">
                     <Button.ToolTip>Refresh instance list</Button.ToolTip>
                 </Button>
             </ToolBar>
@@ -142,30 +135,11 @@
 
             <!--  Instance List  -->
             <GroupBox Grid.Column="0" Header="Importer Instances">
-                <DataGrid x:Name="dgInstances">
+                <DataGrid
+                    x:Name="dgInstances"
+                    ItemsSource="{Binding Instances}"
+                    SelectedItem="{Binding SelectedInstance, Mode=TwoWay}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn
-                            Width="60"
-                            Binding="{Binding Status}"
-                            Header="Status">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center" />
-                                    <Style.Triggers>
-                                        <Trigger Property="Text" Value="Running">
-                                            <Setter Property="Foreground" Value="Green" />
-                                            <Setter Property="FontWeight" Value="Bold" />
-                                        </Trigger>
-                                        <Trigger Property="Text" Value="Stopped">
-                                            <Setter Property="Foreground" Value="Red" />
-                                        </Trigger>
-                                        <Trigger Property="Text" Value="Error">
-                                            <Setter Property="Foreground" Value="Orange" />
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
 
                         <DataGridCheckBoxColumn
                             Width="60"
@@ -186,16 +160,6 @@
                             Width="120"
                             Binding="{Binding CustomerProcess}"
                             Header="Customer Process" />
-
-                        <DataGridTextColumn
-                            Width="*"
-                            Binding="{Binding Description}"
-                            Header="Description" />
-
-                        <DataGridTextColumn
-                            Width="120"
-                            Binding="{Binding LastRun, StringFormat='yyyy-MM-dd HH:mm'}"
-                            Header="Last Run" />
                     </DataGrid.Columns>
                 </DataGrid>
             </GroupBox>
@@ -241,7 +205,8 @@
                                 x:Name="lblDetailName"
                                 Grid.Row="0"
                                 Grid.Column="1"
-                                Margin="5,2" />
+                                Margin="5,2"
+                                Text="{Binding DetailName}" />
 
                             <TextBlock
                                 Grid.Row="1"
@@ -253,19 +218,8 @@
                                 x:Name="lblDetailModule"
                                 Grid.Row="1"
                                 Grid.Column="1"
-                                Margin="5,2" />
-
-                            <TextBlock
-                                Grid.Row="2"
-                                Grid.Column="0"
-                                Margin="0,2"
-                                FontWeight="SemiBold"
-                                Text="Status:" />
-                            <TextBlock
-                                x:Name="lblDetailStatus"
-                                Grid.Row="2"
-                                Grid.Column="1"
-                                Margin="5,2" />
+                                Margin="5,2"
+                                Text="{Binding DetailModule}" />
 
                             <TextBlock
                                 Grid.Row="3"
@@ -277,7 +231,8 @@
                                 x:Name="lblDetailEnabled"
                                 Grid.Row="3"
                                 Grid.Column="1"
-                                Margin="5,2" />
+                                Margin="5,2"
+                                Text="{Binding DetailEnabled}" />
 
                             <TextBlock
                                 Grid.Row="4"
@@ -289,7 +244,8 @@
                                 x:Name="lblDetailCustomer"
                                 Grid.Row="4"
                                 Grid.Column="1"
-                                Margin="5,2" />
+                                Margin="5,2"
+                                Text="{Binding DetailCustomer}" />
                         </Grid>
 
                         <!--  Description  -->
@@ -300,76 +256,10 @@
                         <TextBlock
                             x:Name="lblDetailDescription"
                             Margin="0,0,0,10"
+                            Text="{Binding DetailDescription}"
                             TextWrapping="Wrap" />
 
-                        <!--  Type Settings  -->
-                        <TextBlock
-                            Margin="0,10,0,5"
-                            FontWeight="Bold"
-                            Text="Configuration Settings" />
-                        <TreeView
-                            x:Name="tvSettings"
-                            Height="200"
-                            Margin="0,0,0,10">
-                            <TreeView.Resources>
-                                <Style TargetType="TreeViewItem">
-                                    <Setter Property="IsExpanded" Value="True" />
-                                </Style>
-                            </TreeView.Resources>
-                        </TreeView>
 
-                        <!--  Statistics  -->
-                        <TextBlock
-                            Margin="0,10,0,5"
-                            FontWeight="Bold"
-                            Text="Statistics" />
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <TextBlock
-                                Grid.Row="0"
-                                Grid.Column="0"
-                                Margin="0,2"
-                                FontWeight="SemiBold"
-                                Text="Last Run:" />
-                            <TextBlock
-                                x:Name="lblDetailLastRun"
-                                Grid.Row="0"
-                                Grid.Column="1"
-                                Margin="5,2" />
-
-                            <TextBlock
-                                Grid.Row="1"
-                                Grid.Column="0"
-                                Margin="0,2"
-                                FontWeight="SemiBold"
-                                Text="Files Processed:" />
-                            <TextBlock
-                                x:Name="lblDetailFilesProcessed"
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                Margin="5,2" />
-
-                            <TextBlock
-                                Grid.Row="2"
-                                Grid.Column="0"
-                                Margin="0,2"
-                                FontWeight="SemiBold"
-                                Text="Records Imported:" />
-                            <TextBlock
-                                x:Name="lblDetailRecordsImported"
-                                Grid.Row="2"
-                                Grid.Column="1"
-                                Margin="5,2" />
-                        </Grid>
                     </StackPanel>
                 </ScrollViewer>
             </GroupBox>
