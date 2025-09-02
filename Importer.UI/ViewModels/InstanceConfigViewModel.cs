@@ -28,6 +28,7 @@ namespace Importer.UI.ViewModels
 
             EnsureTypeSettingsForModule(_importerModule);
             LoadFromTypeSettings();
+            LoadCustomerProcesses();
 
             LoadTemplates();
             Modules = new ObservableCollection<string>(new[] { "Generic", "Invafresh", "Upshop", "Parsley", "Admin", "GrocerySignage" });
@@ -41,6 +42,70 @@ namespace Importer.UI.ViewModels
             SaveCommand = new DelegateCommand(SaveOnly, CanSave);
             SaveCloseCommand = new DelegateCommand(SaveAndClose, CanSave);
             CancelCommand = new DelegateCommand(Cancel);
+            BrowseForTargetCommand = new DelegateCommand(OnBrowseForTargetFolder);
+        }
+
+        private void LoadCustomerProcesses()
+        {
+            // read dlls and get all ICustomerProcess types
+            var processes = new List<string> { "" }; // allow empty
+            try
+            {
+                var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                var dllFiles = Directory.GetFiles(baseDir, "*.CustomerProcess.dll");
+                foreach (var dll in dllFiles)
+                {
+                    try
+                    {
+                        var assembly = System.Reflection.Assembly.LoadFrom(dll);
+                        var types = assembly.GetTypes().Where(t => typeof(Importer.Common.Interfaces.ICustomerProcess).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+                        foreach (var type in types)
+                        {
+                            // get the Name property value
+                            var nameProp = type.GetProperty("Name");
+                            if (nameProp != null && nameProp.PropertyType == typeof(string))
+                            {
+                                var instance = Activator.CreateInstance(type);
+                                var nameValue = nameProp.GetValue(instance) as string;
+                                if (!string.IsNullOrWhiteSpace(nameValue))
+                                {
+                                    processes.Add(nameValue);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception) { /* swallow individual dll load errors */ }
+                }
+
+                // assign to property
+                CustomerProcesses = processes.Distinct().OrderBy(s => s).ToList();
+            }
+            catch (Exception) { /* swallow */ }
+        }
+
+        private void OnBrowseForTargetFolder()
+        {
+            // Browse for folder dialog - set TargetPath if selected in try/catch
+            try
+            {
+                using (var dlg = new System.Windows.Forms.FolderBrowserDialog())
+                {
+                    dlg.Description = "Select Target Folder";
+                    dlg.ShowNewFolderButton = true;
+                    // if current path valid, set as selected path
+                    if (Directory.Exists(TargetPath))
+                    {
+                        dlg.SelectedPath = TargetPath;
+                    }
+
+                    if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        TargetPath = dlg.SelectedPath;
+                    }
+                }
+            }
+            catch (Exception) { /* swallow */ }
+
         }
 
         #region Basic Fields
@@ -49,6 +114,13 @@ namespace Importer.UI.ViewModels
         private string _importerModule; public string ImporterModule { get => _importerModule; set { if (SetProperty(ref _importerModule, value)) { EnsureTypeSettingsForModule(value); LoadFromTypeSettings(); RaiseModuleVisibility(); } } }
         private string _customerProcess; public string CustomerProcess { get => _customerProcess; set => SetProperty(ref _customerProcess, value); }
         private bool _enabled; public bool Enabled { get => _enabled; set => SetProperty(ref _enabled, value); }
+
+        private List<string> _customerProcesses;
+        public List<string> CustomerProcesses
+        {
+            get { return _customerProcesses; }
+            set { SetProperty(ref _customerProcesses, value); }
+        }
         #endregion
 
         #region FileMonitor Settings
@@ -164,6 +236,7 @@ namespace Importer.UI.ViewModels
         public DelegateCommand SaveCommand { get; }
         public DelegateCommand SaveCloseCommand { get; }
         public DelegateCommand CancelCommand { get; }
+        public DelegateCommand BrowseForTargetCommand { get; }
 
         public event Action<bool?> RequestClose; // bool? dialog result
 

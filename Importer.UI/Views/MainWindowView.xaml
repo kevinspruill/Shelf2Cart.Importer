@@ -34,16 +34,10 @@
             <MenuItem Header="_File">
                 <MenuItem Command="{Binding ExitCommand}" Header="Exit" />
             </MenuItem>
-            <MenuItem Header="Instances">
-                <MenuItem
-                    Command="{Binding NavigateToContent}"
-                    CommandParameter="InstanceManagerView"
-                    Header="Manage" />
-                <MenuItem
-                    Command="{Binding NavigateToContent}"
-                    CommandParameter="AddInstanceView"
-                    Header="Add New" />
-            </MenuItem>
+            <MenuItem
+                Command="{Binding NavigateToContent}"
+                CommandParameter="InstanceManagerView"
+                Header="Instances" />
             <MenuItem Header="Settings">
                 <MenuItem
                     Command="{Binding NavigateToContent}"
@@ -65,7 +59,7 @@
                         Header="Admin" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
-                        CommandParameter=""
+                        CommandParameter="GenericSettingsView"
                         Header="Generic" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
@@ -103,8 +97,8 @@
                     Header="Service Console" />
                 <MenuItem Command="{Binding OpenLogFilesCommand}" Header="Log Files" />
             </MenuItem>
-            <MenuItem Header="Help">
-                <MenuItem Command="{Binding OpenLogFilesCommand}" Header="About" />
+            <MenuItem Header="Help" Visibility="Hidden">
+                <MenuItem Command="{Binding AboutCommand}" Header="About" />
             </MenuItem>
         </Menu>
 

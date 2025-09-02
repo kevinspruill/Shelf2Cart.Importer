@@ -68,16 +68,23 @@
     <Compile Include="Services\PipeClientService.cs" />
     <Compile Include="ViewModels\ConsoleViewModel.cs" />
     <Compile Include="ViewModels\DefaultValuesViewModel.cs" />
+    <Compile Include="ViewModels\GenericSettingsViewModel.cs" />
     <Compile Include="ViewModels\ImporterSettingsViewModel.cs" />
     <Compile Include="ViewModels\InstanceConfigViewModel.cs" />
     <Compile Include="ViewModels\InstanceManagerViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\ProcessDatabaseSettingsViewModel.cs" />
+    <Compile Include="Views\AdminSettingsView.xaml.cs">
+      <DependentUpon>AdminSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ConsoleView.xaml.cs">
       <DependentUpon>ConsoleView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\DefaultValuesView.xaml.cs">
       <DependentUpon>DefaultValuesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\GenericSettingsView.xaml.cs">
+      <DependentUpon>GenericSettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ImporterSettingsView.xaml.cs">
       <DependentUpon>ImporterSettingsView.xaml</DependentUpon>
@@ -88,8 +95,14 @@
     <Compile Include="Views\InstanceManagerView.xaml.cs">
       <DependentUpon>InstanceManagerView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\InvafreshSettingsView.xaml.cs">
+      <DependentUpon>InvafreshSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\MainWindowView.xaml.cs">
       <DependentUpon>MainWindowView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ParsleySettingsView.xaml.cs">
+      <DependentUpon>ParsleySettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ProcessDatabaseSettingsView.xaml.cs">
       <DependentUpon>ProcessDatabaseSettingsView.xaml</DependentUpon>
@@ -126,6 +139,18 @@
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Bagliani.CustomerProcess\Bagliani.CustomerProcess.csproj">
+      <Project>{9920b72d-3c61-41b9-a386-01f9b250baf4}</Project>
+      <Name>Bagliani.CustomerProcess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Vallarta.CustomerProcess\Vallarta.CustomerProcess.csproj">
+      <Project>{f1f3488f-691c-4de5-8b44-c254a7d059d7}</Project>
+      <Name>Vallarta.CustomerProcess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Wakefern.CustomerProcess\Wakefern.CustomerProcess.csproj">
+      <Project>{cd8391e8-1d38-4d54-9a85-be531ce17304}</Project>
+      <Name>Wakefern.CustomerProcess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Importer.Modules\Importer.Module.Generic\Importer.Module.Generic.csproj">
       <Project>{18aadd4a-0449-4eca-baa7-e4b8c5ad0a80}</Project>
       <Name>Importer.Module.Generic</Name>
@@ -155,11 +180,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\AdminSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ConsoleView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DefaultValuesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\GenericSettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -175,7 +208,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\InvafreshSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindowView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ParsleySettingsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

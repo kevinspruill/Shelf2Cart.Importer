@@ -30,21 +30,113 @@ namespace Importer.UI.ViewModels
 
             Title = "Shelf 2 Cart Importer Manager";
             Icon = "pack://application:,,,/Importer.UI;component/Resources/Icons/merchandiser.ico";
+            
+            // service commands - TODO: Put into own Methods
+            InstallServiceCommand = new DelegateCommand(OnInstallService).ObservesProperty(() => IsAdmin).ObservesProperty(() => IsServiceInstalled);
+            StartServiceCommand = new DelegateCommand(OnStartService).ObservesProperty(() => IsAdmin);
+            RestartServiceCommand = new DelegateCommand(OnRestartService).ObservesProperty(() => IsAdmin);
+            StopServiceCommand = new DelegateCommand(OnStopService).ObservesProperty(() => IsAdmin);            
+            ServiceControlCommand = new DelegateCommand<string>(OnToggleService).ObservesProperty(() => IsAdmin);
 
             NavigateToContent = new DelegateCommand<string>(OnNavigateToContent);
-            ServiceControlCommand = new DelegateCommand<string>(OnToggleService).ObservesProperty(() => IsAdmin);
-            ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
+            OpenLogFilesCommand = new DelegateCommand(OnOpenLogFiles);
             ExitCommand = new DelegateCommand(() => Application.Current.Shutdown());
 
-            // service commands - TODO: Put into own Methods
-            InstallServiceCommand = new DelegateCommand(() => WindowsServiceHelper.InstallService("./Importer.Service.exe")).ObservesProperty(() => IsAdmin).ObservesProperty(() => IsServiceInstalled);
-            StartServiceCommand = new DelegateCommand(() => WindowsServiceHelper.StartService(_serviceName)).ObservesProperty(() => IsAdmin);
-            RestartServiceCommand = new DelegateCommand(() => WindowsServiceHelper.RestartService(_serviceName)).ObservesProperty(() => IsAdmin);
-            StopServiceCommand = new DelegateCommand(() => WindowsServiceHelper.StopService(_serviceName)).ObservesProperty(() => IsAdmin);
-
             IsServiceInstalled = WindowsServiceHelper.IsServiceInstalled(_serviceName);
+            ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
 
             CheckAdminRights();
+        }
+
+        private void OnOpenLogFiles()
+        {
+            try
+            {
+                string logFolderPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Logs");
+                if (!System.IO.Directory.Exists(logFolderPath))
+                {
+                    System.IO.Directory.CreateDirectory(logFolderPath);
+                }
+                Process.Start("explorer.exe", logFolderPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open log files folder: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OnStopService()
+        {
+            try
+            {
+                using (ServiceController sc = new ServiceController(_serviceName))
+                {
+                    if (sc.Status == ServiceControllerStatus.Running)
+                    {
+                        sc.Stop();
+                        sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                    }
+                }
+                ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error stopping service: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OnRestartService()
+        {
+            try
+            {
+                using (ServiceController sc = new ServiceController(_serviceName))
+                {
+                    if (sc.Status == ServiceControllerStatus.Running)
+                    {
+                        sc.Stop();
+                        sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(10));
+                    }
+                    sc.Start();
+                    sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                }
+                ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error restarting service: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OnStartService()
+        {
+            try
+            {
+                using (ServiceController sc = new ServiceController(_serviceName))
+                {
+                    if (sc.Status == ServiceControllerStatus.Stopped)
+                    {
+                        sc.Start();
+                        sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(10));
+                    }
+                }
+                ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error starting service: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OnInstallService()
+        {
+            if (IsServiceInstalled)
+            {
+                MessageBox.Show("Service is already installed.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+            WindowsServiceHelper.InstallService(_serviceName);
+            IsServiceInstalled = WindowsServiceHelper.IsServiceInstalled(_serviceName);
+            ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
         }
 
         private string _icon;
@@ -99,6 +191,7 @@ namespace Importer.UI.ViewModels
         public DelegateCommand<string> ServiceControlCommand { get; set; }
         public DelegateCommand ExitCommand { get; set; }
         public DelegateCommand<string> NavigateToContent { get; set; }
+        public DelegateCommand OpenLogFilesCommand { get; set; }
 
         // Command Methods
         private void OnToggleService(string serviceName)

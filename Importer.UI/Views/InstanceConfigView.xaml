@@ -75,7 +75,8 @@
                         <Label Grid.Row="2" Grid.Column="0" Content="Importer Module:" Style="{StaticResource LabelStyle}" />
                         <ComboBox x:Name="cmbImporterModule" Grid.Row="2" Grid.Column="1" SelectedItem="{Binding ImporterModule, Mode=TwoWay}" ItemsSource="{Binding Modules}" Style="{StaticResource ComboBoxStyle}" />
                         <Label Grid.Row="2" Grid.Column="2" Margin="10,5,0,2" Content="Customer Process:" Style="{StaticResource LabelStyle}" />
-                        <TextBox x:Name="cmbCustomerProcess" Grid.Row="2" Grid.Column="3" Style="{StaticResource TextBoxStyle}" Text="{Binding CustomerProcess, Mode=TwoWay}" />
+                        <ComboBox x:Name="cmbCustomerProcess" Grid.Row="2" Grid.Column="4" SelectedItem="{Binding CustomerProcess, Mode=TwoWay}" ItemsSource="{Binding CustomerProcesses}" SelectedValue="{Binding CustomerProcess, Mode=TwoWay}" Style="{StaticResource ComboBoxStyle}" />
+
                     </Grid>
                 </GroupBox>
                 <GroupBox Header="Module Settings" Style="{StaticResource GroupBoxStyle}">
