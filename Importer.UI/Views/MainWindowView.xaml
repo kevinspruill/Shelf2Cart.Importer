@@ -63,7 +63,7 @@
                         Header="Generic" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
-                        CommandParameter=""
+                        CommandParameter="InvafreshSettingsView"
                         Header="Invafresh" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
@@ -73,11 +73,13 @@
                         Command="{Binding NavigateToContent}"
                         CommandParameter="ConsoleView"
                         Header="UpShop/ADC"
-                        IsEnabled="False" />
+                        IsEnabled="False"
+                        Visibility="Collapsed" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
                         CommandParameter=""
-                        Header="Grocery Signage" />
+                        Header="Grocery Signage"
+                        Visibility="Collapsed" />
                 </MenuItem>
 
             </MenuItem>

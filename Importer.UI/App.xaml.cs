@@ -40,6 +40,7 @@ namespace Importer.UI
             containerRegistry.RegisterForNavigation<DefaultValuesView>();
             containerRegistry.RegisterForNavigation<ProcessDatabaseSettingsView>();
             containerRegistry.RegisterForNavigation<GenericSettingsView>();
+            containerRegistry.RegisterForNavigation<InvafreshSettingsView>();
 
             // Register dialogs
             // containerRegistry.RegisterDialog<ImporterInstanceEditDialog, ImporterInstanceEditDialogViewModel>();

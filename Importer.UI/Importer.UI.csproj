@@ -72,6 +72,7 @@
     <Compile Include="ViewModels\ImporterSettingsViewModel.cs" />
     <Compile Include="ViewModels\InstanceConfigViewModel.cs" />
     <Compile Include="ViewModels\InstanceManagerViewModel.cs" />
+    <Compile Include="ViewModels\InvafreshSettingsViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\ProcessDatabaseSettingsViewModel.cs" />
     <Compile Include="Views\AdminSettingsView.xaml.cs">
