@@ -23,13 +23,63 @@ namespace Importer.UI.ViewModels
         private const string FieldMapFileName = "Generic.FieldMap.json";
         private const string BooleanValsFileName = "Generic.BooleanVals.json";
 
+        // Raw persisted values
         private string _fieldDelimiter;
         private string _parser;
         private string _recordSeparator;
 
+        // UI selection helpers
+        private string _selectedFieldDelimiterOption; // Comma, Tab, Pipe, Custom
+        private string _customFieldDelimiter;
+        private string _selectedRecordSeparatorOption; // LF, CRLF
+        private bool _suppressDelimiterSelectionUpdate; // prevents overwriting during load
+
         public string FieldDelimiter { get => _fieldDelimiter; set => SetProperty(ref _fieldDelimiter, value); }
         public string Parser { get => _parser; set => SetProperty(ref _parser, value); }
         public string RecordSeparator { get => _recordSeparator; set => SetProperty(ref _recordSeparator, value); }
+
+        public string SelectedFieldDelimiterOption
+        {
+            get => _selectedFieldDelimiterOption;
+            set
+            {
+                if (SetProperty(ref _selectedFieldDelimiterOption, value))
+                {
+                    if (!_suppressDelimiterSelectionUpdate)
+                        UpdateFieldDelimiterFromSelection();
+                    RaisePropertyChanged(nameof(IsCustomFieldDelimiter));
+                }
+            }
+        }
+
+        public string CustomFieldDelimiter
+        {
+            get => _customFieldDelimiter;
+            set
+            {
+                if (SetProperty(ref _customFieldDelimiter, value) && IsCustomFieldDelimiter)
+                {
+                    FieldDelimiter = value; // propagate to persisted value
+                }
+            }
+        }
+
+        public bool IsCustomFieldDelimiter => SelectedFieldDelimiterOption == "Custom";
+
+        public string SelectedRecordSeparatorOption
+        {
+            get => _selectedRecordSeparatorOption;
+            set
+            {
+                if (SetProperty(ref _selectedRecordSeparatorOption, value))
+                {
+                    if (value == "Line Feed" || value == "LF")
+                        RecordSeparator = "\n"; // LF
+                    else
+                        RecordSeparator = "\r\n"; // CRLF
+                }
+            }
+        }
 
         public ObservableCollection<KeyValueEntry> FieldMapEntries { get; } = new ObservableCollection<KeyValueEntry>();
         public ObservableCollection<KeyValueEntry> BooleanValEntries { get; } = new ObservableCollection<KeyValueEntry>();
@@ -105,11 +155,51 @@ namespace Importer.UI.ViewModels
                 var json = File.ReadAllText(path);
                 var model = JsonConvert.DeserializeObject<GenericSettingsModel>(json);
                 if (model == null) return;
-                FieldDelimiter = model.FieldDelimiter;
+                FieldDelimiter = model.FieldDelimiter; // raw value (could be actual characters)
                 Parser = model.Parser;
                 RecordSeparator = model.RecordSeparator;
+
+                // Interpret delimiter selection (suppress update to keep original custom value)
+                if (FieldDelimiter == ",")
+                {
+                    _suppressDelimiterSelectionUpdate = true; SelectedFieldDelimiterOption = "Comma"; _suppressDelimiterSelectionUpdate = false;
+                }
+                else if (FieldDelimiter == "\t")
+                {
+                    _suppressDelimiterSelectionUpdate = true; SelectedFieldDelimiterOption = "Tab"; _suppressDelimiterSelectionUpdate = false;
+                }
+                else if (FieldDelimiter == "|")
+                {
+                    _suppressDelimiterSelectionUpdate = true; SelectedFieldDelimiterOption = "Pipe"; _suppressDelimiterSelectionUpdate = false;
+                }
+                else
+                {
+                    CustomFieldDelimiter = FieldDelimiter; // preserve first
+                    _suppressDelimiterSelectionUpdate = true; SelectedFieldDelimiterOption = "Custom"; _suppressDelimiterSelectionUpdate = false;
+                }
+
+                // Interpret record separator
+                if (RecordSeparator == "\n")
+                    SelectedRecordSeparatorOption = "Line Feed";
+                else
+                    SelectedRecordSeparatorOption = "Carriage Return + Line Feed"; // default
             }
             catch { /* swallow for now or log */ }
+        }
+
+        private void UpdateFieldDelimiterFromSelection()
+        {
+            switch (SelectedFieldDelimiterOption)
+            {
+                case "Comma":
+                    FieldDelimiter = ","; break;
+                case "Tab":
+                    FieldDelimiter = "\t"; break;
+                case "Pipe":
+                    FieldDelimiter = "|"; break;
+                case "Custom":
+                    FieldDelimiter = CustomFieldDelimiter; break;
+            }
         }
 
         private void LoadFieldMap()
@@ -120,7 +210,6 @@ namespace Importer.UI.ViewModels
                 var path = PathFor(FieldMapFileName);
                 if (!File.Exists(path)) return;
                 var json = File.ReadAllText(path);
-                // Deserialize to dictionary-like object
                 var dict = JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, string>>(json);
                 if (dict == null) return;
                 foreach (var kvp in dict.Where(k => k.Key != null))
@@ -161,6 +250,13 @@ namespace Importer.UI.ViewModels
         {
             try
             {
+                // Ensure raw values reflect selections
+                UpdateFieldDelimiterFromSelection();
+                if (SelectedRecordSeparatorOption == "Line Feed" || SelectedRecordSeparatorOption == "LF")
+                    RecordSeparator = "\n";
+                else
+                    RecordSeparator = "\r\n";
+
                 var path = PathFor(SettingsFileName);
                 var model = new GenericSettingsModel
                 {

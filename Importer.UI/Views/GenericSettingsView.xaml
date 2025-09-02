@@ -1,46 +1,77 @@
-﻿<UserControl x:Class="Importer.UI.Views.GenericSettingsView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-             d:DesignHeight="600" d:DesignWidth="900"
-             prism:ViewModelLocator.AutoWireViewModel="True"
-             xmlns:prism="http://prismlibrary.com/">
+﻿<UserControl
+    x:Class="Importer.UI.Views.GenericSettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    d:DesignHeight="600"
+    d:DesignWidth="900"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
 
-        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
-            <TextBlock Text="Generic Importer Settings" FontSize="18" FontWeight="Bold" />
-            <UniformGrid Columns="3" Rows="2" Margin="0,10,0,0">
+        <!--  Header / Basic Settings  -->
+        <StackPanel Margin="0,0,0,10" Orientation="Vertical">
+            <TextBlock
+                FontSize="18"
+                FontWeight="Bold"
+                Text="Generic Importer Settings" />
+            <UniformGrid
+                Margin="0,10,0,0"
+                Columns="3"
+                Rows="2">
+                <!--  Field Delimiter  -->
                 <StackPanel Margin="5">
                     <TextBlock Text="Field Delimiter" />
-                    <TextBox Text="{Binding FieldDelimiter, UpdateSourceTrigger=PropertyChanged}" Width="120" />
+                    <StackPanel>
+                        <ComboBox Width="150" SelectedValuePath="Content" SelectedValue="{Binding SelectedFieldDelimiterOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                            <ComboBoxItem Content="Comma" />
+                            <ComboBoxItem Content="Tab" />
+                            <ComboBoxItem Content="Pipe" />
+                            <ComboBoxItem Content="Custom" />
+                        </ComboBox>
+                        <TextBox
+                            Width="150"
+                            Margin="0,5,0,0"
+                            Text="{Binding CustomFieldDelimiter, UpdateSourceTrigger=PropertyChanged}"
+                            Visibility="{Binding IsCustomFieldDelimiter, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                    </StackPanel>
                 </StackPanel>
+                <!--  Parser  -->
                 <StackPanel Margin="5">
                     <TextBlock Text="Parser" />
-                    <ComboBox Width="150" SelectedValuePath="Content" SelectedValue="{Binding Parser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox
+                        Width="150"
+                        SelectedValue="{Binding Parser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        SelectedValuePath="Content">
                         <ComboBoxItem Content="Generic" />
                         <ComboBoxItem Content="JSON" />
                     </ComboBox>
                 </StackPanel>
+                <!--  Record Separator  -->
                 <StackPanel Margin="5">
                     <TextBlock Text="Record Separator" />
-                    <TextBox Text="{Binding RecordSeparator, UpdateSourceTrigger=PropertyChanged}" Width="150" />
+                    <ComboBox Width="200" SelectedValuePath="Content" SelectedValue="{Binding SelectedRecordSeparatorOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBoxItem Content="Line Feed" />
+                        <ComboBoxItem Content="Carriage Return + Line Feed" />
+                    </ComboBox>
                 </StackPanel>
             </UniformGrid>
-            <StackPanel Orientation="Horizontal" Margin="0,5,0,0" HorizontalAlignment="Left">
-                <Button Content="Reload" Command="{Binding ReloadCommand}" Width="100" Margin="0,0,10,0" />
-                <Button Content="Save" Command="{Binding SaveCommand}" Width="100" />
-            </StackPanel>
         </StackPanel>
 
+        <!--  Tab Content  -->
         <TabControl Grid.Row="1">
             <TabItem Header="Field Map">
                 <Grid Margin="0,5,0,0">
@@ -48,14 +79,33 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                        <Button Content="Add" Command="{Binding AddFieldMapEntryCommand}" Width="80" Margin="0,0,5,0" />
-                        <Button Content="Remove" Command="{Binding RemoveSelectedFieldMapEntryCommand}" Width="80" />
+                    <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                        <Button
+                            Width="80"
+                            Margin="0,0,5,0"
+                            Command="{Binding AddFieldMapEntryCommand}"
+                            Content="Add" />
+                        <Button
+                            Width="80"
+                            Command="{Binding RemoveSelectedFieldMapEntryCommand}"
+                            Content="Remove" />
                     </StackPanel>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding FieldMapEntries}" SelectedItem="{Binding SelectedFieldMapEntry}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All">
+                    <DataGrid
+                        Grid.Row="1"
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        HeadersVisibility="All"
+                        ItemsSource="{Binding FieldMapEntries}"
+                        SelectedItem="{Binding SelectedFieldMapEntry}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="MField" Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}" Width="200" />
-                            <DataGridTextColumn Header="CField Name" Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Width="*" />
+                            <DataGridTextColumn
+                                Width="200"
+                                Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
+                                Header="MField" />
+                            <DataGridTextColumn
+                                Width="*"
+                                Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                Header="CField Name" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
@@ -66,23 +116,54 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                        <Button Content="Add" Command="{Binding AddBooleanValEntryCommand}" Width="80" Margin="0,0,5,0" />
-                        <Button Content="Remove" Command="{Binding RemoveSelectedBooleanValEntryCommand}" Width="80" />
+                    <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                        <Button
+                            Width="80"
+                            Margin="0,0,5,0"
+                            Command="{Binding AddBooleanValEntryCommand}"
+                            Content="Add" />
+                        <Button
+                            Width="80"
+                            Command="{Binding RemoveSelectedBooleanValEntryCommand}"
+                            Content="Remove" />
                     </StackPanel>
-                    <DataGrid Grid.Row="1" ItemsSource="{Binding BooleanValEntries}" SelectedItem="{Binding SelectedBooleanValEntry}" AutoGenerateColumns="False" CanUserAddRows="False" HeadersVisibility="All">
+                    <DataGrid
+                        Grid.Row="1"
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        HeadersVisibility="All"
+                        ItemsSource="{Binding BooleanValEntries}"
+                        SelectedItem="{Binding SelectedBooleanValEntry}">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Field" Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}" Width="200" />
-                            <DataGridTextColumn Header="True Value" Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Width="200" />
+                            <DataGridTextColumn
+                                Width="200"
+                                Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
+                                Header="Field" />
+                            <DataGridTextColumn
+                                Width="200"
+                                Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                                Header="True Value" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>
             </TabItem>
-            <TabItem Header="Raw JSON" Visibility="Collapsed">
-                <Grid>
-                    <TextBox Text="{Binding RawFieldMapJson}" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
-                </Grid>
-            </TabItem>
         </TabControl>
+
+        <!--  Bottom Right Buttons  -->
+        <StackPanel
+            Grid.Row="2"
+            Margin="0,10,0,0"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Width="100"
+                Margin="0,0,10,0"
+                Command="{Binding ReloadCommand}"
+                Content="Reload" />
+            <Button
+                Width="100"
+                Command="{Binding SaveCommand}"
+                Content="Save" />
+        </StackPanel>
     </Grid>
 </UserControl>
