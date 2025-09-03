@@ -40,12 +40,45 @@ namespace Importer.UI.ViewModels
 
             NavigateToContent = new DelegateCommand<string>(OnNavigateToContent);
             OpenLogFilesCommand = new DelegateCommand(OnOpenLogFiles);
+            ProcessDatabaseCommand = new DelegateCommand(OnProcessDatabase);
+            OpenInstallFolderCommand = new DelegateCommand(OnOpenInstallFolder);
             ExitCommand = new DelegateCommand(() => Application.Current.Shutdown());
 
             IsServiceInstalled = WindowsServiceHelper.IsServiceInstalled(_serviceName);
             ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
 
             CheckAdminRights();
+        }
+
+        private void OnOpenInstallFolder()
+        {
+            try
+            {
+                string installFolderPath = AppDomain.CurrentDomain.BaseDirectory;
+                Process.Start("explorer.exe", installFolderPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open install folder: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void OnProcessDatabase()
+        {
+            try
+                {
+                ProcessStartInfo startInfo = new ProcessStartInfo
+                {
+                    FileName = "ExecuteProcessDatabase.exe",
+                    WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+                };
+                Process process = Process.Start(startInfo);
+                process.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to start Process Database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void OnOpenLogFiles()
@@ -184,6 +217,9 @@ namespace Importer.UI.ViewModels
             get { return _serviceButtonText; }
             set { SetProperty(ref _serviceButtonText, value); }
         }
+        // Commands
+        public DelegateCommand OpenInstallFolderCommand { get; set; }
+        public DelegateCommand ProcessDatabaseCommand { get; set; }
         public DelegateCommand InstallServiceCommand { get; set; }
         public DelegateCommand StartServiceCommand { get; set; }
         public DelegateCommand RestartServiceCommand { get; set; }

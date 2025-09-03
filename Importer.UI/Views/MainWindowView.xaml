@@ -55,7 +55,7 @@
                 <MenuItem Header="Modules">
                     <MenuItem
                         Command="{Binding NavigateToContent}"
-                        CommandParameter=""
+                        CommandParameter="AdminSettingsView"
                         Header="Admin" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
@@ -67,7 +67,7 @@
                         Header="Invafresh" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
-                        CommandParameter="ConsoleView"
+                        CommandParameter="InstanceManagerView"
                         Header="Parsley" />
                     <MenuItem
                         Command="{Binding NavigateToContent}"
@@ -82,6 +82,14 @@
                         Visibility="Collapsed" />
                 </MenuItem>
 
+            </MenuItem>
+            <MenuItem Header="Tools">
+                <MenuItem Command="{Binding ProcessDatabaseCommand}" Header="Trigger Process Database Manually" />
+                <MenuItem Command="{Binding OpenInstallFolderCommand}" Header="Open Importer Install Folder" />
+                <MenuItem Header="Database Tools (WIP)">
+                    <MenuItem Command="{Binding CompactRepairDatabasesCommand}" Header="Compact Repair Tool" IsEnabled="False" />
+                    <MenuItem Command="{Binding ResetDatabasesCommand}" Header="Flush Import Database" IsEnabled="False"  />
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="Service Control">
                 <MenuItem

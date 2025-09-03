@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Importer.Installer/Importer.Installer-cache/part1
+/Importer.Installer/Importer.Installer-cache

@@ -22,6 +22,14 @@
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Importer.UI\Importer.UI.csproj">
+      <Name>Importer.UI</Name>
+      <Project>{f124d47b-5bb9-473c-98ae-f3394e0b8561}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput;References;ContentOutput</OutputsToImport>
+    </ProjectReference>
+  </ItemGroup>
   <Target Name="Build">
     <Error Text="This project requires Advanced Installer tool. Please download it from https://www.advancedinstaller.com/download.html" />
   </Target>
