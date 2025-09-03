@@ -1,12 +1,14 @@
-﻿<UserControl x:Class="Importer.UI.Views.InvafreshSettingsView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:prism="http://prismlibrary.com/"
-             mc:Ignorable="d" 
-             d:DesignHeight="500" d:DesignWidth="800"
-             prism:ViewModelLocator.AutoWireViewModel="True">
+﻿<UserControl
+    x:Class="Importer.UI.Views.InvafreshSettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    d:DesignHeight="500"
+    d:DesignWidth="800"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis" />
     </UserControl.Resources>
@@ -17,26 +19,32 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <StackPanel Orientation="Vertical" Margin="0,0,0,10">
-            <TextBlock Text="Invafresh Importer Settings" FontSize="18" FontWeight="Bold" />
-            <UniformGrid Columns="4" Rows="2" Margin="0,10,0,0">
-                <!-- Tare Digits -->
+        <!--  Header  -->
+        <StackPanel Margin="0,0,0,10" Orientation="Vertical">
+            <TextBlock
+                FontSize="18"
+                FontWeight="Bold"
+                Text="Invafresh Importer Settings" />
+            <UniformGrid
+                Margin="0,10,0,0"
+                Columns="4"
+                Rows="2">
+                <!--  Tare Digits  -->
                 <StackPanel Margin="5">
                     <TextBlock Text="Tare Digits" />
                     <TextBox Width="120" Text="{Binding TareDigits, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
-                <!-- Use Custom Mapping -->
+                <!--  Use Custom Mapping  -->
                 <StackPanel Margin="5">
                     <TextBlock Text="Use Custom Mapping" />
                     <CheckBox IsChecked="{Binding UseCustomMapping, Mode=TwoWay}" />
                 </StackPanel>
-                <!-- Use Legacy Nutrition Format -->
+                <!--  Use Legacy Nutrition Format  -->
                 <StackPanel Margin="5">
                     <TextBlock Text="Legacy Nutrition Format" />
                     <CheckBox IsChecked="{Binding UseLegacyNutritionFormat, Mode=TwoWay}" />
                 </StackPanel>
-                <!-- Custom Map File Name -->
+                <!--  Custom Map File Name  -->
                 <StackPanel Margin="5">
                     <TextBlock Text="Custom Map File" />
                     <TextBox Width="180" Text="{Binding CustomMapFileName, UpdateSourceTrigger=PropertyChanged}" />
@@ -44,34 +52,64 @@
             </UniformGrid>
         </StackPanel>
 
-        <!-- Custom Map Section -->
+        <!--  Custom Map Section  -->
         <Grid Grid.Row="1" Visibility="{Binding IsCustomMapVisible, Converter={StaticResource BoolToVis}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                <TextBlock Text="Custom Map" FontSize="14" FontWeight="Bold" Margin="0,0,15,0" VerticalAlignment="Center" />
-                <Button Width="80" Margin="0,0,5,0" Command="{Binding AddCustomMapEntryCommand}" Content="Add" />
-                <Button Width="80" Command="{Binding RemoveSelectedCustomMapEntryCommand}" Content="Remove" />
+            <StackPanel Margin="0,0,0,5" Orientation="Horizontal">
+                <TextBlock
+                    Margin="0,0,15,0"
+                    VerticalAlignment="Center"
+                    FontSize="14"
+                    FontWeight="Bold"
+                    Text="Custom Map" />
+                <Button
+                    Width="80"
+                    Margin="0,0,5,0"
+                    Command="{Binding AddCustomMapEntryCommand}"
+                    Content="Add" />
+                <Button
+                    Width="80"
+                    Command="{Binding RemoveSelectedCustomMapEntryCommand}"
+                    Content="Remove" />
             </StackPanel>
-            <DataGrid Grid.Row="1"
-                      AutoGenerateColumns="False"
-                      CanUserAddRows="False"
-                      HeadersVisibility="All"
-                      ItemsSource="{Binding CustomMapEntries}"
-                      SelectedItem="{Binding SelectedCustomMapEntry}">
+            <DataGrid
+                Grid.Row="1"
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                HeadersVisibility="All"
+                ItemsSource="{Binding CustomMapEntries}"
+                SelectedItem="{Binding SelectedCustomMapEntry}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Width="250" Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}" Header="Source Field" />
-                    <DataGridTextColumn Width="*" Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged}" Header="Mapped Field" />
+                    <DataGridTextColumn
+                        Width="250"
+                        Binding="{Binding Key, UpdateSourceTrigger=PropertyChanged}"
+                        Header="Source Field" />
+                    <DataGridTextColumn
+                        Width="*"
+                        Binding="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
+                        Header="Mapped Field" />
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>
 
-        <!-- Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button Width="100" Margin="0,0,10,0" Command="{Binding ReloadCommand}" Content="Reload" />
-            <Button Width="100" Command="{Binding SaveCommand}" Content="Save" />
+        <!--  Buttons  -->
+        <StackPanel
+            Grid.Row="2"
+            Margin="0,10,0,0"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Width="100"
+                Margin="0,0,10,0"
+                Command="{Binding ReloadCommand}"
+                Content="Reload" />
+            <Button
+                Width="100"
+                Command="{Binding SaveCommand}"
+                Content="Save" />
         </StackPanel>
     </Grid>
 </UserControl>

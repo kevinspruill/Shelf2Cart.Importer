@@ -23,6 +23,80 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExecuteProcessDatabase\ExecuteProcessDatabase.csproj">
+      <Name>ExecuteProcessDatabase</Name>
+      <Project>{e908b943-0fa4-4fca-b72e-c0746aa66b62}</Project>
+      <Private>True</Private>
+      <CreateShortcut>False</CreateShortcut>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Common\Importer.Common.csproj">
+      <Name>Importer.Common</Name>
+      <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Bagliani.CustomerProcess\Bagliani.CustomerProcess.csproj">
+      <Name>Bagliani.CustomerProcess</Name>
+      <Project>{9920b72d-3c61-41b9-a386-01f9b250baf4}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Vallarta.CustomerProcess\Vallarta.CustomerProcess.csproj">
+      <Name>Vallarta.CustomerProcess</Name>
+      <Project>{f1f3488f-691c-4de5-8b44-c254a7d059d7}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Wakefern.CustomerProcess\Wakefern.CustomerProcess.csproj">
+      <Name>Wakefern.CustomerProcess</Name>
+      <Project>{cd8391e8-1d38-4d54-9a85-be531ce17304}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Admin\Importer.Module.Admin.csproj">
+      <Name>Importer.Module.Admin</Name>
+      <Project>{ae6c12e6-6ce1-4a98-aff2-e1fdfdf2a936}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Debug\Importer.Module.Debug.csproj">
+      <Name>Importer.Module.Debug</Name>
+      <Project>{ff9b6926-313a-4d87-aa92-6fcae85a3e9a}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Parsley\Importer.Module.Parsley.csproj">
+      <Name>Importer.Module.Parsley</Name>
+      <Project>{9f149866-aeb9-4973-b51a-280ed715f671}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Generic\Importer.Module.Generic.csproj">
+      <Name>Importer.Module.Generic</Name>
+      <Project>{18aadd4a-0449-4eca-baa7-e4b8c5ad0a80}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Invafresh\Importer.Module.Invafresh.csproj">
+      <Name>Importer.Module.Invafresh</Name>
+      <Project>{7a200a3d-9cc6-45f7-a9e3-055ee223da82}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Modules.GrocerySignage\Importer.Modules.GrocerySignage.csproj">
+      <Name>Importer.Modules.GrocerySignage</Name>
+      <Project>{582b9ea5-9a96-489e-9329-d41846a3f584}</Project>
+      <Private>True</Private>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Service\Importer.Service.csproj">
+      <Name>Importer.Service</Name>
+      <Project>{0ee0ddbe-f767-4ade-8429-5588c048f330}</Project>
+      <Private>True</Private>
+      <CreateShortcut>False</CreateShortcut>
+      <OutputsToImport>PrimaryOutput</OutputsToImport>
+    </ProjectReference>
     <ProjectReference Include="..\Importer.UI\Importer.UI.csproj">
       <Name>Importer.UI</Name>
       <Project>{f124d47b-5bb9-473c-98ae-f3394e0b8561}</Project>

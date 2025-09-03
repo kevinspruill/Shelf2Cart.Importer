@@ -1,12 +1,14 @@
-﻿<UserControl x:Class="Importer.UI.Views.AdminSettingsView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:prism="http://prismlibrary.com/"
-             mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="650"
-             prism:ViewModelLocator.AutoWireViewModel="True">
+﻿<UserControl
+    x:Class="Importer.UI.Views.AdminSettingsView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    d:DesignHeight="200"
+    d:DesignWidth="650"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -24,15 +26,41 @@
             </Grid.RowDefinitions>
 
             <TextBlock Margin="0,4" Text="Admin Console Processing Folder" />
-            <TextBox Grid.Column="1" Margin="5,4" Text="{Binding AdminConsoleProcessingFolder}" />
-            <Button Grid.Column="2" Margin="5,4" Content="Browse" Width="70" Command="{Binding BrowseProcessingFolderCommand}" />
+            <TextBox
+                Grid.Column="1"
+                Margin="5,4"
+                Text="{Binding AdminConsoleProcessingFolder}" />
+            <Button
+                Grid.Column="2"
+                Width="70"
+                Margin="5,4"
+                Command="{Binding BrowseProcessingFolderCommand}"
+                Content="Browse" />
 
-            <TextBlock Grid.Row="1" Margin="0,4" Text="Admin Console File Name" />
-            <TextBox Grid.Row="1" Grid.Column="1" Margin="5,4" Text="{Binding AdminConsoleFileName}" />
+            <TextBlock
+                Grid.Row="1"
+                Margin="0,4"
+                Text="Admin Console File Name" />
+            <TextBox
+                Grid.Row="1"
+                Grid.Column="1"
+                Margin="5,4"
+                Text="{Binding AdminConsoleFileName}" />
         </Grid>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
-            <Button Width="100" Margin="0,0,8,0" Command="{Binding ReloadCommand}" Content="Reload" />
-            <Button Width="100" Command="{Binding SaveCommand}" Content="Save" />
+        <StackPanel
+            Grid.Row="1"
+            Margin="0,10,0,0"
+            HorizontalAlignment="Right"
+            Orientation="Horizontal">
+            <Button
+                Width="100"
+                Margin="0,0,8,0"
+                Command="{Binding ReloadCommand}"
+                Content="Reload" />
+            <Button
+                Width="100"
+                Command="{Binding SaveCommand}"
+                Content="Save" />
         </StackPanel>
     </Grid>
 </UserControl>

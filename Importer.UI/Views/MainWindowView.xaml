@@ -87,8 +87,14 @@
                 <MenuItem Command="{Binding ProcessDatabaseCommand}" Header="Trigger Process Database Manually" />
                 <MenuItem Command="{Binding OpenInstallFolderCommand}" Header="Open Importer Install Folder" />
                 <MenuItem Header="Database Tools (WIP)">
-                    <MenuItem Command="{Binding CompactRepairDatabasesCommand}" Header="Compact Repair Tool" IsEnabled="False" />
-                    <MenuItem Command="{Binding ResetDatabasesCommand}" Header="Flush Import Database" IsEnabled="False"  />
+                    <MenuItem
+                        Command="{Binding CompactRepairDatabasesCommand}"
+                        Header="Compact Repair Tool"
+                        IsEnabled="False" />
+                    <MenuItem
+                        Command="{Binding ResetDatabasesCommand}"
+                        Header="Flush Import Database"
+                        IsEnabled="False" />
                 </MenuItem>
             </MenuItem>
             <MenuItem Header="Service Control">
