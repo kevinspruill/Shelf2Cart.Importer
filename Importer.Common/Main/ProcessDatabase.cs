@@ -79,17 +79,26 @@ namespace Importer.Common.Main
                         Logger.Error("Failed to update Local Edits.");
                         return;
                     }
-                    Logger.Info($"Completed update of Local Edits");
+                    Logger.Info($"Completed update of Local Edits");                    
+                }
 
-                    if (KeepLocalItems)
+                if (KeepLocalItems)
+                {
+                    if (!ProcessingDatabaseHelper.InsertLocalItems())
                     {
-                        if (!ProcessingDatabaseHelper.InsertLocalItems())
-                        {
-                            Logger.Error("Failed to insert Local Items.");
-                            return;
-                        }
-                        Logger.Info($"Completed insert of Local Items");
+                        Logger.Error("Failed to insert Local Items.");
+                        return;
                     }
+                    Logger.Info($"Completed insert of Local Items");
+                }
+                else if (!KeepLocalItems)
+                {
+                    if (!ProcessingDatabaseHelper.DeleteLocalItems())
+                    {
+                        Logger.Error("Failed to delete Local Items.");
+                        return;
+                    }
+                    Logger.Info($"Completed deletion of Local Items");
                 }
 
                 if (ImportTables)

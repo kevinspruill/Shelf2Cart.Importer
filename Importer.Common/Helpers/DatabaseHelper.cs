@@ -100,62 +100,30 @@ namespace Importer.Common.Helpers
                 return false;
             }
         }
-        public bool InsertLocalItemsOLD()
+        public bool DeleteLocalItems()
         {
             try
             {
                 using (var connection = new OleDbConnection(_connectionString))
                 {
                     connection.Open();
-                    var selectQuery = $"SELECT LE.PLU FROM tblLocalEdits AS LE LEFT JOIN tblProducts AS P ON LE.PLU = P.PLU WHERE P.PLU IS NULL";
-
-                    var localPLUs = connection.Query<string>(selectQuery).ToList();
-                    if (localPLUs.Count > 0)
+                    // Delete local edits whose PLU does NOT exist in tblProducts
+                    var deleteQuery = @"DELETE FROM tblLocalEdits WHERE NOT EXISTS (SELECT 1 FROM tblProducts P WHERE P.PLU = tblLocalEdits.PLU)";
+                    int deletedLocalItems = connection.Execute(deleteQuery);
+                    if (deletedLocalItems > 0)
                     {
-                        using (var transaction = connection.BeginTransaction())
-                        {
-                            try
-                            {
-                                int insertedLocalItems = 0;
-                                foreach (var item in localPLUs)
-                                {
-                                    var insertQuery = $"INSERT INTO TBLPRODUCTS SELECT * FROM TBLLOCALEDITS WHERE PLU ='{item}'";
-                                    connection.Execute(insertQuery, null, transaction);
-                                    insertedLocalItems++;
-
-                                    /* This can be used if we run into problems with the above
-                                     * // With this to insert the whole record (all ImportDBField properties):
-                                        var properties = typeof(tblProducts).GetProperties()
-                                            .Where(p => p.GetCustomAttribute<ImportDBFieldAttribute>() != null);
-                                         
-                                        var columnNames = string.Join(", ", properties.Select(p => $"[{p.GetCustomAttribute<ImportDBFieldAttribute>().Name}]"));
-                                        var parameterNames = string.Join(", ", properties.Select(p => $"@{p.Name}"));
-                                         
-                                        var insertSql = $"INSERT INTO tblProducts ({columnNames}) VALUES ({parameterNames})";
-                                        inserted += connection.Execute(insertSql, new { PLU = plu }, transaction);
-                                     */
-                                }
-                                transaction.Commit();
-                                return insertedLocalItems > 0;
-                            }
-                            catch (Exception ex)
-                            {
-                                transaction.Rollback();
-                                Logger.Error($"Error in transaction - {ex.Message}");
-                                return false;
-                            }
-                        }
+                        Logger.Info($"Deleted {deletedLocalItems} orphan local item(s) (PLUs not found in tblProducts).");
                     }
                     else
                     {
-                        Logger.Trace("No local items to insert found");
-                        return true;
+                        Logger.Trace("No orphan local items to delete found.");
                     }
+                    return true;
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error inserting local items - {ex.Message}");
+                Logger.Error($"Error deleting orphan local items - {ex.Message}");
                 return false;
             }
         }
