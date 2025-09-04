@@ -64,8 +64,50 @@ namespace Importer.Common.Helpers
                 using (var connection = new OleDbConnection(_connectionString))
                 {
                     connection.Open();
-                    var selectQuery = $"SELECT LE.PLU FROM tblLocalEdits AS LE LEFT JOIN tblProducts AS P ON LE.PLU = P.PLU" +
-                                $" WHERE P.PLU IS NULL";
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            // Set-based insert using NOT EXISTS (replaces per-row loop)
+                            var insertSql = @"INSERT INTO tblProducts SELECT LE.* FROM tblLocalEdits LE WHERE NOT EXISTS (SELECT 1 FROM tblProducts P WHERE P.PLU = LE.PLU)";
+
+                            int insertedLocalItems = connection.Execute(insertSql, transaction: transaction);
+
+                            transaction.Commit();
+
+                            if (insertedLocalItems > 0)
+                            {
+                                Logger.Info($"Inserted {insertedLocalItems} local item(s).");
+                            }
+                            else
+                            {
+                                Logger.Trace("No local items to insert found");
+                            }
+                            return true;
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            Logger.Error($"Error in transaction - {ex.Message}");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error inserting local items - {ex.Message}");
+                return false;
+            }
+        }
+        public bool InsertLocalItemsOLD()
+        {
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    var selectQuery = $"SELECT LE.PLU FROM tblLocalEdits AS LE LEFT JOIN tblProducts AS P ON LE.PLU = P.PLU WHERE P.PLU IS NULL";
 
                     var localPLUs = connection.Query<string>(selectQuery).ToList();
                     if (localPLUs.Count > 0)
