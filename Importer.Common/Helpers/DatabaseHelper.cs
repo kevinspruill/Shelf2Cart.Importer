@@ -905,6 +905,7 @@ namespace Importer.Common.Helpers
             }
             return rules;
         }
+        // Existing method retained for dictionary usage
         public Dictionary<string, int> LoadDepartmentPadding()
         {
             var paddingDict = new Dictionary<string, int>();
@@ -912,15 +913,152 @@ namespace Importer.Common.Helpers
             using (var connection = new OleDbConnection(_connectionString))
             {
                 var results = connection.Query<DepartmentPadding>("SELECT DataDeptNum, ValueToAddToPLU FROM System_DeptNum");
-
-                paddingDict = new Dictionary<string, int>();
                 foreach (var result in results)
                 {
                     paddingDict[result.DataDeptNum] = result.ValueToAddToPLU;
                 }
             }
-
             return paddingDict;
+        }
+        // NEW: Return strongly typed list
+        public List<DepartmentPadding> GetDepartmentPadding()
+        {
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    return connection.Query<DepartmentPadding>(
+                        "SELECT DataDeptNum, ValueToAddToPLU FROM System_DeptNum ORDER BY DataDeptNum").ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error retrieving Department Padding: {ex.Message}");
+                return new List<DepartmentPadding>();
+            }
+        }
+        // NEW: Upsert single entry
+        public bool UpsertDepartmentPadding(DepartmentPadding entry)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.DataDeptNum))
+                return false;
+
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText = "UPDATE System_DeptNum SET ValueToAddToPLU = ? WHERE DataDeptNum = ?";
+                        cmd.Parameters.AddWithValue("@p1", entry.ValueToAddToPLU);
+                        cmd.Parameters.AddWithValue("@p2", entry.DataDeptNum);
+                        int updated = cmd.ExecuteNonQuery();
+
+                        if (updated == 0)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandText = "INSERT INTO System_DeptNum (DataDeptNum, ValueToAddToPLU) VALUES (?, ?)";
+                            cmd.Parameters.AddWithValue("@p1", entry.DataDeptNum);
+                            cmd.Parameters.AddWithValue("@p2", entry.ValueToAddToPLU);
+                            int inserted = cmd.ExecuteNonQuery();
+                            Logger.Trace($"Inserted Department Padding {entry.DataDeptNum} => {entry.ValueToAddToPLU}");
+                            return inserted > 0;
+                        }
+                        else
+                        {
+                            Logger.Trace($"Updated Department Padding {entry.DataDeptNum} => {entry.ValueToAddToPLU}");
+                            return true;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error upserting Department Padding ({entry.DataDeptNum}): {ex.Message}");
+                return false;
+            }
+        }
+        // NEW: Bulk save (transactional)
+        public bool SaveDepartmentPadding(IEnumerable<DepartmentPadding> entries)
+        {
+            var list = entries?.ToList() ?? new List<DepartmentPadding>();
+            if (list.Count == 0) return true;
+
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var tx = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            foreach (var entry in list)
+                            {
+                                using (var cmd = connection.CreateCommand())
+                                {
+                                    cmd.Transaction = tx;
+                                    cmd.CommandText = "UPDATE System_DeptNum SET ValueToAddToPLU = ? WHERE DataDeptNum = ?";
+                                    cmd.Parameters.AddWithValue("@p1", entry.ValueToAddToPLU);
+                                    cmd.Parameters.AddWithValue("@p2", entry.DataDeptNum);
+                                    int updated = cmd.ExecuteNonQuery();
+                                    if (updated == 0)
+                                    {
+                                        cmd.Parameters.Clear();
+                                        cmd.CommandText = "INSERT INTO System_DeptNum (DataDeptNum, ValueToAddToPLU) VALUES (?, ?)";
+                                        cmd.Parameters.AddWithValue("@p1", entry.DataDeptNum);
+                                        cmd.Parameters.AddWithValue("@p2", entry.ValueToAddToPLU);
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                            tx.Commit();
+                            Logger.Info($"Saved {list.Count} Department Padding row(s).");
+                            return true;
+                        }
+                        catch (Exception exInner)
+                        {
+                            tx.Rollback();
+                            Logger.Error($"Transaction rollback saving Department Padding: {exInner.Message}");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error saving Department Padding: {ex.Message}");
+                return false;
+            }
+        }
+        // NEW: Delete entry
+        public bool DeleteDepartmentPadding(string dataDeptNum)
+        {
+            if (string.IsNullOrWhiteSpace(dataDeptNum))
+                return false;
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText = "DELETE FROM System_DeptNum WHERE DataDeptNum = ?";
+                        cmd.Parameters.AddWithValue("@p1", dataDeptNum);
+                        int affected = cmd.ExecuteNonQuery();
+                        if (affected > 0)
+                            Logger.Trace($"Deleted Department Padding {dataDeptNum}");
+                        return affected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error deleting Department Padding ({dataDeptNum}): {ex.Message}");
+                return false;
+            }
         }
         public List<StockDescription> LoadStockDescriptions()
         {

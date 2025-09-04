@@ -31,9 +31,10 @@ namespace Importer.UI
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            // Register services
+            // Core helper (Import DB default)
+            // containerRegistry.RegisterSingleton<DatabaseHelper>(() => new DatabaseHelper(DatabaseType.ImportDatabase));
 
-            // Register ViewModels for navigation
+            // Views for navigation
             containerRegistry.RegisterForNavigation<InstanceManagerView>();
             containerRegistry.RegisterForNavigation<ConsoleView, ConsoleViewModel>();
             containerRegistry.RegisterForNavigation<ImporterSettingsView>();
@@ -42,9 +43,7 @@ namespace Importer.UI
             containerRegistry.RegisterForNavigation<GenericSettingsView>();
             containerRegistry.RegisterForNavigation<InvafreshSettingsView>();
             containerRegistry.RegisterForNavigation<AdminSettingsView>();
-
-            // Register dialogs
-            // containerRegistry.RegisterDialog<ImporterInstanceEditDialog, ImporterInstanceEditDialogViewModel>();
+            containerRegistry.RegisterForNavigation<DepartmentPaddingView>(); // Added
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)

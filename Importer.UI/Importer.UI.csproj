@@ -72,6 +72,7 @@
     <Compile Include="ViewModels\AdminSettingsViewModel.cs" />
     <Compile Include="ViewModels\ConsoleViewModel.cs" />
     <Compile Include="ViewModels\DefaultValuesViewModel.cs" />
+    <Compile Include="ViewModels\DepartmentPaddingViewModel.cs" />
     <Compile Include="ViewModels\GenericSettingsViewModel.cs" />
     <Compile Include="ViewModels\ImporterSettingsViewModel.cs" />
     <Compile Include="ViewModels\InstanceConfigViewModel.cs" />
@@ -87,6 +88,9 @@
     </Compile>
     <Compile Include="Views\DefaultValuesView.xaml.cs">
       <DependentUpon>DefaultValuesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DepartmentPaddingView.xaml.cs">
+      <DependentUpon>DepartmentPaddingView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\GenericSettingsView.xaml.cs">
       <DependentUpon>GenericSettingsView.xaml</DependentUpon>
@@ -140,9 +144,53 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ExecuteProcessDatabase\ExecuteProcessDatabase.csproj">
+      <Project>{e908b943-0fa4-4fca-b72e-c0746aa66b62}</Project>
+      <Name>ExecuteProcessDatabase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Importer.Common\Importer.Common.csproj">
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Bagliani.CustomerProcess\Bagliani.CustomerProcess.csproj">
+      <Project>{9920b72d-3c61-41b9-a386-01f9b250baf4}</Project>
+      <Name>Bagliani.CustomerProcess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Vallarta.CustomerProcess\Vallarta.CustomerProcess.csproj">
+      <Project>{f1f3488f-691c-4de5-8b44-c254a7d059d7}</Project>
+      <Name>Vallarta.CustomerProcess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\Wakefern.CustomerProcess\Wakefern.CustomerProcess.csproj">
+      <Project>{cd8391e8-1d38-4d54-9a85-be531ce17304}</Project>
+      <Name>Wakefern.CustomerProcess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Admin\Importer.Module.Admin.csproj">
+      <Project>{ae6c12e6-6ce1-4a98-aff2-e1fdfdf2a936}</Project>
+      <Name>Importer.Module.Admin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Debug\Importer.Module.Debug.csproj">
+      <Project>{ff9b6926-313a-4d87-aa92-6fcae85a3e9a}</Project>
+      <Name>Importer.Module.Debug</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.Parsley\Importer.Module.Parsley.csproj">
+      <Project>{9f149866-aeb9-4973-b51a-280ed715f671}</Project>
+      <Name>Importer.Module.Parsley</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Generic\Importer.Module.Generic.csproj">
+      <Project>{18aadd4a-0449-4eca-baa7-e4b8c5ad0a80}</Project>
+      <Name>Importer.Module.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Invafresh\Importer.Module.Invafresh.csproj">
+      <Project>{7a200a3d-9cc6-45f7-a9e3-055ee223da82}</Project>
+      <Name>Importer.Module.Invafresh</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.Upshop\Importer.Module.Upshop.csproj">
+      <Project>{ce71ddf7-da62-4608-98fe-f194c4e2410e}</Project>
+      <Name>Importer.Module.Upshop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Modules\Importer.Modules.GrocerySignage\Importer.Modules.GrocerySignage.csproj">
+      <Project>{582b9ea5-9a96-489e-9329-d41846a3f584}</Project>
+      <Name>Importer.Modules.GrocerySignage</Name>
     </ProjectReference>
     <ProjectReference Include="..\Importer.Service\Importer.Service.csproj">
       <Project>{0ee0ddbe-f767-4ade-8429-5588c048f330}</Project>
@@ -170,6 +218,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DefaultValuesView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DepartmentPaddingView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

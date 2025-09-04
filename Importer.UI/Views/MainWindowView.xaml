@@ -51,6 +51,10 @@
                     Command="{Binding NavigateToContent}"
                     CommandParameter="ProcessDatabaseSettingsView"
                     Header="Process Database" />
+                <MenuItem
+                    Command="{Binding NavigateToContent}"
+                    CommandParameter="DepartmentPaddingView"
+                    Header="Department Padding" />
                 <Separator />
                 <MenuItem Header="Modules">
                     <MenuItem
