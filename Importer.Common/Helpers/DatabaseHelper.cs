@@ -1154,5 +1154,57 @@ namespace Importer.Common.Helpers
 
             return connectionStringBuilder.ConnectionString;
         }
+
+        // compact/repair the database to reduce file size and improve performance
+        public void CompactDatabase()
+        {
+            string sourceFile = new OleDbConnectionStringBuilder(_connectionString).DataSource;
+            if (string.IsNullOrWhiteSpace(sourceFile) || !File.Exists(sourceFile))
+            {
+                Logger.Error($"Source database file '{sourceFile}' does not exist.");
+                return;
+            }
+
+            string tempFile = Path.Combine(Path.GetDirectoryName(sourceFile), "TempCompact.mdb");
+            try
+            {
+                // Ensure no open connections before compacting
+                // (Call GC.Collect / WaitForPendingFinalizers if you had open OleDbConnections lingering)
+
+                if (File.Exists(tempFile))
+                    File.Delete(tempFile);
+
+                // Late-bound (no compile-time DAO reference needed) – works if DAO runtime is installed
+                Type daoType =
+                    Type.GetTypeFromProgID("DAO.DBEngine.120") ??   // Access 2007+
+                    Type.GetTypeFromProgID("DAO.DBEngine.36");      // Jet 4.0 fallback
+
+                if (daoType == null)
+                {
+                    Logger.Error("DAO engine not found (ACE/Jet not installed).");
+                    return;
+                }
+
+                dynamic dbe = Activator.CreateInstance(daoType);
+
+                // Basic compact (no password). For passwords: dbe.CompactDatabase(src, dest, null, 0, ";pwd=pass");
+                dbe.CompactDatabase(sourceFile, tempFile);
+
+                // Replace original
+                File.Delete(sourceFile);
+                File.Move(tempFile, sourceFile);
+
+                Logger.Info("Database compacted successfully using DAO.");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"DAO compact failed: {ex.Message}", ex);
+                try
+                {
+                    if (File.Exists(tempFile)) File.Delete(tempFile);
+                }
+                catch { /* ignore cleanup errors */ }
+            }
+        }
     }
 }

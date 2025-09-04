@@ -1,4 +1,5 @@
-﻿using Importer.UI.Helpers;
+﻿using Importer.Common.Helpers;
+using Importer.UI.Helpers;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -38,6 +39,9 @@ namespace Importer.UI.ViewModels
             StopServiceCommand = new DelegateCommand(OnStopService).ObservesProperty(() => IsAdmin);            
             ServiceControlCommand = new DelegateCommand<string>(OnToggleService).ObservesProperty(() => IsAdmin);
 
+            CompactDatabaseCommand = new DelegateCommand<string>(OnCompactDatabase);
+            ResetDatabasesCommand = new DelegateCommand(OnFlushDatabase);
+
             NavigateToContent = new DelegateCommand<string>(OnNavigateToContent);
             OpenLogFilesCommand = new DelegateCommand(OnOpenLogFiles);
             ProcessDatabaseCommand = new DelegateCommand(OnProcessDatabase);
@@ -48,6 +52,48 @@ namespace Importer.UI.ViewModels
             ServiceStatus = WindowsServiceHelper.GetServiceStatus(_serviceName);
 
             CheckAdminRights();
+        }
+
+        public void OnCompactDatabase(string database)
+        {
+            try
+            {
+                // Cast string to database type enum
+                var dbType = (DatabaseType)Enum.Parse(typeof(DatabaseType), database);
+
+                var ImporterDatabase = new DatabaseHelper(dbType);
+                ImporterDatabase.CompactDatabase();
+
+                // message box to confirm completion
+                MessageBox.Show($"{database} has been compacted.", "Compact Database", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to start Compact Database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void OnFlushDatabase()
+        {
+            try
+            {
+                // message box to confirm
+                var result = MessageBox.Show("Are you sure you want to flush the Importer database? This will delete all products.", "Confirm Flush Database", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes)
+                    return;
+
+                var ImporterDatabase = new DatabaseHelper(DatabaseType.ImportDatabase);
+                ImporterDatabase.DeleteAllProducts();
+                ImporterDatabase.CompactDatabase();
+
+                // message box to confirm completion
+                MessageBox.Show("Importer database has been flushed and Compacted.", "Flush Database", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to start Flush Database: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void OnOpenInstallFolder()
@@ -218,6 +264,8 @@ namespace Importer.UI.ViewModels
             set { SetProperty(ref _serviceButtonText, value); }
         }
         // Commands
+        public DelegateCommand ResetDatabasesCommand { get; set; }
+        public DelegateCommand<string> CompactDatabaseCommand { get; set; }
         public DelegateCommand OpenInstallFolderCommand { get; set; }
         public DelegateCommand ProcessDatabaseCommand { get; set; }
         public DelegateCommand InstallServiceCommand { get; set; }
