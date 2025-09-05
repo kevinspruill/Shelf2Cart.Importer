@@ -10,7 +10,7 @@ namespace Importer.Common.Models.TypeSettings
     public class SchedulerServiceSettings : ImporterTypeSettings
     {
         public override string Type { get; set; } = "SchedulerService";
-        public string Endpoint { get; set; }
-        public string ApiKey { get; set; }
+        public string ScheduleType { get; set; } // "Cron" or "TimeSpan"
+        public string ScheduleInterval { get; set; } // Cron expression or TimeSpan string
     }
 }

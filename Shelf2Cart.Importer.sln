@@ -58,6 +58,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bagliani.CustomerProcess", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Importer.Module.ECRS", "Importer.Modules\Importer.Module.ECRS\Importer.Module.ECRS.csproj", "{264E02B3-AD85-475C-A78B-131C13CD047F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UncleG.CustomerProcess", "Importer.CustomerProcesses\UncleG.CustomerProcess\UncleG.CustomerProcess.csproj", "{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -155,6 +157,12 @@ Global
 		{264E02B3-AD85-475C-A78B-131C13CD047F}.DefaultBuild|Any CPU.Build.0 = Release|Any CPU
 		{264E02B3-AD85-475C-A78B-131C13CD047F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{264E02B3-AD85-475C-A78B-131C13CD047F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}.DefaultBuild|Any CPU.ActiveCfg = Release|Any CPU
+		{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}.DefaultBuild|Any CPU.Build.0 = Release|Any CPU
+		{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -171,6 +179,7 @@ Global
 		{F1F3488F-691C-4DE5-8B44-C254A7D059D7} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{9920B72D-3C61-41B9-A386-01F9B250BAF4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{264E02B3-AD85-475C-A78B-131C13CD047F} = {DC921E85-F1C3-4C7F-A900-D8B574E57F77}
+		{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A9D0812-4B35-41B4-B408-452EC26907E4}

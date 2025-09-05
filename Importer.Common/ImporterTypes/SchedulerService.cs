@@ -38,13 +38,12 @@ namespace Importer.Common.ImporterTypes
             Settings = typeSettings as SchedulerServiceSettings;
         }
 
-        public Task ScheduleJob<T>(string jobName, TimeSpan interval) where T : IJob
+        public Task ScheduleJob<T>(string jobName, TimeSpan interval, JobDataMap newJobDataMap) where T : IJob
         {
             var job = JobBuilder.Create<T>()
                 .WithIdentity(jobName)
                 .UsingJobData("ImporterModuleKey", ImporterModule.GetType().AssemblyQualifiedName)
-                .UsingJobData("Endpoint", Settings.Endpoint.ToString())
-                .UsingJobData("ApiKey", Settings.ApiKey.ToString())
+                .UsingJobData(newJobDataMap)
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}_Trigger")
@@ -57,12 +56,12 @@ namespace Importer.Common.ImporterTypes
         }
 
         // Overloaded method to schedule a job with a Cron expression
-        public Task ScheduleJob<T>(string jobName, string cronExpression) where T : IJob
+        public Task ScheduleJob<T>(string jobName, string cronExpression, JobDataMap newJobDataMap) where T : IJob
         {
             var job = JobBuilder.Create<T>()
                 .WithIdentity(jobName)
                 .UsingJobData("ImporterModuleKey", ImporterModule.GetType().AssemblyQualifiedName)
-                .UsingJobData("Endpoint", Settings.Endpoint.ToString())
+                .UsingJobData(newJobDataMap)
                 .Build();
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"{jobName}_Trigger")

@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{264E02B3-AD85-475C-A78B-131C13CD047F}</ProjectGuid>
+    <ProjectGuid>{9BE80257-C0B0-4B8D-9447-CCBC7D3CF61F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Importer.Module.ECRS</RootNamespace>
-    <AssemblyName>Importer.Module.ECRS</AssemblyName>
+    <RootNamespace>UncleG.CustomerProcess</RootNamespace>
+    <AssemblyName>UncleG.CustomerProcess</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -32,10 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Remoting" />
-    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,13 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ECRSModule.cs" />
-    <Compile Include="Enums\ECRSQueryType.cs" />
-    <Compile Include="Jobs\QueryECRS.cs" />
-    <Compile Include="Models\ECRSConfig.cs" />
-    <Compile Include="Models\ECRSFields.cs" />
-    <Compile Include="Parser\ECRSQueryHelper.cs" />
-    <Compile Include="Parser\ECRSJSONParser.cs" />
+    <Compile Include="Models\DepartmentHierarchy.cs" />
+    <Compile Include="Models\RawRow.cs" />
+    <Compile Include="UncleGProcess.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -58,28 +51,20 @@
       <Project>{61D8720A-C6AC-46AB-9366-92AFE3E2880E}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Modules\Importer.Module.ECRS\Importer.Module.ECRS.csproj">
+      <Project>{264E02B3-AD85-475C-A78B-131C13CD047F}</Project>
+      <Name>Importer.Module.ECRS</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>13.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="Quartz">
-      <Version>3.14.0</Version>
-    </PackageReference>
+    <None Include="Customer.Settings\UncleG.FieldMap.json" />
+    <None Include="Customer.Settings\UncleG.Departments.csv" />
+    <None Include="Customer.Settings\UncleG.Settings.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Settings\ECRS.Config.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Settings\ECRS.FieldMap.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Settings\ECRS.LastFullLoadTime.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="Settings\ECRS.LastQueryTime.ini">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <PackageReference Include="SimpleImpersonation">
+      <Version>4.2.0</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

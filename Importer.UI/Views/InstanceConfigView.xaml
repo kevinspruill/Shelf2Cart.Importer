@@ -287,36 +287,29 @@
                                 <Label
                                     Grid.Row="0"
                                     Grid.Column="0"
-                                    Content="API Endpoint:"
+                                    Content="Schedule Type:"
                                     Style="{StaticResource LabelStyle}" />
-                                <TextBox
+                                <ComboBox
                                     x:Name="txtApiEndpoint"
                                     Grid.Row="0"
                                     Grid.Column="1"
-                                    Style="{StaticResource TextBoxStyle}"
-                                    Text="{Binding ApiEndpoint, Mode=TwoWay}" />
+                                    Style="{StaticResource ComboBoxStyle}"
+                                    Text="{Binding ScheduleType, Mode=TwoWay}">
+
+                                    <ComboBoxItem Content="Cron Schedule" />
+                                    <ComboBoxItem Content="TimeSpan" />
+                                </ComboBox>
                                 <Label
                                     Grid.Row="1"
                                     Grid.Column="0"
-                                    Content="API Key:"
+                                    Content="Schedule String:"
                                     Style="{StaticResource LabelStyle}" />
                                 <TextBox
                                     x:Name="txtApiKey"
                                     Grid.Row="1"
                                     Grid.Column="1"
                                     Style="{StaticResource TextBoxStyle}"
-                                    Text="{Binding ApiKey, Mode=TwoWay}" />
-                                <Label
-                                    Grid.Row="2"
-                                    Grid.Column="0"
-                                    Content="Poll Interval (hours):"
-                                    Style="{StaticResource LabelStyle}" />
-                                <TextBox
-                                    x:Name="txtApiPollInterval"
-                                    Grid.Row="2"
-                                    Grid.Column="1"
-                                    Style="{StaticResource TextBoxStyle}"
-                                    Text="{Binding ApiPollIntervalHours, Mode=TwoWay}" />
+                                    Text="{Binding ScheduleInterval, Mode=TwoWay}" />
                             </Grid>
                         </StackPanel>
                     </Grid>

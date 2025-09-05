@@ -7,8 +7,10 @@ using Importer.Common.Models.TypeSettings;
 using Importer.Common.QuartzJobs;
 using Importer.Common.Registries;
 using Importer.Common.Services;
+using Importer.Module.Parsley.Jobs;
 using Importer.Module.Parsley.Models;
 using Importer.Module.Parsley.Parser;
+using Quartz;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,7 +75,10 @@ namespace Importer.Module.Parsley
         public void SetupImporterType()
         {
             // Use SchedulerService to set up the GetAPIJob
-            _importerType.ScheduleJob<GetAPIJob>("Parsley", new TimeSpan(1,0,0));
+            JobDataMap jobDataMap = new JobDataMap();
+            jobDataMap.Add("SomeKey", "SomeValue");
+
+            _importerType.ScheduleJob<QueryParsleyAPI>("Parsley", new TimeSpan(1,0,0), jobDataMap);
         }
         public async void StartModule()
         {
@@ -91,7 +96,7 @@ namespace Importer.Module.Parsley
         public async void TriggerProcess()
         {
             parser = new ParsleyJSONParser(ProductTemplate, _customerProcess);
-            parser.APIKey = ((SchedulerServiceSettings)ImporterInstance.TypeSettings).ApiKey.ToString();
+            // parser.APIKey = ((SchedulerServiceSettings)ImporterInstance.TypeSettings).ApiKey.ToString();
 
             parser.ParseMenuItemSimpleList(ImporterTypeData.ToString());
             parser.ConvertMenuItemsToPLURecords();

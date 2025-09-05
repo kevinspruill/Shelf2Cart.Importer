@@ -6,7 +6,9 @@ using Importer.Common.Models;
 using Importer.Common.Models.TypeSettings;
 using Importer.Common.QuartzJobs;
 using Importer.Common.Registries;
+using Importer.Module.ECRS.Jobs;
 using Importer.Module.Parsley.Parser;
+using Quartz;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,7 +73,10 @@ namespace Importer.Module.ECRS
         public void SetupImporterType()
         {
             // Use SchedulerService to set up the GetAPIJob
-            _importerType.ScheduleJob<GetAPIJob>("ECRS", new TimeSpan(1, 0, 0));
+            // TODO: Use Cron expression from settings
+            JobDataMap jobDataMap = new JobDataMap();
+
+            _importerType.ScheduleJob<QueryECRS>("ECRS", new TimeSpan(1, 0, 0), jobDataMap);
         }
         public async void StartModule()
         {
@@ -89,8 +94,10 @@ namespace Importer.Module.ECRS
         public async void TriggerProcess()
         {
             parser = new ECRSJSONParser(ProductTemplate, _customerProcess);
-            parser.APIKey = ((SchedulerServiceSettings)ImporterInstance.TypeSettings).ApiKey.ToString();
 
+            JobDataMap jobDataMap = new JobDataMap();
+
+            await _importerType.ScheduleJob<QueryECRS>("ECRS", new TimeSpan(1, 0, 0), jobDataMap);
             await MainProcess.ProcessAsync(this);
         }
         public void StopModule()

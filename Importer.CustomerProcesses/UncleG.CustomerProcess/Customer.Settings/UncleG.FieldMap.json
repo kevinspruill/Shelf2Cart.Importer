@@ -1,0 +1,39 @@
+{
+  "Dept": "Dept",
+  "PLU": "PLU,Description11",
+  "Price": "Price",
+  "NetWt": "NetWt",
+  "ShelfLife": "ShelfLife",
+  "Ingredients": "Ingredients",
+  "Description1": "Description1",
+  "Description2": "Description2",
+  "Description3": "Description3",
+  "Description4": "Description4",
+  "UserAssigned1": "Description5", // Tag Line 
+  "UserAssigned2": "Description6", // MICRO OVEN SAFE
+  "UserAssigned3": "",
+  "UserAssigned4": "",
+  "UserAssigned5": "LblName", // Label StockNum
+  "UserAssigned6": "",
+  "UserAssigned7": "Description13", // Print Price on Label, switching to Description?
+  "Scaleable": "Scaleable",
+  "Tare": "Tare",
+  "CategoryNum": "CategoryNum",
+  "Logo1": "",
+  "Logo2": "",
+  "Logo3": "",
+  "Logo4": "",
+  "Logo5": "",
+  "CountryOfOrigin": "",
+  "Brand": "",
+  "SubDepartment": "",
+  "Category": "",
+  "SubCategory": "",
+  "Variety": ""
+}
+
+// Other Mappings From Ingredient Sections:
+// PrintTime to Description13
+// Keep Refrigerated to Description12
+// Allergens to Description10
+

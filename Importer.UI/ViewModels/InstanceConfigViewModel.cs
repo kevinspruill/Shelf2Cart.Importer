@@ -31,7 +31,7 @@ namespace Importer.UI.ViewModels
             LoadCustomerProcesses();
 
             LoadTemplates();
-            Modules = new ObservableCollection<string>(new[] { "Generic", "Invafresh", "Upshop", "Parsley", "Admin", "GrocerySignage" });
+            Modules = new ObservableCollection<string>(new[] { "Generic", "Invafresh", "Upshop", "Parsley", "Admin", "GrocerySignage", "ECRS" });
 
             // Commands
             LoadTemplateCommand = new DelegateCommand(LoadTemplate, () => SelectedTemplate != null);
@@ -135,14 +135,14 @@ namespace Importer.UI.ViewModels
         #endregion
 
         #region Scheduler/API Settings
-        private string _apiEndpoint; public string ApiEndpoint { get => _apiEndpoint; set => SetProperty(ref _apiEndpoint, value); }
-        private string _apiKey; public string ApiKey { get => _apiKey; set => SetProperty(ref _apiKey, value); }
+        private string _scheduleType; public string ScheduleType { get => _scheduleType; set => SetProperty(ref _scheduleType, value); }
+        private string _scheduleInterval; public string ScheduleInterval { get => _scheduleInterval; set => SetProperty(ref _scheduleInterval, value); }
         private int _apiPollIntervalHours = 1; public int ApiPollIntervalHours { get => _apiPollIntervalHours; set => SetProperty(ref _apiPollIntervalHours, value); } // currently not persisted
         #endregion
 
         #region Visibility Helpers
-        public bool IsFileMonitorSelected => !string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase);
-        public bool IsApiSelected => string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase);
+        public bool IsFileMonitorSelected => !string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase) && !string.Equals(ImporterModule, "ECRS", StringComparison.OrdinalIgnoreCase);
+        public bool IsApiSelected => string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase) || string.Equals(ImporterModule, "ECRS", StringComparison.OrdinalIgnoreCase);
         public bool ShowLoginSettings => UseLogin && IsFileMonitorSelected;
 
         private void RaiseModuleVisibility()
@@ -285,7 +285,7 @@ namespace Importer.UI.ViewModels
         #region Helpers
         private void EnsureTypeSettingsForModule(string module)
         {
-            if (string.Equals(module, "Parsley", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(module, "Parsley", StringComparison.OrdinalIgnoreCase) || string.Equals(module, "ECRS", StringComparison.OrdinalIgnoreCase))
             {
                 if (!(_model.TypeSettings is SchedulerServiceSettings))
                 {
@@ -316,8 +316,8 @@ namespace Importer.UI.ViewModels
             }
             else if (_model.TypeSettings is SchedulerServiceSettings ss)
             {
-                ApiEndpoint = ss.Endpoint;
-                ApiKey = ss.ApiKey;
+                ScheduleType = ss.ScheduleType;
+                ScheduleInterval = ss.ScheduleInterval;
             }
         }
 
@@ -352,8 +352,8 @@ namespace Importer.UI.ViewModels
             {
                 var ss = new SchedulerServiceSettings
                 {
-                    Endpoint = ApiEndpoint,
-                    ApiKey = ApiKey
+                    ScheduleType = ScheduleType,
+                    ScheduleInterval = ScheduleInterval
                 };
                 inst.TypeSettings = ss;
             }
@@ -386,8 +386,8 @@ namespace Importer.UI.ViewModels
             else
             {
                 var ss = _model.TypeSettings as SchedulerServiceSettings ?? new SchedulerServiceSettings();
-                ss.Endpoint = ApiEndpoint;
-                ss.ApiKey = ApiKey;
+                ss.ScheduleType = ScheduleType;
+                ss.ScheduleInterval = ScheduleInterval;
                 _model.TypeSettings = ss;
             }
         }

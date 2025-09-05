@@ -1,13 +1,7 @@
 {
-  "QuerySchedule": "0 */15 * * * ?",  
-  "LastFullLoad": "2020-01-01T00:00:00",
+  "QuerySchedule": "0 */15 * * * ?", // will be managed in Type Settings later
   "FullLoadIntervalHours": 24,
   "BaseUrl": "https://253BF.catapultweboffice.com/",
   "ApiKey": "WSQH7ALJMCNIHT39AMK6MF67IG2QUZ72",
-  "QueryParameters": {
-    "storeNumber": "HQ",
-    "page": "1",
-    "pageSize": "25000",
-    "since": "2020-01-01T00:00:00"
-  }
+  "StoreNumber": "HQ"
 }
