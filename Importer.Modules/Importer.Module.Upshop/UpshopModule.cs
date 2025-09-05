@@ -17,6 +17,7 @@ namespace Importer.Module.Upshop
         public tblProducts ProductTemplate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool Flush { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public bool ProcessQueued { get; set; } = false;
         public int GetPendingFileCount()
         {
             throw new NotImplementedException();
@@ -52,7 +53,7 @@ namespace Importer.Module.Upshop
             throw new NotImplementedException();
         }
 
-        public void TriggerProcess()
+        public async Task<bool> TriggerProcess()
         {
             throw new NotImplementedException();
         }

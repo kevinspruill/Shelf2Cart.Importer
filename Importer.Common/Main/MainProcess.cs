@@ -99,25 +99,27 @@ namespace Importer.Common.Main
                 if (importerModule.GetPendingFileCount() == 0)
                 {
                     // Write ImportLog.txt to trigger ProcessDatabase if recordsUpdated is true
-                    if (recordsUpdated)
+                    if (recordsUpdated || importerModule.ProcessQueued)
                     {
-                        Logger.Info($"Records updated, writing to ImportLog.txt");
+                        Logger.Info($"Records updated, starting Process Database Action");
                         await TriggerProcessDatabase();
+
+                        importerModule.ProcessQueued = false; // reset the flag
                     }
                     else if (deleteItems.Count > 0 || Settings.Flush)
                     {
-                        Logger.Info($"Records deleted or flush triggered, writing to ImportLog.txt");
+                        Logger.Info($"Records deleted or flush triggered, starting Process Database Action");
                         await TriggerProcessDatabase();
                     }
                     else if (_customerProcess.ForceUpdate)
                     {
-                        Logger.Info($"Force update triggered from {_customerProcess.Name} Custom Process, writing to ImportLog.txt");
+                        Logger.Info($"Force update triggered from {_customerProcess.Name} Custom Process, starting Process Database Action");
                         await TriggerProcessDatabase();
                     }
                 }
                 else
                 {
-                    Logger.Info("Skipping ImportLog.txt generation - more files queued for processing");
+                    Logger.Info($"Skipping Process Database Action - {importerModule.GetPendingFileCount().ToString()} files still queued for processing");
                 }
 
                 _customerProcess.PostProductProcess();

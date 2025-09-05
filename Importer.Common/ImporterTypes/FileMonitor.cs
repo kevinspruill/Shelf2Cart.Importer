@@ -395,14 +395,23 @@ namespace Importer.Common.ImporterTypes
                     }
 
                     // Process the file.
-                    await ProcessFileAsync(fileToProcess, _cts.Token);
+                    bool archiveFile = await ProcessFileAsync(fileToProcess, _cts.Token);
 
                     // After processing, move the file to the Archive folder using the same unique filename.
                     string archiveFilePath = Path.Combine(_archiveFolder, uniqueFileName);
                     try
                     {
-                        File.Move(fileToProcess, archiveFilePath);
-                        Logger.Info($"Moved file to archive folder: {archiveFilePath}");
+                        if (!archiveFile)
+                        {
+                            // If the file should not be archived, delete it instead.
+                            File.Delete(fileToProcess);
+                            Logger.Info($"Deleted processed file: {fileToProcess}, No Item Data to Keep");
+                        }
+                        else
+                        {
+                            File.Move(fileToProcess, archiveFilePath);
+                            Logger.Info($"Moved file to archive folder: {archiveFilePath}");
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -565,23 +574,25 @@ namespace Importer.Common.ImporterTypes
         /// <summary>
         /// The processing method for an individual file.
         /// </summary>
-        private Task ProcessFileAsync(string filePath, CancellationToken token)
+        private async Task<bool> ProcessFileAsync(string filePath, CancellationToken token)
         {
             try
             {
                 Logger.Info($"Processing file: {filePath}");
                 // send the filepath to the importer module
                 ImporterModule.ImporterTypeData = filePath;
-                // Trigger the Product Processor
-                ImporterModule.TriggerProcess();
+
+                // Trigger the Product Processor, return if file is to be kept or deleted
+                bool archiveFile = await ImporterModule.TriggerProcess();
+                
                 Logger.Info($"Completed processing file: {filePath}");
+                return archiveFile;
             }
             catch (Exception ex)
             {
                 Logger.Error($"Error processing file {filePath}: {ex.Message}");
+                return true; // In case of error, keep the file to avoid data loss
             }
-
-            return Task.CompletedTask;
         }
 
         public void Dispose()

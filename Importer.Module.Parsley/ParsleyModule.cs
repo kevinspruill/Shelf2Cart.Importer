@@ -26,6 +26,7 @@ namespace Importer.Module.Parsley
         public ImporterInstance ImporterInstance { get; set; }
         public string ImporterTypeData { get; set; }
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
+        public bool ProcessQueued { get; set; } = false;
         public bool Flush { get; set; }
 
         ICustomerProcess _customerProcess;
@@ -93,7 +94,7 @@ namespace Importer.Module.Parsley
                 Logger.Error("Rest API Monitor is not initialized.");
             }
         }
-        public async void TriggerProcess()
+        public async Task<bool> TriggerProcess()
         {
             parser = new ParsleyJSONParser(ProductTemplate, _customerProcess);
             // parser.APIKey = ((SchedulerServiceSettings)ImporterInstance.TypeSettings).ApiKey.ToString();
@@ -102,6 +103,7 @@ namespace Importer.Module.Parsley
             parser.ConvertMenuItemsToPLURecords();
 
             await MainProcess.ProcessAsync(this);
+            return true;
         }
         public void StopModule()
         {

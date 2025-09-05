@@ -75,7 +75,9 @@ namespace Importer.Module.Invafresh.Parser
                 { "SIID", CommandCode.SIID },
                 { "SNIA", CommandCode.SNIA },
                 { "SNIC", CommandCode.SNIC },
-                { "SNID", CommandCode.SNID }
+                { "SNID", CommandCode.SNID },
+                { "RDPC", CommandCode.RDPC },
+                { "RADC", CommandCode.RADC }
             };
         }
         public List<BaseRecord> ParseFile(string filePath)

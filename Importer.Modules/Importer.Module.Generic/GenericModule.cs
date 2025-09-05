@@ -20,6 +20,7 @@ namespace Importer.Module.Generic
         public string Version { get; set; } = "2.0.0";
         public ImporterInstance ImporterInstance { get; set; }
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
+        public bool ProcessQueued { get; set; } = false;
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
@@ -86,7 +87,7 @@ namespace Importer.Module.Generic
                 Logger.Error("File Polling is not initialized.");
             }
         }
-        public void TriggerProcess()
+        public async Task<bool> TriggerProcess()
         {
 
             GenericSettingsLoader Settings = new GenericSettingsLoader();
@@ -103,7 +104,9 @@ namespace Importer.Module.Generic
             }
 
             parser.ParseFile(ImporterTypeData.ToString());
-            MainProcess.ProcessAsync(this).GetAwaiter().GetResult();
+            await MainProcess.ProcessAsync(this);
+
+            return true;
         }
         public void StopModule()
         {

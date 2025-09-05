@@ -20,6 +20,7 @@ namespace Importer.Module.Admin
         public string Version { get; set; } = "1.0.0";
         public ImporterInstance ImporterInstance { get; set; }
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
+        public bool ProcessQueued { get; set; } = false;
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
@@ -89,7 +90,7 @@ namespace Importer.Module.Admin
             }
         }
 
-        public async void TriggerProcess()
+        public async Task<bool> TriggerProcess()
         {
             try
             {
@@ -98,7 +99,7 @@ namespace Importer.Module.Admin
                 if (string.IsNullOrEmpty(ImporterTypeData))
                 {
                     Logger.Error("No data provided for processing in Admin Module.");
-                    return;
+                    return false;
                 }
                 else
                 {
@@ -125,14 +126,19 @@ namespace Importer.Module.Admin
                         Logger.Info($"Copied mdb file to: {Path.Combine(AdminConsoleFolder, AdminConsoleFileName)}");
                     }
 
+
+
                     ProcessDatabase processDatabase = new ProcessDatabase();
                     await processDatabase.ProcessImport();
 
+                    return true;
                 }
             }
             catch (Exception ex)
             {
                 Logger.Error($"An error occurred while processing in Admin Module: {ex.Message}");
+
+                return true;
             }
             finally
             {

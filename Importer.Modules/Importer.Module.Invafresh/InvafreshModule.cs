@@ -22,6 +22,7 @@ namespace Importer.Module.Invafresh
         public Dictionary<string, object> TypeSettings { get; set; } = new Dictionary<string, object>();
         public ImporterInstance ImporterInstance { get; set; }
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
+        public bool ProcessQueued { get; set; } = false;
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
@@ -90,11 +91,24 @@ namespace Importer.Module.Invafresh
                 Logger.Error("File Watcher is not initialized.");
             }
         }
-        public async void TriggerProcess()
+        public async Task<bool> TriggerProcess()
         {
             parser = new HostchngParser(ProductTemplate, _customerProcess);
             parser.ParseFile(ImporterTypeData.ToString());
-            await MainProcess.ProcessAsync(this);
+
+            if (parser.PLURecords == null || parser.PLURecords.Count == 0 || parser.DeletedPLURecords == null || parser.DeletedPLURecords.Count == 0)
+            {
+                Logger.Error("No PLU records found in the file.");
+                return false;
+            }
+            else
+            {
+                await MainProcess.ProcessAsync(this);
+                ProcessQueued = true;
+                return true;
+            }
+
+                
         }
         public void StopModule()
         {

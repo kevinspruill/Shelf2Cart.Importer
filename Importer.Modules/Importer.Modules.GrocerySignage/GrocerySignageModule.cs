@@ -16,6 +16,7 @@ namespace Importer.Modules.GrocerySignage
         public string Version { get; set; } = "2.0.0";
         public ImporterInstance ImporterInstance { get; set; }
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
+        public bool ProcessQueued { get; set; } = false;
         public bool Flush { get; set; }
         public string ImporterTypeData { get; set; } = string.Empty;
 
@@ -57,10 +58,13 @@ namespace Importer.Modules.GrocerySignage
             }
         }
 
-        public void TriggerProcess()
+        public async Task<bool> TriggerProcess()
         {
             // Trigger process logic here, Will use custom Process for Grocery Signage DB
             // Will read either a Pipe Delimited or Excel file
+            
+
+            return true;
         }
 
         public void StopModule()

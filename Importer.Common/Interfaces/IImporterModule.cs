@@ -15,11 +15,12 @@ namespace Importer.Common.Interfaces
         ImporterInstance ImporterInstance { get; set; }
         string ImporterTypeData { get; set; }
         tblProducts ProductTemplate { get; set; }
+        bool ProcessQueued { get; set; }
         bool Flush { get; set; }
         void InitModule(ImporterInstance importerInstance);
         void SetupImporterType();
         void StartModule();
-        void TriggerProcess();
+        Task<bool> TriggerProcess();
         List<tblProducts> GetTblProductsList();
         void StopModule();
         int GetPendingFileCount();

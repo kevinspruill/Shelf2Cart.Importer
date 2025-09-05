@@ -28,6 +28,10 @@ namespace Importer.Module.Invafresh.Enums
         // Nutrition Item Commands
         SNIA, // Send Nutrition Item Add
         SNIC, // Send Nutrition Item Change
-        SNID  // Send Nutrition Item Delete
+        SNID,  // Send Nutrition Item Delete
+
+        // Read Commands ??
+        RDPC, // ??
+        RADC // ??
     }
 }
