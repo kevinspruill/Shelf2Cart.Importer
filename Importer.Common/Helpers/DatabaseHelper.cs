@@ -1450,6 +1450,42 @@ namespace Importer.Common.Helpers
                 return false;
             }
         }
+        public int ExecuteSQLCommand(string sqlCommand)
+        {
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    return connection.Execute(sqlCommand);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error Executing Command: {ex.Message} \n Command: {sqlCommand}");
+                return -1;
+            }
+        }
+
+        public int GetRecordCount(string table)
+        {
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    string sql = $"SELECT COUNT(*) FROM {table}";
+                    var count = connection.ExecuteScalar<int>(sql);
+                    return count;
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error getting record count: {ex.Message}");
+                return -1;
+            }
+        }
+
         public bool DeleteLocalEditField(string editField)
         {
             if (string.IsNullOrWhiteSpace(editField)) return false;
