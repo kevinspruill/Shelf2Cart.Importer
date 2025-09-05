@@ -96,7 +96,7 @@ namespace Importer.Module.Invafresh
             parser = new HostchngParser(ProductTemplate, _customerProcess);
             parser.ParseFile(ImporterTypeData.ToString());
 
-            if (parser.PLURecords == null || parser.PLURecords.Count == 0 || parser.DeletedPLURecords == null || parser.DeletedPLURecords.Count == 0)
+            if ((parser.PLURecords == null || parser.PLURecords.Count == 0) && (parser.DeletedPLURecords == null || parser.DeletedPLURecords.Count == 0))
             {
                 Logger.Error("No PLU records found in the file.");
                 return false;

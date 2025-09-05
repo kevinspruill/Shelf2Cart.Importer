@@ -202,6 +202,11 @@ namespace Importer.Module.Invafresh.Parser
             {
                 return CreateLegacyNutritionItemRecord(CommandCode.SNIA, line);
             }
+            else if (fieldDict.ContainsKey("CCO") &&
+                (fieldDict["CCO"] == "RADC" || fieldDict["CCO"] == "RDPC"))
+            {
+                Logger.Info($"Ignoring Read command code: {fieldDict["CCO"]}");
+            }
             else if (fieldDict.TryGetValue("CCO", out var commandCodeStr) &&
                 _commandCodeMap.TryGetValue(commandCodeStr, out var commandCode))
             {
