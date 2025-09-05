@@ -518,6 +518,8 @@ namespace Importer.Common.Helpers
                         // Process each product
                         foreach (var product in products)
                         {
+                            Logger.Trace($"Start processing PLU: '{product.PLU}' - {product.Description1} {product.Description2}");
+
                             // Get the primary key property based on the field name
                             var pkProp = properties.FirstOrDefault(p => p.GetCustomAttribute<ImportDBFieldAttribute>().Name == primaryKeyField);
                             if (pkProp == null)
@@ -616,6 +618,8 @@ namespace Importer.Common.Helpers
 
                                 inserted++;
                             }
+
+                            Logger.Trace($"Finished processing PLU: '{product.PLU}' - {product.Description1} {product.Description2}");
                         }
 
                         var modifiedRows = dt.GetChanges(DataRowState.Modified);
