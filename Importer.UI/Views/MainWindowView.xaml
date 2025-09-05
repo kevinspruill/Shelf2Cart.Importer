@@ -55,6 +55,10 @@
                     Command="{Binding NavigateToContent}"
                     CommandParameter="DepartmentPaddingView"
                     Header="Department Padding" />
+                <MenuItem
+                    Command="{Binding NavigateToContent}"
+                    CommandParameter="LocalEditFieldsView"
+                    Header="Local Edit Fields" />
                 <Separator />
                 <MenuItem Header="Modules">
                     <MenuItem

@@ -64,6 +64,7 @@
     <Compile Include="Helpers\UnicodeConverter.cs" />
     <Compile Include="Interfaces\IImporterTypeSettings.cs" />
     <Compile Include="Interfaces\IPipeMessageService.cs" />
+    <Compile Include="Models\LocalEditFieldModel.cs" />
     <Compile Include="Models\TypeSettings\SchedulerServiceSettings.cs" />
     <Compile Include="Registries\ImporterModuleRegistry.cs" />
     <Compile Include="Services\MerchandiserAPIClient.cs" />

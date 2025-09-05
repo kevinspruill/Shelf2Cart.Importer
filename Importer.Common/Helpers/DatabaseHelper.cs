@@ -1344,5 +1344,136 @@ namespace Importer.Common.Helpers
                 catch { /* ignore cleanup errors */ }
             }
         }
+
+        public List<LocalEditFieldModel> GetLocalEditFields()
+        {
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    var sql = "SELECT [Edit_Field] AS Edit_Field, [Editable] AS Editable FROM LocalEditField ORDER BY [Edit_Field]";
+                    return connection.Query<LocalEditFieldModel>(sql).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error retrieving LocalEditFields: {ex.Message}");
+                return new List<LocalEditFieldModel>();
+            }
+        }
+        public bool UpsertLocalEditField(LocalEditFieldModel entry)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.Edit_Field)) return false;
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText = "UPDATE LocalEditField SET [Editable] = ? WHERE [Edit_Field] = ?";
+                        cmd.Parameters.AddWithValue("@p1", entry.Editable ?? "No");
+                        cmd.Parameters.AddWithValue("@p2", entry.Edit_Field);
+                        int updated = cmd.ExecuteNonQuery();
+                        if (updated == 0)
+                        {
+                            cmd.Parameters.Clear();
+                            cmd.CommandText = "INSERT INTO LocalEditField ([Edit_Field], [Editable]) VALUES (?, ?)";
+                            cmd.Parameters.AddWithValue("@p1", entry.Edit_Field);
+                            cmd.Parameters.AddWithValue("@p2", entry.Editable ?? "No");
+                            int inserted = cmd.ExecuteNonQuery();
+                            Logger.Trace($"Inserted LocalEditFields '{entry.Edit_Field}' => {entry.Editable}");
+                            return inserted > 0;
+                        }
+                        Logger.Trace($"Updated LocalEditFields '{entry.Edit_Field}' => {entry.Editable}");
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error upserting LocalEditFields ({entry.Edit_Field}): {ex.Message}");
+                return false;
+            }
+        }
+        public bool SaveLocalEditFields(IEnumerable<LocalEditFieldModel> entries)
+        {
+            var list = entries?.ToList() ?? new List<LocalEditFieldModel>();
+            if (list.Count == 0) return true;
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var tx = connection.BeginTransaction())
+                    {
+                        try
+                        {
+                            foreach (var entry in list)
+                            {
+                                if (entry == null || string.IsNullOrWhiteSpace(entry.Edit_Field))
+                                    throw new Exception("Edit_Field cannot be empty.");
+                                using (var cmd = connection.CreateCommand())
+                                {
+                                    cmd.Transaction = tx;
+                                    cmd.CommandText = "UPDATE LocalEditField SET [Editable] = ? WHERE [Edit_Field] = ?";
+                                    cmd.Parameters.AddWithValue("@p1", entry.Editable ?? "No");
+                                    cmd.Parameters.AddWithValue("@p2", entry.Edit_Field);
+                                    int updated = cmd.ExecuteNonQuery();
+                                    if (updated == 0)
+                                    {
+                                        cmd.Parameters.Clear();
+                                        cmd.CommandText = "INSERT INTO LocalEditField ([Edit_Field], [Editable]) VALUES (?, ?)";
+                                        cmd.Parameters.AddWithValue("@p1", entry.Edit_Field);
+                                        cmd.Parameters.AddWithValue("@p2", entry.Editable ?? "No");
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                            tx.Commit();
+                            Logger.Info($"Saved {list.Count} LocalEditFields row(s).");
+                            return true;
+                        }
+                        catch (Exception inner)
+                        {
+                            tx.Rollback();
+                            Logger.Error($"Transaction rollback saving LocalEditFields: {inner.Message}");
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error saving LocalEditFields: {ex.Message}");
+                return false;
+            }
+        }
+        public bool DeleteLocalEditField(string editField)
+        {
+            if (string.IsNullOrWhiteSpace(editField)) return false;
+            try
+            {
+                using (var connection = new OleDbConnection(_connectionString))
+                {
+                    connection.Open();
+                    using (var cmd = connection.CreateCommand())
+                    {
+                        cmd.CommandText = "DELETE FROM LocalEditField WHERE [Edit_Field] = ?";
+                        cmd.Parameters.AddWithValue("@p1", editField);
+                        int affected = cmd.ExecuteNonQuery();
+                        if (affected > 0)
+                            Logger.Trace($"Deleted LocalEditField '{editField}'");
+                        return affected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error deleting LocalEditField ({editField}): {ex.Message}");
+                return false;
+            }
+        }
     }
 }

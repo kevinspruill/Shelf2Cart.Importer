@@ -43,7 +43,8 @@ namespace Importer.UI
             containerRegistry.RegisterForNavigation<GenericSettingsView>();
             containerRegistry.RegisterForNavigation<InvafreshSettingsView>();
             containerRegistry.RegisterForNavigation<AdminSettingsView>();
-            containerRegistry.RegisterForNavigation<DepartmentPaddingView>(); // Added
+            containerRegistry.RegisterForNavigation<DepartmentPaddingView>();
+            containerRegistry.RegisterForNavigation<LocalEditFieldsView>();
         }
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
