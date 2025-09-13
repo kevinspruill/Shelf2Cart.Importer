@@ -69,6 +69,9 @@ namespace Importer.Common.Helpers
 
                 }
 
+                Logger.Trace("Applying Barcode formatting");
+                product = BarcodeProcessor.ApplyBarcodeFormatting(product);
+
                 //Logger.Trace("Applying number formatting");
                 //product = NumberFormatProcessor.ApplyNumberFormatting(product);
 

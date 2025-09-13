@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Converters\ImporterTypeSettingsConverter.cs" />
     <Compile Include="Factories\ImporterTypeSettingsFactory.cs" />
+    <Compile Include="Helpers\BarcodeProcessor.cs" />
     <Compile Include="Helpers\CustomerProcessLoader.cs" />
     <Compile Include="Helpers\DatabaseHelper.cs" />
     <Compile Include="Helpers\DefaultValueLoader.cs" />
