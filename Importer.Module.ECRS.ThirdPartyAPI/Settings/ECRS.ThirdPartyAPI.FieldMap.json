@@ -1,5 +1,7 @@
 {
   // "MField": "CFieldName" - Empty values are ignored
+  // To use StoreData fields, prefix the field with "StoreData."
+
   "ProdID": "",
   "PLU": "",
   "Price": "",
