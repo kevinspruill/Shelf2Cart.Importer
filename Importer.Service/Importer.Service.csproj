@@ -90,9 +90,9 @@
       <Project>{9f149866-aeb9-4973-b51a-280ed715f671}</Project>
       <Name>Importer.Module.Parsley</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Importer.Modules\Importer.Module.ECRS\Importer.Module.ECRS.csproj">
+    <ProjectReference Include="..\Importer.Modules\Importer.Module.ECRS\Importer.Module.ECRS.CatapultAPI.csproj">
       <Project>{264e02b3-ad85-475c-a78b-131c13cd047f}</Project>
-      <Name>Importer.Module.ECRS</Name>
+      <Name>Importer.Module.ECRS.CatapultAPI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Importer.Modules\Importer.Module.Generic\Importer.Module.Generic.csproj">
       <Project>{18aadd4a-0449-4eca-baa7-e4b8c5ad0a80}</Project>

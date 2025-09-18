@@ -1,36 +1,41 @@
-﻿using Importer.Common;
-using Importer.Common.Helpers;
+﻿using Importer.Common.Helpers;
 using Importer.Common.ImporterTypes;
 using Importer.Common.Interfaces;
 using Importer.Common.Main;
 using Importer.Common.Models;
+using Importer.Common.Models.TypeSettings;
+using Importer.Common.QuartzJobs;
 using Importer.Common.Registries;
-using Importer.Module.Invafresh.Helpers;
-using Importer.Module.Invafresh.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Importer.Module.Invafresh
+namespace Importer.Module.ECRS.ThirdPartyAPI
 {
-    public class InvafreshModule : IImporterModule
+    public class ECRSModule : IImporterModule
     {
-        public string Name { get; set; } = "Invafresh";
-        public string Version { get; set; } = "3.0.0";        
-        public InvafreshSettingsLoader Settings { get; set; } = new InvafreshSettingsLoader();
-        public Dictionary<string, object> TypeSettings { get; set; } = new Dictionary<string, object>();
+        public string Name { get; set; } = "ECRS - Third Party API Client";
+        public string Version { get; set; } = "5.7.155";
         public ImporterInstance ImporterInstance { get; set; }
+        public string ImporterTypeData { get; set; }
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
         public bool ProcessQueued { get; set; } = false;
         public bool Flush { get; set; }
-        public string ImporterTypeData { get; set; } = string.Empty;
 
         ICustomerProcess _customerProcess;
+        ECRSJSONParser parser = null;
         FileMonitor _importerType;
-        HostchngParser parser = null;
 
+        public int GetPendingFileCount()
+        {
+            return _importerType?.GetQueuedFileCount() ?? 0;
+        }
+        public List<tblProducts> GetTblProductsDeleteList()
+        {
+            return new List<tblProducts>();
+        }
         public List<tblProducts> GetTblProductsList()
         {
             var products = new List<tblProducts>();
@@ -47,22 +52,6 @@ namespace Importer.Module.Invafresh
 
             return products;
 
-        }
-        public List<tblProducts> GetTblProductsDeleteList()
-        {
-            var productsToDelete = new List<tblProducts>();
-            var deletedRecords = parser.ConvertPLUDeleteRecordsToTblProducts();
-
-            if (deletedRecords != null)
-            {
-                productsToDelete.AddRange(deletedRecords);
-            }
-            else
-            {
-                Logger.Error("Failed to convert PLU records to tblProducts");
-            }
-
-            return productsToDelete;
         }
         public void InitModule(ImporterInstance importerInstance)
         {
@@ -83,7 +72,7 @@ namespace Importer.Module.Invafresh
         {
             // No need to set up the importer type here, as it's done in the constructor of FileMonitor
         }
-        public void StartModule()
+        public async void StartModule()
         {
             // Start the file watcher
             if (_importerType != null)
@@ -97,10 +86,10 @@ namespace Importer.Module.Invafresh
         }
         public async Task<bool> TriggerProcess()
         {
-            parser = new HostchngParser(ProductTemplate, _customerProcess);
+            parser = new ECRSJSONParser(ProductTemplate, _customerProcess);
             parser.ParseFile(ImporterTypeData.ToString());
 
-            if ((parser.PLURecords == null || parser.PLURecords.Count == 0) && (parser.DeletedPLURecords == null || parser.DeletedPLURecords.Count == 0))
+            if (parser.PLURecords == null || parser.PLURecords.Count == 0)
             {
                 Logger.Error("No PLU records found in the file.");
                 return false;
@@ -110,23 +99,22 @@ namespace Importer.Module.Invafresh
                 await MainProcess.ProcessAsync(this);
                 ProcessQueued = true;
                 return true;
-            }   
+            }
         }
+
         public void StopModule()
         {
             // Stop the file watcher
             if (_importerType != null)
             {
-                _importerType.Stop();
+                //_importerType.Stop();
+
+                //This will stop the quartz scheduler
             }
             else
             {
-                Logger.Error("File Watcher is not initialized.");
+                Logger.Error("Rest API Monitor is not initialized.");
             }
-        }
-        public int GetPendingFileCount()
-        {
-            return _importerType?.GetQueuedFileCount() ?? 0;
         }
     }
 }
