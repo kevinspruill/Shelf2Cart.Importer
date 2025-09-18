@@ -46,14 +46,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ECRSModule.cs" />
+    <Compile Include="ECRSThirdPartyAPIModule.cs" />
     <Compile Include="Enums\ForceShelfLifeOption.cs" />
     <Compile Include="Enums\TareType.cs" />
     <Compile Include="Enums\WeightType.cs" />
+    <Compile Include="Helpers\FieldMapLoader.cs" />
     <Compile Include="Models\ItemData.cs" />
     <Compile Include="Models\OrderingData.cs" />
     <Compile Include="Models\StoreData.cs" />
-    <Compile Include="Parser\ECRSJSONParser.cs" />
+    <Compile Include="Parser\ECRSThirdPartyAPIJSONParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -66,6 +67,11 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Settings\ECRS.ThirdPartyAPI.FieldMap.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

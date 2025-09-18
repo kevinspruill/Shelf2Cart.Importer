@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Importer.Module.ECRS.ThirdPartyAPI
 {
-    public class ECRSModule : IImporterModule
+    public class ECRSThirdPartyAPIModule : IImporterModule
     {
         public string Name { get; set; } = "ECRS - Third Party API Client";
         public string Version { get; set; } = "5.7.155";
@@ -25,7 +25,7 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
         public bool Flush { get; set; }
 
         ICustomerProcess _customerProcess;
-        ECRSJSONParser parser = null;
+        ECRSThirdPartyAPIJSONParser parser = null;
         FileMonitor _importerType;
 
         public int GetPendingFileCount()
@@ -86,7 +86,7 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
         }
         public async Task<bool> TriggerProcess()
         {
-            parser = new ECRSJSONParser(ProductTemplate, _customerProcess);
+            parser = new ECRSThirdPartyAPIJSONParser(ProductTemplate, _customerProcess);
             parser.ParseFile(ImporterTypeData.ToString());
 
             if (parser.PLURecords == null || parser.PLURecords.Count == 0)
