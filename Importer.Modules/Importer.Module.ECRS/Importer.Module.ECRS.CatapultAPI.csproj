@@ -68,16 +68,16 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Settings\ECRS.Config.json">
+    <None Include="Settings\ECRS.CatapultAPI.Settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Settings\ECRS.FieldMap.json">
+    <None Include="Settings\ECRS.CatapultAPI.FieldMap.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Settings\ECRS.LastFullLoadTime.ini">
+    <None Include="Settings\ECRS.CatapultAPI.LastFullLoadTime.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="Settings\ECRS.LastQueryTime.ini">
+    <None Include="Settings\ECRS.CatapultAPI.LastQueryTime.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

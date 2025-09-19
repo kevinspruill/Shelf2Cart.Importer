@@ -69,6 +69,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Settings\ECRS.ThirdPartyAPI.Settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Settings\ECRS.ThirdPartyAPI.FieldMap.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
