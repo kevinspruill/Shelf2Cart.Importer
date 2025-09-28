@@ -19,7 +19,7 @@ namespace Importer.Module.ECRS
 {
     public class ECRSModule : IImporterModule
     {
-        public string Name { get; set; } = "ECRS";
+        public string Name { get; set; } = "ECRS - Catapult API";
         public string Version { get; set; } = "2.0.0";
         public ImporterInstance ImporterInstance { get; set; }
         public string ImporterTypeData { get; set; }

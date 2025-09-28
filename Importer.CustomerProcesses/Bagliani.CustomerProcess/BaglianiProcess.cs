@@ -1,6 +1,7 @@
 ﻿using Importer.Common.Helpers;
 using Importer.Common.Interfaces;
 using Importer.Common.Models;
+using Importer.Module.ECRS.ThirdPartyAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,26 @@ namespace Bagliani.CustomerProcess
                 }
                 return tmpRecord as T;
             }
+
+            if (ImportData is tblProducts product)
+            {
+                var tmpProduct = product;
+                return tmpProduct as T;
+            }
+
+            if (ImportData is ItemData itemData)
+            {
+                var tmpItemData = itemData;
+                // if ItemId is more than 6 digits or contains non-numeric characters, return null to skip this record
+                if (tmpItemData.ItemId.Length > 8 || !tmpItemData.ItemId.All(char.IsDigit))
+                {
+                    Logger.Warn($"Skipping ItemId '{tmpItemData.ItemId}' due to invalid length or non-numeric characters.");
+                    return null;
+                }
+
+                return tmpItemData as T;
+            }
+
             return ImportData;
         }
 
@@ -73,7 +94,8 @@ namespace Bagliani.CustomerProcess
                     product.Tare = "0";
 
                 product.NetWt = "0";
-            } else if (product.NetWt.Length > 0)
+            } 
+            else if (product.NetWt.Length > 0)
             {
                 string rawItemSize = product.NetWt.ToUpper();
                 Logger.Trace($"Setting Scaleable and NetWt using Item Size: {rawItemSize}");

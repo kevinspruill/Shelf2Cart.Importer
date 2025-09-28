@@ -1,0 +1,24 @@
+[
+  {
+    "Name": "Bagliani ECRS - Third Party API Client",
+    "Description": "",
+    "ImporterType": null,
+    "ImporterModule": "ECRS - Third Party API Client",
+    "CustomerProcess": "Bagliani",
+    "Enabled": true,
+    "TypeSettings": {
+      "Type": "FileMonitor",
+      "TargetPath": "C:\\Shelf2Cart\\Importer\\ecrs",
+      "PollIntervalMilliseconds": 150,
+      "DatabaseFile": "FileHistory.db",
+      "AllowedExtensions": [
+        ".json"
+      ],
+      "IsAdminFile": false,
+      "UseLogin": false,
+      "LoginUsername": "",
+      "LoginPassword": "",
+      "LoginDomain": ""
+    }
+  }
+]

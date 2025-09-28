@@ -31,7 +31,7 @@ namespace Importer.UI.ViewModels
             LoadCustomerProcesses();
 
             LoadTemplates();
-            Modules = new ObservableCollection<string>(new[] { "Generic", "Invafresh", "Upshop", "Parsley", "Admin", "GrocerySignage", "ECRS" });
+            Modules = new ObservableCollection<string>(new[] { "Generic", "Invafresh", "Upshop", "Parsley", "Admin", "GrocerySignage", "ECRS - Third Party API Client", "ECRS - Catapult API" });
 
             // Commands
             LoadTemplateCommand = new DelegateCommand(LoadTemplate, () => SelectedTemplate != null);
@@ -141,8 +141,8 @@ namespace Importer.UI.ViewModels
         #endregion
 
         #region Visibility Helpers
-        public bool IsFileMonitorSelected => !string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase) && !string.Equals(ImporterModule, "ECRS", StringComparison.OrdinalIgnoreCase);
-        public bool IsApiSelected => string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase) || string.Equals(ImporterModule, "ECRS", StringComparison.OrdinalIgnoreCase);
+        public bool IsFileMonitorSelected => !string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase) && !string.Equals(ImporterModule, "ECRS - Catapult API", StringComparison.OrdinalIgnoreCase);
+        public bool IsApiSelected => string.Equals(ImporterModule, "Parsley", StringComparison.OrdinalIgnoreCase) || string.Equals(ImporterModule, "ECRS - Catapult API", StringComparison.OrdinalIgnoreCase);
         public bool ShowLoginSettings => UseLogin && IsFileMonitorSelected;
 
         private void RaiseModuleVisibility()
@@ -285,7 +285,7 @@ namespace Importer.UI.ViewModels
         #region Helpers
         private void EnsureTypeSettingsForModule(string module)
         {
-            if (string.Equals(module, "Parsley", StringComparison.OrdinalIgnoreCase) || string.Equals(module, "ECRS", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(module, "Parsley", StringComparison.OrdinalIgnoreCase) || string.Equals(module, "ECRS - Catapult API", StringComparison.OrdinalIgnoreCase))
             {
                 if (!(_model.TypeSettings is SchedulerServiceSettings))
                 {

@@ -33,7 +33,7 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
             mappedFields = FieldMapLoader.FieldMap;
         }
 
-        public void ParseFile(string jsonString)
+        public void ParseFile(string jsonFilePath)
         {
             try
             {
@@ -42,6 +42,9 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
                     NullValueHandling = NullValueHandling.Ignore,
                     Converters = { new StringEnumConverter() } // respects [EnumMember(Value="...")]
                 };
+
+                // read json file
+                var jsonString = System.IO.File.ReadAllText(jsonFilePath);
 
                 // Root is an array of items in this API.
                 PLURecords = JsonConvert.DeserializeObject<List<ItemData>>(jsonString, settings);
@@ -64,7 +67,7 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
             {
                 // This uses the first store if multiple are present
                 var product = ConvertPLURecordToTblproducts(pluItem);
-                if (!string.IsNullOrWhiteSpace(product.PLU))
+                if (product != null)
                     products.Add(product);
 
                 // Note: This code supports multiple stores per item, creating separate products.
@@ -109,8 +112,12 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
         
         private tblProducts ConvertPLURecordToTblproducts(ItemData pluItem, StoreData store)
         {
+            // Custom processing for the ECRS Third Party API Raw Data, before mapping and conversion to tblProduct record, uses ItemData object
             if (_customerProcess != null && _customerProcess.Name != "Importer Base Processor")
                 pluItem = _customerProcess.DataFileCondtioning(pluItem);
+            
+            if (pluItem == null)
+                return null;
 
             var product = ProductTemplate.Clone();
 
@@ -186,6 +193,21 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
                     Logger.Warn($"Mapping failed for '{attrName}' from '{sourcePropName}': {ex.Message}");
                 }
             }
+
+            // conditions to send a null product back, which will be skipped, this is independent of any customer processing
+            if (product.PLU.Length < 1
+                || (false)
+                || (false)
+                )
+            {
+                Logger.Warn($"Skipping product with PLU '{product.PLU}' due to missing required or malformed data");
+                return null;
+            }
+
+            // Custom processing for the ECRS Third Party API Data, after mapping and convertion to tblProduct record
+            // This can return null to skip the record
+            if (_customerProcess != null && _customerProcess.Name != "Importer Base Processor")
+                product = _customerProcess.DataFileCondtioning(product);
 
             return product;
         }

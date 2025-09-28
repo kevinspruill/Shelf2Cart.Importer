@@ -60,12 +60,6 @@
       <Private>True</Private>
       <OutputsToImport>PrimaryOutput</OutputsToImport>
     </ProjectReference>
-    <ProjectReference Include="..\Importer.Module.Debug\Importer.Module.Debug.csproj">
-      <Name>Importer.Module.Debug</Name>
-      <Project>{ff9b6926-313a-4d87-aa92-6fcae85a3e9a}</Project>
-      <Private>True</Private>
-      <OutputsToImport>PrimaryOutput</OutputsToImport>
-    </ProjectReference>
     <ProjectReference Include="..\Importer.Module.Parsley\Importer.Module.Parsley.csproj">
       <Name>Importer.Module.Parsley</Name>
       <Project>{9f149866-aeb9-4973-b51a-280ed715f671}</Project>

@@ -63,7 +63,7 @@ namespace Importer.Module.ECRS.ThirdPartyAPI.Models
 
         // Switched to enum
         [JsonProperty("weight")]
-        public WeightType? Weight { get; set; }
+        public string? Weight { get; set; }
 
         [JsonProperty("fixedTare")]
         public decimal? FixedTare { get; set; }

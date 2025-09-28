@@ -12,7 +12,7 @@ namespace Importer.Module.ECRS.ThirdPartyAPI.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum WeightType
     {
-        [EnumMember(Value = "Unknown")]
+        [EnumMember(Value = null)]
         Unknown = 0,
 
         [EnumMember(Value = "By Pound")]

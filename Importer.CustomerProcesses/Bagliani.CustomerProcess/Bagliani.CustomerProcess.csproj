@@ -49,6 +49,24 @@
       <Project>{61d8720a-c6ac-46ab-9366-92afe3e2880e}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Module.ECRS.ThirdPartyAPI\Importer.Module.ECRS.ThirdPartyAPI.csproj">
+      <Project>{B3E1BFE2-58CD-47FD-B947-67AAAEAE02D7}</Project>
+      <Name>Importer.Module.ECRS.ThirdPartyAPI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Settings\defaultValues.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Settings\ImporterInstances.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Settings\ProcessDatabaseSettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Settings\settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

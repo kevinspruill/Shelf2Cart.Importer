@@ -74,6 +74,10 @@
       <Project>{9920b72d-3c61-41b9-a386-01f9b250baf4}</Project>
       <Name>Bagliani.CustomerProcess</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Importer.CustomerProcesses\UncleG.CustomerProcess\UncleG.CustomerProcess.csproj">
+      <Project>{9be80257-c0b0-4b8d-9447-ccbc7d3cf61f}</Project>
+      <Name>UncleG.CustomerProcess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Importer.CustomerProcesses\Vallarta.CustomerProcess\Vallarta.CustomerProcess.csproj">
       <Project>{f1f3488f-691c-4de5-8b44-c254a7d059d7}</Project>
       <Name>Vallarta.CustomerProcess</Name>
@@ -85,6 +89,10 @@
     <ProjectReference Include="..\Importer.Module.Admin\Importer.Module.Admin.csproj">
       <Project>{ae6c12e6-6ce1-4a98-aff2-e1fdfdf2a936}</Project>
       <Name>Importer.Module.Admin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Importer.Module.ECRS.ThirdPartyAPI\Importer.Module.ECRS.ThirdPartyAPI.csproj">
+      <Project>{b3e1bfe2-58cd-47fd-b947-67aaaeae02d7}</Project>
+      <Name>Importer.Module.ECRS.ThirdPartyAPI</Name>
     </ProjectReference>
     <ProjectReference Include="..\Importer.Module.Parsley\Importer.Module.Parsley.csproj">
       <Project>{9f149866-aeb9-4973-b51a-280ed715f671}</Project>
