@@ -34,7 +34,19 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
         }
         public List<tblProducts> GetTblProductsDeleteList()
         {
-            return new List<tblProducts>();
+            var products = new List<tblProducts>();
+            var convertedRecords = parser.ConvertDeletedPLURecordsToTblProducts();
+
+            if (convertedRecords != null)
+            {
+                products.AddRange(convertedRecords);
+            }
+            else
+            {
+                Logger.Error("Failed to convert PLU records to tblProducts");
+            }
+
+            return products;
         }
         public List<tblProducts> GetTblProductsList()
         {

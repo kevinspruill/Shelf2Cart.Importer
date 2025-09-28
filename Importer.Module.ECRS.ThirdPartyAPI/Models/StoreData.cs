@@ -20,7 +20,7 @@ namespace Importer.Module.ECRS.ThirdPartyAPI.Models
         public string? StoreNumber { get; set; }
 
         [JsonProperty("deleted")]
-        public bool? Deleted { get; set; }
+        public bool Deleted { get; set; }
 
         [JsonProperty("localPowerField1")]
         public string? LocalPowerField1 { get; set; }

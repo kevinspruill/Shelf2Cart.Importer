@@ -65,8 +65,13 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
 
             foreach (var pluItem in PLURecords)
             {
+                // First store only, for now. Skip deleted items. Will add ability to filter by store later.
+                if (pluItem.Stores[0].Deleted)
+                    continue;
+
                 // This uses the first store if multiple are present
                 var product = ConvertPLURecordToTblproducts(pluItem);
+              
                 if (product != null)
                     products.Add(product);
 
@@ -76,6 +81,47 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
 
                 // If store-level data exists, create a product per store; otherwise single product
                 
+                //if (pluItem.Stores != null && pluItem.Stores.Count > 0)
+                //{
+                //    foreach (var store in pluItem.Stores)
+                //    {
+                //        var product = ConvertPLURecordToTblproducts(pluItem, store);
+                //        if (!string.IsNullOrWhiteSpace(product.PLU))
+                //            products.Add(product);
+                //    }
+                //}
+                //else
+                //{
+                //    var product = ConvertPLURecordToTblproducts(pluItem, null);
+                //    if (!string.IsNullOrWhiteSpace(product.PLU))
+                //        products.Add(product);
+                //}
+            }
+
+            return products;
+        }
+        internal List<tblProducts> ConvertDeletedPLURecordsToTblProducts()
+        {
+            var products = new List<tblProducts>();
+
+            foreach (var pluItem in PLURecords)
+            {
+                // First store only, for now. Compile deleted items. Will add ability to filter by store later.
+                if (!pluItem.Stores[0].Deleted)
+                    continue;
+
+                // This uses the first store if multiple are present
+                var product = ConvertPLURecordToTblproducts(pluItem);
+
+                if (product != null)
+                    products.Add(product);
+
+                // Note: This code supports multiple stores per item, creating separate products.
+                // TODO: Decide if this is desired behavior for ECRS Third Party API integration.
+                // TODO: Also, add option to choose specific store.
+
+                // If store-level data exists, create a product per store; otherwise single product
+
                 //if (pluItem.Stores != null && pluItem.Stores.Count > 0)
                 //{
                 //    foreach (var store in pluItem.Stores)
@@ -240,5 +286,6 @@ namespace Importer.Module.ECRS.ThirdPartyAPI
                 });
             return prop?.GetValue(source);
         }
+
     }
 }
