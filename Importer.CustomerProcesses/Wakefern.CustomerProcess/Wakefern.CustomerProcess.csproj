@@ -53,6 +53,10 @@
       <Project>{7a200a3d-9cc6-45f7-a9e3-055ee223da82}</Project>
       <Name>Importer.Module.Invafresh</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Importer.UI\Importer.UI.csproj">
+      <Project>{f124d47b-5bb9-473c-98ae-f3394e0b8561}</Project>
+      <Name>Importer.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

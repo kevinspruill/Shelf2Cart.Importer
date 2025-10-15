@@ -53,9 +53,19 @@
       <Project>{B3E1BFE2-58CD-47FD-B947-67AAAEAE02D7}</Project>
       <Name>Importer.Module.ECRS.ThirdPartyAPI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Importer.UI\Importer.UI.csproj">
+      <Project>{f124d47b-5bb9-473c-98ae-f3394e0b8561}</Project>
+      <Name>Importer.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Settings\defaultValues.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Settings\ECRS.ThirdPartyAPI.FieldMap.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Settings\ECRS.ThirdPartyAPI.Settings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="Settings\ImporterInstances.json">

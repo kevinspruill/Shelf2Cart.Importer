@@ -55,6 +55,10 @@
       <Project>{264E02B3-AD85-475C-A78B-131C13CD047F}</Project>
       <Name>Importer.Module.ECRS.CatapultAPI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Importer.UI\Importer.UI.csproj">
+      <Project>{f124d47b-5bb9-473c-98ae-f3394e0b8561}</Project>
+      <Name>Importer.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Customer.Settings\UncleG.FieldMap.json">
