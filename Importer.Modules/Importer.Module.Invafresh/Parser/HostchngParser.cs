@@ -743,6 +743,29 @@ namespace Importer.Module.Invafresh.Parser
                     {
                         // Get the value from pluItem and set it to the product
                         var value = pluItemProperty.GetValue(pluItem);
+
+                        // convert value types if necessary
+                        if (propertyWithAttribute.PropertyType != pluItemProperty.PropertyType)
+                        {
+                            if (propertyWithAttribute.PropertyType == typeof(string))
+                            {
+                                value = value?.ToString();
+                            }
+                            else if (propertyWithAttribute.PropertyType == typeof(int?) && int.TryParse(value?.ToString(), out var intValue))
+                            {
+                                value = intValue;
+                            }
+                            else if (propertyWithAttribute.PropertyType == typeof(bool?) && bool.TryParse(value?.ToString(), out var boolValue))
+                            {
+                                value = boolValue;
+                            }
+                            else
+                            {
+                                // Add more type conversions as needed
+                                value = null; // or handle unsupported types appropriately
+                            }
+                        }
+
                         propertyWithAttribute.SetValue(product, value);
                     }
                 }

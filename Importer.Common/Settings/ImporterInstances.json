@@ -1,1 +1,15 @@
-[]
+[
+  {
+    "Name": "Ya Hala Importer",
+    "Description": "Parsley Rest API Importer",
+    "ImporterType": "SchedulerService",
+    "ImporterModule": "Parsley",
+    "CustomerProcess": null,
+    "Enabled": true,
+    "TypeSettings": {
+      "Type": "SchedulerService",
+      "ScheduleType": "TimeSpan",
+      "ScheduleInterval": "2"
+    }
+  }
+]

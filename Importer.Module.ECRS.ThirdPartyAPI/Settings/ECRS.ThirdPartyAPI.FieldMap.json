@@ -47,12 +47,12 @@
   "Description 2": "StoreData.descLine2",
   "Description 3": "StoreData.descLine3",
   "Description 4": "StoreData.descLine4",
-  "Description 5": "",
+  "Description 5": "brand",
   "Description 6": "",
   "Description 7": "",
   "Description 8": "",
   "Description 9": "",
-  "Description 10": "",
+  "Description 10": "powerField5",
   "Description 11": "",
   "Description 12": "",
   "Description 13": "",
@@ -116,7 +116,7 @@
   "NF 18": "",
   "NF 19": "",
   "NF 20": "",
-  "Description 15": "",
+  "Description 15": "memo",
   "Description 16": ""
 }
 

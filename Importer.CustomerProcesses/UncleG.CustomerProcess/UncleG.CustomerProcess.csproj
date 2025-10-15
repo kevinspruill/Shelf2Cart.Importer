@@ -57,9 +57,15 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Customer.Settings\UncleG.FieldMap.json" />
-    <None Include="Customer.Settings\UncleG.Departments.csv" />
-    <None Include="Customer.Settings\UncleG.Settings.json" />
+    <None Include="Customer.Settings\UncleG.FieldMap.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Customer.Settings\UncleG.Departments.csv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Customer.Settings\UncleG.Settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SimpleImpersonation">

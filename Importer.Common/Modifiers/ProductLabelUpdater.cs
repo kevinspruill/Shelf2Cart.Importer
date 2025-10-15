@@ -2,6 +2,7 @@
 using Importer.Common.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,9 +68,26 @@ namespace Importer.Common.Modifiers
                 if (!IsNumeric(fieldValue))
                 {
                     string importLblName = fieldValue;
-                    if (!importLblName.ToUpper().EndsWith(".LBL"))
+                    if (!importLblName.ToUpper().EndsWith(".LBL") && !importLblName.ToUpper().EndsWith(".NLBL"))
                     {
-                        importLblName += ".lbl";
+                        // Check c:\program files\mm_label\labels for the file, with both .LBL and .NLBL extensions
+                        var lblFilePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "mm_label", "labels", importLblName + ".LBL");
+                        var nlblFilePath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "mm_label", "labels", importLblName + ".NLBL");
+                        
+                        if (File.Exists(lblFilePath))
+                        {
+                            importLblName = importLblName.ToUpper() + ".LBL";
+                        }
+                        else if (File.Exists(nlblFilePath))
+                        {
+                            importLblName = importLblName.ToUpper() + ".NLBL";
+                        }
+                        else
+                        {
+                            Logger.Warn($"Label file not found for LblName: {importLblName}, keeping Default LblName: {_defaultValueLoader.DefLabelName}");
+                            importLblName = _defaultValueLoader.DefLabelName.ToUpper();
+                        }
+
                     }
                     propertyInfo.SetValue(product, importLblName);
                 }

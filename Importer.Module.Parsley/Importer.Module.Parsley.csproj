@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ParsleySettingsLoader.cs" />
     <Compile Include="Jobs\QueryParsleyAPI.cs" />
     <Compile Include="Models\Allergens.cs" />
     <Compile Include="Models\Characteristics.cs" />
@@ -66,12 +67,11 @@
   <ItemGroup />
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="Settings\Parsley.Settings.json" />
+    <None Include="Settings\Parsley.Settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions">
-      <Version>9.0.8</Version>
-    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>13.0.3</Version>
     </PackageReference>
@@ -83,6 +83,9 @@
     </PackageReference>
     <PackageReference Include="System.Threading.Tasks.Extensions">
       <Version>4.6.3</Version>
+    </PackageReference>
+    <PackageReference Include="System.ValueTuple">
+      <Version>4.6.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

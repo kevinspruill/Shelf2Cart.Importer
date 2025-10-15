@@ -4,6 +4,7 @@ using Importer.Common.Interfaces;
 using Importer.Common.Models;
 using Importer.Common.Modifiers;
 using Importer.Common.Services;
+using Importer.Module.Parsley.Helpers;
 using Importer.Module.Parsley.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -26,6 +27,7 @@ namespace Importer.Module.Parsley.Parser
         private ICustomerProcess _customerProcess { get; set; }
         public List<Dictionary<string, string>> PLURecords { get; private set; } = new List<Dictionary<string, string>>();
         List<MenuItemDetails> menuItemsToUpdate = new List<MenuItemDetails>();
+        public ParsleySettingsLoader Settings { get; set; } = new ParsleySettingsLoader();
         MerchandiserAPIClient _restClient;
 
         public string APIKey { get; set; } = string.Empty; //Set this to your API Key
@@ -36,7 +38,7 @@ namespace Importer.Module.Parsley.Parser
             _customerProcess = customerProcess ?? new BaseProcess();
             _restClient = new MerchandiserAPIClient();
             //Set API Key
-            _restClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", APIKey);
+            _restClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey);
 
         }
 
@@ -69,7 +71,7 @@ namespace Importer.Module.Parsley.Parser
 
         public async Task<MenuItemDetails> GetMenuItemDetails(int id)
         {
-            _restClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", APIKey);
+            _restClient.APIClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Settings.ApiKey);
 
             var jsonData = await _restClient.GetAsync($"https://app.parsleycooks.com/api/public/menu_items/{id}");
             var deserializedJson = JsonConvert.DeserializeObject<MenuItemDetails>(jsonData);
@@ -285,6 +287,10 @@ namespace Importer.Module.Parsley.Parser
                     {
                         tempAllergenString = tempAllergenString.Substring(0, tempAllergenString.Length - 2);
                         record.Add("allergenString", tempAllergenString);
+                    }
+                    else 
+                    {
+                        record.Add("allergenString", string.Empty);
                     }
                 //}
 

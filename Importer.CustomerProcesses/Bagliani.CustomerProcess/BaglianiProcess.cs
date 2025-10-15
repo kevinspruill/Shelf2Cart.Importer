@@ -45,8 +45,38 @@ namespace Bagliani.CustomerProcess
                 // if ItemId is more than 6 digits or contains non-numeric characters, return null to skip this record
                 if (tmpItemData.ItemId.Length > 8 || !tmpItemData.ItemId.All(char.IsDigit))
                 {
-                    Logger.Warn($"Skipping ItemId '{tmpItemData.ItemId}' due to invalid length or non-numeric characters.");
+                    Logger.Warn($"[Customer Processing] Skipping ItemId '{tmpItemData.ItemId}' due to invalid length or non-numeric characters.");
                     return null;
+                }
+
+                // if DescriptionLine1 and DescriptionLine2 are both empty, use ItemName as DescriptionLine1, if ItemName is empty, Use ReceiptAlias
+                if (string.IsNullOrWhiteSpace(tmpItemData.Stores[0].DescLine1) && string.IsNullOrWhiteSpace(tmpItemData.Stores[0].DescLine2))
+                {
+                    Logger.Info($"[Customer Processing] Both DescLine1 and DescLine2 are empty for ItemId '{tmpItemData.ItemId}'.");
+
+                    if (!string.IsNullOrWhiteSpace(tmpItemData.ItemName))
+                    {
+                        Logger.Warn("[Customer Processing] Using ItemName as DescLine1.");
+                        tmpItemData.Stores[0].DescLine1 = tmpItemData.ItemName;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(tmpItemData.ReceiptAlias))
+                    {
+                        Logger.Warn("[Customer Processing] ItemName is also empty. Using ReceiptAlias as DescLine1.");
+                        tmpItemData.Stores[0].DescLine1 = tmpItemData.ReceiptAlias;
+                    }
+                }
+
+                // Remove non-numeric characters and trim whitespace from size field
+                if (!string.IsNullOrWhiteSpace(tmpItemData.Size))
+                {
+                    tmpItemData.Size = Regex.Replace(tmpItemData.Size, @"\D", "").Trim();
+                }
+
+                // check for a file that is in powerfield3 contains "Shelf 2 Cart", if so, set size to empty
+                if (tmpItemData.PowerField3 != null && tmpItemData.PowerField3.Contains("Shelf 2 Cart"))
+                {
+                    Logger.Info($"[Customer Processing] PowerField3 contains 'Shelf 2 Cart' for ItemId '{tmpItemData.ItemId}'. Setting LabelName to empty.");
+                    tmpItemData.PowerField3 = string.Empty;
                 }
 
                 return tmpItemData as T;
@@ -85,7 +115,7 @@ namespace Bagliani.CustomerProcess
             if (product.Tare.Length > 0)
             {
                 string rawWeightProfile = product.Tare;
-                Logger.Trace($"Setting Scaleable and Tare using Weight Profile: {rawWeightProfile}");
+                Logger.Trace($"[Customer Processing] Setting Scaleable and Tare using Weight Profile: {rawWeightProfile}");
 
                 product.Scaleable = true;
                 if (!rawWeightProfile.Contains("NT"))
@@ -94,40 +124,6 @@ namespace Bagliani.CustomerProcess
                     product.Tare = "0";
 
                 product.NetWt = "0";
-            } 
-            else if (product.NetWt.Length > 0)
-            {
-                string rawItemSize = product.NetWt.ToUpper();
-                Logger.Trace($"Setting Scaleable and NetWt using Item Size: {rawItemSize}");
-
-                product.Scaleable = false;
-
-                //Use regex to isolate [digits][any amount of space][oz in any case] and then get the number from there.
-                //If there's nothing, go for any number and lb and maybe convert it to ounces
-
-                string pattern = @"(\d+)\s*oz";
-                string digits = "";
-                RegexOptions options = RegexOptions.IgnoreCase;
-
-                Match match = Regex.Match(rawItemSize, pattern, options);
-                if (match.Success)
-                {
-                    digits = match.Groups[1].Value;
-                    Logger.Trace($"Raw Item Size Input: '{rawItemSize}' -> Isolated NetWt in ounces: '{digits}'");
-                }
-                else
-                {
-                    //TODO If it does not match it then we need to check for lb. and in that case convert the lb to oz
-                    string poundPattern = @"(\d+)\s*lb";
-                    match = Regex.Match(rawItemSize, poundPattern, options);
-                    if (match.Success)
-                    {
-                        digits = (int.Parse(match.Groups[1].Value) * 16).ToString();
-                        Logger.Trace($"Raw Item Size Input: '{rawItemSize}' -> Isolated NetWt in ounces: '{digits}'");
-                    }
-                }
-
-                product.NetWt = digits;
             }
 
             //TODO Barcode Logic time, info below

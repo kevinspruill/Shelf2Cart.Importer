@@ -7,6 +7,7 @@ using Importer.Common.Models.TypeSettings;
 using Importer.Common.QuartzJobs;
 using Importer.Common.Registries;
 using Importer.Common.Services;
+using Importer.Module.Parsley.Helpers;
 using Importer.Module.Parsley.Jobs;
 using Importer.Module.Parsley.Models;
 using Importer.Module.Parsley.Parser;
@@ -28,6 +29,7 @@ namespace Importer.Module.Parsley
         public tblProducts ProductTemplate { get; set; } = new tblProducts();
         public bool ProcessQueued { get; set; } = false;
         public bool Flush { get; set; }
+        public ParsleySettingsLoader Settings { get; set; } = new ParsleySettingsLoader();
 
         ICustomerProcess _customerProcess;
         ParsleyJSONParser parser = null;
@@ -67,7 +69,7 @@ namespace Importer.Module.Parsley
             _importerType = new SchedulerService(this);
 
             // Register this module instance
-            ImporterModuleRegistry.Modules[this.GetType().AssemblyQualifiedName] = this;
+            ImporterModuleRegistry.Modules[this.GetType().AssemblyQualifiedName] = this;            
 
             ProductTemplate = ProductTemplate.CreateProductTemplate();
 
@@ -75,9 +77,16 @@ namespace Importer.Module.Parsley
         }
         public void SetupImporterType()
         {
-            // Use SchedulerService to set up the GetAPIJob
-            JobDataMap jobDataMap = new JobDataMap();
-            jobDataMap.Add("SomeKey", "SomeValue");
+            var moduleKey = this.GetType().AssemblyQualifiedName;
+
+            JobDataMap jobDataMap = new JobDataMap
+            {
+                // get settings from Parsley.Settings.json
+                { "Endpoint", Settings.Endpoint },
+                { "ApiKey", Settings.ApiKey },
+                // allow QueryParsleyAPI to resolve this module from the registry
+                { "ImporterModuleKey", moduleKey }
+            };
 
             _importerType.ScheduleJob<QueryParsleyAPI>("Parsley", new TimeSpan(1,0,0), jobDataMap);
         }

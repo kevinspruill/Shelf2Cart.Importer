@@ -179,6 +179,9 @@
     <PackageReference Include="System.Threading.Tasks.Extensions">
       <Version>4.6.3</Version>
     </PackageReference>
+    <PackageReference Include="System.ValueTuple">
+      <Version>4.6.1</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

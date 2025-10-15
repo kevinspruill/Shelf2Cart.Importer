@@ -31,7 +31,7 @@ namespace Importer.Common.Helpers
             else
             {
                 string padded = "000000" + numericBarcode;
-                numericBarcode = padded.Length > 5 ? padded.Substring(padded.Length - 5) : padded;
+                numericBarcode = padded.Length > 6 ? padded.Substring(padded.Length - 6) : padded;
             }
 
             Logger.Trace($"Length of formatted barcode: {numericBarcode.Length}");
