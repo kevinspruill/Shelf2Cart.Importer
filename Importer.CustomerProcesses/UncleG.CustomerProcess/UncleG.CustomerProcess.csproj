@@ -47,13 +47,49 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\ExecuteProcessDatabase\ExecuteProcessDatabase.csproj">
+      <Project>{e908b943-0fa4-4fca-b72e-c0746aa66b62}</Project>
+      <Name>ExecuteProcessDatabase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Importer.Common\Importer.Common.csproj">
       <Project>{61D8720A-C6AC-46AB-9366-92AFE3E2880E}</Project>
       <Name>Importer.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Module.Admin\Importer.Module.Admin.csproj">
+      <Project>{ae6c12e6-6ce1-4a98-aff2-e1fdfdf2a936}</Project>
+      <Name>Importer.Module.Admin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Module.ECRS.ThirdPartyAPI\Importer.Module.ECRS.ThirdPartyAPI.csproj">
+      <Project>{b3e1bfe2-58cd-47fd-b947-67aaaeae02d7}</Project>
+      <Name>Importer.Module.ECRS.ThirdPartyAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Module.Parsley\Importer.Module.Parsley.csproj">
+      <Project>{9f149866-aeb9-4973-b51a-280ed715f671}</Project>
+      <Name>Importer.Module.Parsley</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Importer.Modules\Importer.Module.ECRS\Importer.Module.ECRS.CatapultAPI.csproj">
       <Project>{264E02B3-AD85-475C-A78B-131C13CD047F}</Project>
       <Name>Importer.Module.ECRS.CatapultAPI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Modules\Importer.Module.Generic\Importer.Module.Generic.csproj">
+      <Project>{18aadd4a-0449-4eca-baa7-e4b8c5ad0a80}</Project>
+      <Name>Importer.Module.Generic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Modules\Importer.Module.Invafresh\Importer.Module.Invafresh.csproj">
+      <Project>{7a200a3d-9cc6-45f7-a9e3-055ee223da82}</Project>
+      <Name>Importer.Module.Invafresh</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Modules\Importer.Module.Upshop\Importer.Module.Upshop.csproj">
+      <Project>{ce71ddf7-da62-4608-98fe-f194c4e2410e}</Project>
+      <Name>Importer.Module.Upshop</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Modules\Importer.Modules.GrocerySignage\Importer.Modules.GrocerySignage.csproj">
+      <Project>{582b9ea5-9a96-489e-9329-d41846a3f584}</Project>
+      <Name>Importer.Modules.GrocerySignage</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Importer.Service\Importer.Service.csproj">
+      <Project>{0ee0ddbe-f767-4ade-8429-5588c048f330}</Project>
+      <Name>Importer.Service</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Importer.UI\Importer.UI.csproj">
       <Project>{f124d47b-5bb9-473c-98ae-f3394e0b8561}</Project>
