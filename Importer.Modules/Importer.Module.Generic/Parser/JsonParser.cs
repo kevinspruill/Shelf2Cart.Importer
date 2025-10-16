@@ -103,10 +103,26 @@ namespace Importer.Module.Generic.Parser
 
                             if (propertyType == typeof(bool))
                             {
-                                // The field in BooleanVals matches the field name, the value is what is constitutes a true value
-                                var trueValues = booleanVals[field.Key];
-                                var isTrue = trueValues == value;
-                                propertyWithAttribute.SetValue(product, isTrue);
+                                if (bool.TryParse(value, out bool boolValue))
+                                {
+                                    propertyWithAttribute.SetValue(product, boolValue);
+                                }
+                                else
+                                {
+                                    // check if we have a mapping for this value
+                                    if (booleanVals.ContainsKey(value))
+                                    {
+                                        // The field in BooleanVals matches the field name, the value is what is constitutes a true value
+                                        var trueValues = booleanVals[field.Key];
+                                        var isTrue = trueValues == value;
+                                        propertyWithAttribute.SetValue(product, isTrue);
+                                    }
+                                    else
+                                    {
+                                        Logger.Warn($"Boolean Field {field.Key} has unexpected value '{value}', defaulting to false");
+                                        propertyWithAttribute.SetValue(product, false);
+                                    }
+                                }
                             }
                             else
                             {
