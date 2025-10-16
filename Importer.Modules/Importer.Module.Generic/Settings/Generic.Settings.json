@@ -1,6 +1,6 @@
 {
-  "FieldDelimiter": ",",
+  "FieldDelimiter": ",", // Delimiter used to separate fields in a record, e.g., ",", "\t" (tab), ";"
   "Parser": "Generic", // "Generic" or "JSON"
-  "JSONPath": "data", // Used only if Parser is "JSON", it will use this path to find the array of records
-  "RecordSeparator": "\r\n"
+  "JSONPath": "", // Used only if Parser is "JSON", it will use this path to find the array of records
+  "RecordSeparator": "\r\n" // Separator used to separate records, e.g., "\r\n" (new line), "\n" (line feed)
 }
