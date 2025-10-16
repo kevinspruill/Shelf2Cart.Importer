@@ -302,5 +302,10 @@
   <ItemGroup>
     <Folder Include="Resources\Images\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Databases\MM_IMPORT_DB.mdb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
