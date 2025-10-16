@@ -20,6 +20,7 @@ namespace Importer.Module.Generic.Parser
         private ICustomerProcess _customerProcess { get; set; }
         public List<Dictionary<string, string>> PLURecords { get; private set; } = new List<Dictionary<string, string>>();
         public List<Dictionary<string, string>> DeletedPLURecords { get; private set; } = new List<Dictionary<string, string>>();
+        public GenericSettingsLoader Settings { get; } = new GenericSettingsLoader();
         public Dictionary<string, string> mappedFields { get; }
         public Dictionary<string, string> booleanVals { get; }
 
@@ -39,8 +40,11 @@ namespace Importer.Module.Generic.Parser
         {
             //read the file
             var jsonData = File.ReadAllText(filePath);
-            //deserialize into a List<Dictionary<string, object>> before sending to PLURecords
-            var deserializedJson = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonData);
+            
+            //deserialize into a List<Dictionary<string, object>> before sending to PLURecords, use Settings.JSONPath as the root if specified
+            var deserializedJson = string.IsNullOrWhiteSpace(Settings.JSONPath) ?
+                JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(jsonData) :
+                JsonConvert.DeserializeObject<Dictionary<string, List<Dictionary<string, object>>>>(jsonData)?[Settings.JSONPath];
 
             foreach (var record in deserializedJson)
             {

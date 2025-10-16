@@ -20,6 +20,7 @@ namespace Importer.Module.Generic.Helpers
         public string FieldDelimiter => jsonLoader.GetSetting<string>("FieldDelimiter", _settings);
         public string Parser => jsonLoader.GetSetting<string>("Parser", _settings);
         public string RecordSeparator => jsonLoader.GetSetting<string>("RecordSeparator", _settings);
+        public string JSONPath => jsonLoader.GetSetting<string>("JSONPath", _settings);
 
         public GenericSettingsLoader()
         {

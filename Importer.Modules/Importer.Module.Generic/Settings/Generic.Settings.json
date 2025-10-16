@@ -1,5 +1,6 @@
 {
   "FieldDelimiter": ",",
   "Parser": "Generic", // "Generic" or "JSON"
+  "JSONPath": "data", // Used only if Parser is "JSON", it will use this path to find the array of records
   "RecordSeparator": "\r\n"
 }
