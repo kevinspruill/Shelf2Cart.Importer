@@ -33,6 +33,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
                 <!--  Paths  -->
@@ -166,13 +167,21 @@
                     Grid.Column="1"
                     Margin="5,4"
                     IsChecked="{Binding KeepLocalItems}" />
-
                 <TextBlock
                     Grid.Row="10"
                     Margin="0,4"
-                    Text="Use Legacy" />
+                    Text="Delete Orphan Items" />
                 <CheckBox
                     Grid.Row="10"
+                    Grid.Column="1"
+                    Margin="5,4"
+                    IsChecked="{Binding DeleteOrphanItems}" />
+                <TextBlock
+                    Grid.Row="11"
+                    Margin="0,4"
+                    Text="Use Legacy" />
+                <CheckBox
+                    Grid.Row="11"
                     Grid.Column="1"
                     Margin="5,4"
                     IsChecked="{Binding UseLegacy}" />

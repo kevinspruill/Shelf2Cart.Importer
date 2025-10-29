@@ -10,7 +10,7 @@ namespace Importer.UI.ViewModels
 {
     public class ProcessDatabaseSettingsViewModel : BindableBase
     {
-        private const string SettingsFileRelativePath = "Importer.Common/Settings/ProcessDatabaseSettings.json";
+        private const string SettingsFileRelativePath = "./Settings/ProcessDatabaseSettings.json";
         private string _settingsFileFullPath;
 
         private string _residentDatabase;
@@ -24,6 +24,7 @@ namespace Importer.UI.ViewModels
         private bool _importTables;
         private bool _importLocalEdits;
         private bool _keepLocalItems;
+        private bool _deleteOrphanItems;
         private bool _useLegacy;
 
         public string ResidentDatabase { get => _residentDatabase; set => SetProperty(ref _residentDatabase, value); }
@@ -37,7 +38,8 @@ namespace Importer.UI.ViewModels
         public bool ImportTables { get => _importTables; set => SetProperty(ref _importTables, value); }
         public bool ImportLocalEdits { get => _importLocalEdits; set => SetProperty(ref _importLocalEdits, value); }
         public bool KeepLocalItems { get => _keepLocalItems; set => SetProperty(ref _keepLocalItems, value); }
-        public bool UseLegacy { get => _useLegacy; set => SetProperty(ref _useLegacy, value); }
+        public bool DeleteOrphanItems { get => _deleteOrphanItems; set => SetProperty(ref _deleteOrphanItems, value); }
+        public bool UseLegacy { get => _useLegacy; set =>SetProperty(ref _useLegacy, value); }
 
         public DelegateCommand SaveCommand { get; }
         public DelegateCommand ReloadCommand { get; }
@@ -88,7 +90,9 @@ namespace Importer.UI.ViewModels
             UseBaseDatabase = model.UseBaseDatabase;
             ImportTables = model.ImportTables;
             ImportLocalEdits = model.ImportLocalEdits;
+            DeleteOrphanItems = model.DeleteOrphanItems;
             KeepLocalItems = model.KeepLocalItems;
+
             UseLegacy = model.UseLegacy;
         }
 
@@ -106,6 +110,7 @@ namespace Importer.UI.ViewModels
                 ImportTables = ImportTables,
                 ImportLocalEdits = ImportLocalEdits,
                 KeepLocalItems = KeepLocalItems,
+                DeleteOrphanItems = DeleteOrphanItems,
                 UseLegacy = UseLegacy
             };
             var json = JsonConvert.SerializeObject(model, Formatting.Indented);
@@ -155,6 +160,7 @@ namespace Importer.UI.ViewModels
             public bool ImportTables { get; set; }
             public bool ImportLocalEdits { get; set; }
             public bool KeepLocalItems { get; set; }
+            public bool DeleteOrphanItems { get; set; }
             public bool UseLegacy { get; set; }
         }
     }

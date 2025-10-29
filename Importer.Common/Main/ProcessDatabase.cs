@@ -32,6 +32,7 @@ namespace Importer.Common.Main
         public bool ImportTables => jsonLoader.GetSetting<bool>("ImportTables", _settings);
         public bool ImportLocalEdits => jsonLoader.GetSetting<bool>("ImportLocalEdits", _settings);
         public bool KeepLocalItems => jsonLoader.GetSetting<bool>("KeepLocalItems", _settings);
+        public bool DeleteOrphanItems => jsonLoader.GetSetting<bool>("DeleteOrphanItems", _settings);
 
         public ProcessDatabase()
         {
@@ -91,7 +92,7 @@ namespace Importer.Common.Main
                     }
                     Logger.Info($"Completed insert of Local Items");
                 }
-                else if (!KeepLocalItems)
+                else if (!KeepLocalItems && DeleteOrphanItems)
                 {
                     if (!ProcessingDatabaseHelper.DeleteLocalItems())
                     {

@@ -9,5 +9,6 @@
   "ImportTables": false,
   "ImportLocalEdits": true,
   "KeepLocalItems": true,
+  "DeleteOrphanItems": false,
   "UseLegacy": true
 }
