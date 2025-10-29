@@ -75,79 +75,86 @@ namespace Importer.Module.Generic.Parser
         private tblProducts ConvertPLURecordToTblproducts(Dictionary<string, string> pluItem)
         {
             var product = ProductTemplate.Clone();
+
+            // Create a dictionary to map the fields
+
             try
             {
                 foreach (var field in mappedFields)
                 {
+                    var customerFields = field.Value;
+                    var dbField = field.Key;
 
-                    var propertyWithAttribute = typeof(tblProducts).GetProperties()
-                        .FirstOrDefault(prop =>
-                        {
-                            var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
-                                .Cast<ImportDBFieldAttribute>()
-                                .FirstOrDefault();
-                            return attr != null && attr.Name == field.Key;
-                        });
-
-                    if (propertyWithAttribute != null)
+                    // Handle null or empty customerFields
+                    if (string.IsNullOrWhiteSpace(customerFields))
                     {
-                        // check pluItem to see if the field.Key exists
-                        bool fieldValueExists = pluItem.ContainsKey(field.Value);
+                        // Logger.Trace($"Skipping field '{field.Key}' - no customer field mapping defined");
+                        continue;
+                    }
 
-                        if (fieldValueExists)
-                        {
-                            // Get the value from pluItem and set it to the product, converting it to the correct type
+                    // split the customerField by ',' and check each part
+                    var CustomerMappedFields = customerFields.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(part => part.Trim());
 
-                            var value = pluItem[field.Value];
-                            var propertyType = propertyWithAttribute.PropertyType;
+                    foreach (var mappedField in CustomerMappedFields)
+                    {
 
-                            if (propertyType == typeof(bool))
+                        var propertyWithAttribute = typeof(tblProducts).GetProperties()
+                            .FirstOrDefault(prop =>
                             {
-                                if (bool.TryParse(value, out bool boolValue))
+                                var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
+                                    .Cast<ImportDBFieldAttribute>()
+                                    .FirstOrDefault();
+                                return attr != null && attr.Name == field.Key;
+                            });
+
+                        if (propertyWithAttribute != null)
+                        {
+                            // check pluItem to see if the field.Key exists
+                            bool fieldValueExists = pluItem.ContainsKey(mappedField);
+
+                            if (fieldValueExists)
+                            {
+                                //Logger.Trace($"Converting {field.Value} to {field.Key}");
+                                // Get the value from pluItem and set it to the product, converting it to the correct type
+
+                                var value = pluItem[mappedField];
+                                var propertyType = propertyWithAttribute.PropertyType;
+
+                                if (propertyType == typeof(bool))
                                 {
-                                    propertyWithAttribute.SetValue(product, boolValue);
+                                    // The field in BooleanVals matches the field name, the value is what is constitutes a true value
+                                    var trueValues = booleanVals[field.Key];
+                                    var isTrue = trueValues == value;
+                                    propertyWithAttribute.SetValue(product, isTrue);
                                 }
                                 else
                                 {
-                                    // check if we have a mapping for this value
-                                    if (booleanVals.ContainsKey(value))
+                                    if (!(propertyType == typeof(DateTime?) && string.IsNullOrWhiteSpace(value)))
                                     {
-                                        // The field in BooleanVals matches the field name, the value is what is constitutes a true value
-                                        var trueValues = booleanVals[field.Key];
-                                        var isTrue = trueValues == value;
-                                        propertyWithAttribute.SetValue(product, isTrue);
+                                        var convertedValue = Convert.ChangeType(value, propertyType);
+                                        //if there is a null or whitespace then we go with our default values
+                                        if (propertyType != typeof(string)
+                                            || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
+                                            propertyWithAttribute.SetValue(product, convertedValue);
                                     }
                                     else
                                     {
-                                        Logger.Warn($"Boolean Field {field.Key} has unexpected value '{value}', defaulting to false");
-                                        propertyWithAttribute.SetValue(product, false);
+                                        Logger.Trace($"DateTime? Field {field.Key} is blank, skipping");
                                     }
                                 }
-                            }
-                            else
-                            {
-                                if (!(propertyType == typeof(DateTime?) && string.IsNullOrWhiteSpace(value)))
-                                {
-                                    var convertedValue = Convert.ChangeType(value, propertyType);
-                                    //if there is a null or whitespace then we go with our default values
-                                    if (propertyType != typeof(string)
-                                        || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
-                                        propertyWithAttribute.SetValue(product, convertedValue);
-                                }
-                                else
-                                {
-                                    Logger.Trace($"DateTime? Field {field.Key} is blank, skipping");
-                                }
-                            }
 
+                            }
                         }
+
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error converting PLU Record to TblProducts - {ex.Message}");
+                Logger.Error(ex.InnerException.Message);
             }
+
             return product;
         }
     }

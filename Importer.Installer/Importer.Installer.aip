@@ -4,7 +4,6 @@
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Admin.Settings.json" Value="..\Importer.UI\bin\Release\Settings"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Admin.json" Value="..\Importer.UI\bin\Release\InstanceTemplates"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Bagliani.CustomerProcess.dll" Value="..\Importer.CustomerProcesses\Bagliani.CustomerProcess\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Bagliani.CustomerProcess.dll_1" Value="..\Importer.CustomerProcesses\Bagliani.CustomerProcess\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_CaseConverter.dll" Value="C:\Users\kevin\.nuget\packages\caseconverter\2.0.1\lib\netstandard2.0"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_CsvHelper.dll" Value="C:\Users\kevin\.nuget\packages\csvhelper\33.1.0\lib\net462"/>
@@ -33,7 +32,7 @@
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.Admin.dll" Value="..\Importer.Module.Admin\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.Admin.dll_1" Value="..\Importer.Module.Admin\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.Debug.dll" Value="..\Importer.Module.Debug\bin\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.ECRS.ThirdPartyAPI.dll" Value="..\Importer.CustomerProcesses\Bagliani.CustomerProcess\bin\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.ECRS.ThirdPartyAPI.dll" Value="..\Importer.Module.ECRS.ThirdPartyAPI\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.ECRS.dll" Value="..\Importer.Modules\Importer.Module.ECRS\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.Generic.dll" Value="..\Importer.Modules\Importer.Module.Generic\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Importer.Module.Generic.dll_1" Value="..\Importer.Modules\Importer.Module.Generic\bin\Release"/>
@@ -53,6 +52,7 @@
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_InvaFresh.CustomMap.json" Value="..\Importer.UI\bin\Release\Settings"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Invafresh.Settings.json" Value="..\Importer.UI\bin\Release\Settings"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Invafresh.json" Value="..\Importer.UI\bin\Release\InstanceTemplates"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_MM_IMPORT_DB.mdb" Value="..\Importer.UI\bin\Release\Databases"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Microsoft.Bcl.AsyncInterfaces.dll" Value="C:\Users\kevin\.nuget\packages\microsoft.bcl.asyncinterfaces\9.0.8\lib\net462"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Microsoft.Bcl.HashCode.dll" Value="C:\Users\kevin\.nuget\packages\microsoft.bcl.hashcode\6.0.0\lib\net462"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Microsoft.Extensions.DependencyInjection.Abstractions.dll" Value="C:\Users\kevin\.nuget\packages\microsoft.extensions.dependencyinjection.abstractions\9.0.8\lib\net462"/>
@@ -87,12 +87,7 @@
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_System.Threading.Tasks.Extensions.dll" Value="C:\Users\kevin\.nuget\packages\system.threading.tasks.extensions\4.6.3\lib\net462"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_System.ValueTuple.dll" Value="C:\Users\kevin\.nuget\packages\system.valuetuple\4.6.1\lib\net462"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Topshelf.dll" Value="C:\Users\kevin\.nuget\packages\topshelf\4.3.0\lib\net452"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_UncleG.Departments.csv" Value="..\Importer.UI\bin\Release\Customer.Settings"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_UncleG.FieldMap.json" Value="..\Importer.UI\bin\Release\Customer.Settings"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_UncleG.Settings.json" Value="..\Importer.UI\bin\Release\Customer.Settings"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Vallarta.CustomerProcess.dll" Value="..\Importer.CustomerProcesses\Vallarta.CustomerProcess\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Vallarta.CustomerProcess.dll_1" Value="..\Importer.CustomerProcesses\Vallarta.CustomerProcess\bin\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Wakefern.CustomerProcess.dll" Value="..\Importer.CustomerProcesses\Wakefern.CustomerProcess\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Wakefern.CustomerProcess.dll_1" Value="..\Importer.CustomerProcesses\Wakefern.CustomerProcess\bin\Release"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_defaultValues.json" Value="..\Importer.UI\bin\Release\Settings"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_e_sqlite3.dll" Value="..\Importer.UI\bin\Release\runtimes\win-x86\native"/>
@@ -101,7 +96,6 @@
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_settings.json" Value="..\Importer.UI\bin\Release\Settings"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Admin.Settings.json" Value="Admin.Settings.json"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Admin.json" Value="Admin.json"/>
-    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" Value="Bagliani.CustomerProcess.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll_1" Value="Bagliani.CustomerProcess.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_CaseConverter.dll" Value="CaseConverter.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_CsvHelper.dll" Value="CsvHelper.dll"/>
@@ -150,6 +144,7 @@
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_InvaFresh.CustomMap.json" Value="InvaFresh.CustomMap.json"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Invafresh.Settings.json" Value="Invafresh.Settings.json"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Invafresh.json" Value="Invafresh.json"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_MM_IMPORT_DB.mdb" Value="MM_IMPORT_DB.mdb"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Microsoft.Bcl.AsyncInterfaces.dll" Value="Microsoft.Bcl.AsyncInterfaces.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Microsoft.Bcl.HashCode.dll" Value="Microsoft.Bcl.HashCode.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Microsoft.Extensions.DependencyInjection.Abstractions.dll" Value="Microsoft.Extensions.DependencyInjection.Abstractions.dll"/>
@@ -184,12 +179,7 @@
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_System.Threading.Tasks.Extensions.dll" Value="System.Threading.Tasks.Extensions.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_System.ValueTuple.dll" Value="System.ValueTuple.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Topshelf.dll" Value="Topshelf.dll"/>
-    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_UncleG.Departments.csv" Value="UncleG.Departments.csv"/>
-    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_UncleG.FieldMap.json" Value="UncleG.FieldMap.json"/>
-    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_UncleG.Settings.json" Value="UncleG.Settings.json"/>
-    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Vallarta.CustomerProcess.dll" Value="Vallarta.CustomerProcess.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Vallarta.CustomerProcess.dll_1" Value="Vallarta.CustomerProcess.dll"/>
-    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Wakefern.CustomerProcess.dll" Value="Wakefern.CustomerProcess.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Wakefern.CustomerProcess.dll_1" Value="Wakefern.CustomerProcess.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_defaultValues.json" Value="defaultValues.json"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_e_sqlite3.dll" Value="e_sqlite3.dll"/>
@@ -219,7 +209,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiDirsComponent">
     <ROW Directory="APPDIR" Directory_Parent="TARGETDIR" DefaultDir="APPDIR:." IsPseudoRoot="1" DirectoryOptions="3"/>
-    <ROW Directory="Customer.Settings_Dir" Directory_Parent="Importer_Dir" DefaultDir="CUSTOM~1.SET|Customer.Settings"/>
+    <ROW Directory="Databases_Dir" Directory_Parent="Importer_Dir" DefaultDir="DATABA~1|Databases"/>
     <ROW Directory="DesktopFolder" Directory_Parent="TARGETDIR" DefaultDir="DESKTO~1|DesktopFolder" IsPseudoRoot="1"/>
     <ROW Directory="Importer_Dir" Directory_Parent="Shelf2Cart_Dir" DefaultDir="Importer"/>
     <ROW Directory="InstanceTemplates_Dir" Directory_Parent="Importer_Dir" DefaultDir="INSTAN~1|InstanceTemplates"/>
@@ -250,7 +240,7 @@
     <ROW Component="AI_PROPPATH_FILENAME_PERBUILD_Importer.UI.exe" ComponentId="{E3D6DB5E-25B5-4AD5-844A-9F3401C8A93F}" Directory_="Importer_Dir" Attributes="0" KeyPath="Importer.UI.exe"/>
     <ROW Component="AI_PROPPATH_FILENAME_PERBUILD_Topshelf.dll" ComponentId="{7166BAD1-E0AE-4D48-9E0C-503D290EEDC2}" Directory_="Importer_Dir" Attributes="0" KeyPath="Topshelf.dll"/>
     <ROW Component="APPDIR" ComponentId="{00ABCEE3-3C13-4C83-AA83-4411838AB3F4}" Directory_="APPDIR" Attributes="0"/>
-    <ROW Component="Importer.UI_ContentOutput_Customer.Settings" ComponentId="{A7511DAC-35DA-492A-92B2-3BF02FAD3E74}" Directory_="Customer.Settings_Dir" Attributes="0" KeyPath="UncleG.FieldMap.json" Type="0"/>
+    <ROW Component="Importer.UI_ContentOutput_Databases" ComponentId="{819BC580-ACEC-42D2-83A0-57DAD5776794}" Directory_="Databases_Dir" Attributes="0" KeyPath="MM_IMPORT_DB.mdb" Type="0"/>
     <ROW Component="Importer.UI_ContentOutput_InstanceTemplates" ComponentId="{7CA7F3E0-3F31-4D58-949A-1FC218658533}" Directory_="InstanceTemplates_Dir" Attributes="0" KeyPath="Invafresh.json" Type="0"/>
     <ROW Component="Importer.UI_ContentOutput_Settings" ComponentId="{EEE82366-E8BF-4FFC-8589-DCF0A8185E3E}" Directory_="Settings_Dir" Attributes="0" KeyPath="defaultValues.json" Type="0"/>
     <ROW Component="Importer.UI_ContentOutput_runtimes_winarm_native" ComponentId="{EEA13591-57E3-44F4-A3A2-3F960229B9BF}" Directory_="native_2_Dir" Attributes="0" KeyPath="e_sqlite3.dll_2"/>
@@ -336,7 +326,6 @@
     <ROW File="Importer.Modules.GrocerySignage.dll_1" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="IMPORT~7.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_Importer.Modules.GrocerySignage.dll_1]" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Modules.GrocerySignage.dll_1&gt;" SelfReg="false"/>
     <ROW File="Importer.Service.exe_1" Component_="AI_PROPPATH_FILENAME_PERBUILD_Impo_1_rter.Service.exe_1" FileName="IMPORT~1.EXE|[|AI_PROPPATH_FILENAME_PERBUILD_Importer.Service.exe_1]" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Service.exe_1&gt;" SelfReg="false" DigSign="true"/>
     <ROW File="Importer.Service.exe.config" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="IMPORT~2.CON|[|AI_PROPPATH_FILENAME_PERBUILD_Importer.Service.exe.config]" Version="65535.65535.65535.65535" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Service.exe.config&gt;" SelfReg="false"/>
-    <ROW File="Bagliani.CustomerProcess.dll" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="BAGLIA~3.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Bagliani.CustomerProcess.dll&gt;" SelfReg="false"/>
     <ROW File="ExecuteProcessDatabase.exe" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="EXECUT~2.EXE|ExecuteProcessDatabase.exe" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_ExecuteProcessDatabase.exe&gt;" SelfReg="false" DigSign="true"/>
     <ROW File="Importer.Common.dll" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="IMPORT~9.DLL|Importer.Common.dll" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Common.dll&gt;" SelfReg="false"/>
     <ROW File="Importer.Module.Admin.dll" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="IMPOR~11.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_Importer.Module.Admin.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Module.Admin.dll&gt;" SelfReg="false"/>
@@ -345,8 +334,6 @@
     <ROW File="Importer.Module.Parsley.dll" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="IMPOR~10.DLL|Importer.Module.Parsley.dll" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Module.Parsley.dll&gt;" SelfReg="false"/>
     <ROW File="Importer.Modules.GrocerySignage.dll" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="IMPOR~14.DLL|Importer.Modules.GrocerySignage.dll" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Modules.GrocerySignage.dll&gt;" SelfReg="false"/>
     <ROW File="Importer.Service.exe" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="IMPORT~3.EXE|Importer.Service.exe" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Importer.Service.exe&gt;" SelfReg="false" DigSign="true"/>
-    <ROW File="Vallarta.CustomerProcess.dll" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="VALLAR~2.DLL|Vallarta.CustomerProcess.dll" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Vallarta.CustomerProcess.dll&gt;" SelfReg="false"/>
-    <ROW File="Wakefern.CustomerProcess.dll" Component_="AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll" FileName="WAKEFE~2.DLL|Wakefern.CustomerProcess.dll" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Wakefern.CustomerProcess.dll&gt;" SelfReg="false"/>
     <ROW File="e_sqlite3.dll" Component_="Importer.UI_ContentOutput_runtimes_winx86_native" FileName="E_SQLI~2.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_e_sqlite3.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_e_sqlite3.dll&gt;" SelfReg="false"/>
     <ROW File="e_sqlite3.dll_1" Component_="Importer.UI_ContentOutput_runtimes_winx64_native" FileName="E_SQLI~2.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_e_sqlite3.dll_1]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_e_sqlite3.dll_1&gt;" SelfReg="false"/>
     <ROW File="e_sqlite3.dll_2" Component_="Importer.UI_ContentOutput_runtimes_winarm_native" FileName="E_SQLI~2.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_e_sqlite3.dll_2]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_e_sqlite3.dll_2&gt;" SelfReg="false"/>
@@ -359,14 +346,11 @@
     <ROW File="ECRS.CatapultAPI.LastFullLoadTime.ini" Component_="Importer.UI_ContentOutput_Settings" FileName="ECRSCA~2.INI|[|AI_PROPPATH_FILENAME_PERBUILD_ECRS.CatapultAPI.LastFullLoadTime.ini]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_ECRS.CatapultAPI.LastFullLoadTime.ini&gt;" SelfReg="false"/>
     <ROW File="ECRS.CatapultAPI.LastQueryTime.ini" Component_="Importer.UI_ContentOutput_Settings" FileName="ECRSCA~3.INI|[|AI_PROPPATH_FILENAME_PERBUILD_ECRS.CatapultAPI.LastQueryTime.ini]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_ECRS.CatapultAPI.LastQueryTime.ini&gt;" SelfReg="false"/>
     <ROW File="Parsley.Settings.json" Component_="Importer.UI_ContentOutput_Settings" FileName="PARSLE~2.JSO|[|AI_PROPPATH_FILENAME_PERBUILD_Parsley.Settings.json]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Parsley.Settings.json&gt;" SelfReg="false"/>
-    <ROW File="UncleG.FieldMap.json" Component_="Importer.UI_ContentOutput_Customer.Settings" FileName="UNCLEG~2.JSO|[|AI_PROPPATH_FILENAME_PERBUILD_UncleG.FieldMap.json]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_UncleG.FieldMap.json&gt;" SelfReg="false"/>
-    <ROW File="UncleG.Departments.csv" Component_="Importer.UI_ContentOutput_Customer.Settings" FileName="UNCLEG~2.CSV|[|AI_PROPPATH_FILENAME_PERBUILD_UncleG.Departments.csv]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_UncleG.Departments.csv&gt;" SelfReg="false"/>
-    <ROW File="UncleG.Settings.json" Component_="Importer.UI_ContentOutput_Customer.Settings" FileName="UNCLEG~3.JSO|[|AI_PROPPATH_FILENAME_PERBUILD_UncleG.Settings.json]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_UncleG.Settings.json&gt;" SelfReg="false"/>
+    <ROW File="MM_IMPORT_DB.mdb" Component_="Importer.UI_ContentOutput_Databases" FileName="MM_IMP~2.MDB|[|AI_PROPPATH_FILENAME_PERBUILD_MM_IMPORT_DB.mdb]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_MM_IMPORT_DB.mdb&gt;" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.AppPathsComponent">
     <ROW Name="AI_APPPATH_PERBUILD_Admin.Settings.json" Path="[|AI_PROPPATH_DIR_PERBUILD_Admin.Settings.json]\[|AI_PROPPATH_FILENAME_PERBUILD_Admin.Settings.json]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Admin.json" Path="[|AI_PROPPATH_DIR_PERBUILD_Admin.json]\[|AI_PROPPATH_FILENAME_PERBUILD_Admin.json]" Type="2" Content="0"/>
-    <ROW Name="AI_APPPATH_PERBUILD_Bagliani.CustomerProcess.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Bagliani.CustomerProcess.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Bagliani.CustomerProcess.dll_1" Path="[|AI_PROPPATH_DIR_PERBUILD_Bagliani.CustomerProcess.dll_1]\[|AI_PROPPATH_FILENAME_PERBUILD_Bagliani.CustomerProcess.dll_1]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_CaseConverter.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_CaseConverter.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_CaseConverter.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_CsvHelper.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_CsvHelper.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_CsvHelper.dll]" Type="2" Content="0"/>
@@ -415,6 +399,7 @@
     <ROW Name="AI_APPPATH_PERBUILD_InvaFresh.CustomMap.json" Path="[|AI_PROPPATH_DIR_PERBUILD_InvaFresh.CustomMap.json]\[|AI_PROPPATH_FILENAME_PERBUILD_InvaFresh.CustomMap.json]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Invafresh.Settings.json" Path="[|AI_PROPPATH_DIR_PERBUILD_Invafresh.Settings.json]\[|AI_PROPPATH_FILENAME_PERBUILD_Invafresh.Settings.json]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Invafresh.json" Path="[|AI_PROPPATH_DIR_PERBUILD_Invafresh.json]\[|AI_PROPPATH_FILENAME_PERBUILD_Invafresh.json]" Type="2" Content="0"/>
+    <ROW Name="AI_APPPATH_PERBUILD_MM_IMPORT_DB.mdb" Path="[|AI_PROPPATH_DIR_PERBUILD_MM_IMPORT_DB.mdb]\[|AI_PROPPATH_FILENAME_PERBUILD_MM_IMPORT_DB.mdb]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Microsoft.Bcl.AsyncInterfaces.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Microsoft.Bcl.AsyncInterfaces.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Microsoft.Bcl.AsyncInterfaces.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Microsoft.Bcl.HashCode.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Microsoft.Bcl.HashCode.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Microsoft.Bcl.HashCode.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Microsoft.Extensions.DependencyInjection.Abstractions.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Microsoft.Extensions.DependencyInjection.Abstractions.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Microsoft.Extensions.DependencyInjection.Abstractions.dll]" Type="2" Content="0"/>
@@ -449,12 +434,7 @@
     <ROW Name="AI_APPPATH_PERBUILD_System.Threading.Tasks.Extensions.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_System.Threading.Tasks.Extensions.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_System.Threading.Tasks.Extensions.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_System.ValueTuple.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_System.ValueTuple.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_System.ValueTuple.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Topshelf.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Topshelf.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Topshelf.dll]" Type="2" Content="0"/>
-    <ROW Name="AI_APPPATH_PERBUILD_UncleG.Departments.csv" Path="[|AI_PROPPATH_DIR_PERBUILD_UncleG.Departments.csv]\[|AI_PROPPATH_FILENAME_PERBUILD_UncleG.Departments.csv]" Type="2" Content="0"/>
-    <ROW Name="AI_APPPATH_PERBUILD_UncleG.FieldMap.json" Path="[|AI_PROPPATH_DIR_PERBUILD_UncleG.FieldMap.json]\[|AI_PROPPATH_FILENAME_PERBUILD_UncleG.FieldMap.json]" Type="2" Content="0"/>
-    <ROW Name="AI_APPPATH_PERBUILD_UncleG.Settings.json" Path="[|AI_PROPPATH_DIR_PERBUILD_UncleG.Settings.json]\[|AI_PROPPATH_FILENAME_PERBUILD_UncleG.Settings.json]" Type="2" Content="0"/>
-    <ROW Name="AI_APPPATH_PERBUILD_Vallarta.CustomerProcess.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Vallarta.CustomerProcess.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Vallarta.CustomerProcess.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Vallarta.CustomerProcess.dll_1" Path="[|AI_PROPPATH_DIR_PERBUILD_Vallarta.CustomerProcess.dll_1]\[|AI_PROPPATH_FILENAME_PERBUILD_Vallarta.CustomerProcess.dll_1]" Type="2" Content="0"/>
-    <ROW Name="AI_APPPATH_PERBUILD_Wakefern.CustomerProcess.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Wakefern.CustomerProcess.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Wakefern.CustomerProcess.dll]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_Wakefern.CustomerProcess.dll_1" Path="[|AI_PROPPATH_DIR_PERBUILD_Wakefern.CustomerProcess.dll_1]\[|AI_PROPPATH_FILENAME_PERBUILD_Wakefern.CustomerProcess.dll_1]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_defaultValues.json" Path="[|AI_PROPPATH_DIR_PERBUILD_defaultValues.json]\[|AI_PROPPATH_FILENAME_PERBUILD_defaultValues.json]" Type="2" Content="0"/>
     <ROW Name="AI_APPPATH_PERBUILD_e_sqlite3.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_e_sqlite3.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_e_sqlite3.dll]" Type="2" Content="0"/>
@@ -552,7 +532,7 @@
     <ROW Feature_="MainFeature" Component_="Importer.UI_ContentOutput_runtimes_winx86_native"/>
     <ROW Feature_="MainFeature" Component_="Importer.UI_ContentOutput_runtimes_winx64_native"/>
     <ROW Feature_="MainFeature" Component_="Importer.UI_ContentOutput_runtimes_winarm_native"/>
-    <ROW Feature_="MainFeature" Component_="Importer.UI_ContentOutput_Customer.Settings"/>
+    <ROW Feature_="MainFeature" Component_="Importer.UI_ContentOutput_Databases"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="merchandiser.exe" SourcePath="..\..\TheMerchandiser\merchandiser.ico" Index="0"/>
@@ -674,7 +654,6 @@
     <ROW ProjectId="{582b9ea5-9a96-489e-9329-d41846a3f584}" ProjectName="Importer.Modules.GrocerySignage" OutputGroup="PrimaryOutput" OutputFile="Importer.Modules.GrocerySignage.dll_1"/>
     <ROW ProjectId="{0ee0ddbe-f767-4ade-8429-5588c048f330}" ProjectName="Importer.Service" OutputGroup="PrimaryOutput" OutputFile="Importer.Service.exe_1"/>
     <ROW ProjectId="{0ee0ddbe-f767-4ade-8429-5588c048f330}" ProjectName="Importer.Service" OutputGroup="PrimaryOutput" OutputFile="Importer.Service.exe.config"/>
-    <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Bagliani.CustomerProcess.dll"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="ExecuteProcessDatabase.exe"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Importer.Common.dll"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Importer.Module.Admin.dll"/>
@@ -683,8 +662,6 @@
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Importer.Module.Parsley.dll"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Importer.Modules.GrocerySignage.dll"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Importer.Service.exe"/>
-    <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Vallarta.CustomerProcess.dll"/>
-    <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="References" OutputFile="Wakefern.CustomerProcess.dll"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="e_sqlite3.dll"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="e_sqlite3.dll_1"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="e_sqlite3.dll_2"/>
@@ -697,8 +674,6 @@
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="ECRS.CatapultAPI.LastFullLoadTime.ini"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="ECRS.CatapultAPI.LastQueryTime.ini"/>
     <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="Parsley.Settings.json"/>
-    <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="UncleG.FieldMap.json"/>
-    <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="UncleG.Departments.csv"/>
-    <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="UncleG.Settings.json"/>
+    <ROW ProjectId="{f124d47b-5bb9-473c-98ae-f3394e0b8561}" ProjectName="Importer.UI" OutputGroup="ContentOutput" OutputFile="MM_IMPORT_DB.mdb"/>
   </COMPONENT>
 </DOCUMENT>

@@ -192,56 +192,75 @@ namespace Importer.Module.Generic.Parser
             {
                 foreach (var field in mappedFields)
                 {
+                    var customerFields = field.Value;
+                    var dbField = field.Key;
 
-                    var propertyWithAttribute = typeof(tblProducts).GetProperties()
-                        .FirstOrDefault(prop =>
-                        {
-                            var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
-                                .Cast<ImportDBFieldAttribute>()
-                                .FirstOrDefault();
-                            return attr != null && attr.Name == field.Key;
-                        });
-
-                    if (propertyWithAttribute != null)
+                    // Handle null or empty customerFields
+                    if (string.IsNullOrWhiteSpace(customerFields))
                     {
-                        // check pluItem to see if the field.Key exists
-                        bool fieldValueExists = pluItem.ContainsKey(field.Value);
+                        // Logger.Trace($"Skipping field '{field.Key}' - no customer field mapping defined");
+                        continue;
+                    }
 
-                        if (fieldValueExists)
+                    // split the customerField by ',' and check each part
+                    var CustomerMappedFields = customerFields.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(part => part.Trim());
+
+                    foreach (var mappedField in CustomerMappedFields)
+                    {
+                    
+                        var propertyWithAttribute = typeof(tblProducts).GetProperties()
+                            .FirstOrDefault(prop =>
+                            {
+                                var attr = prop.GetCustomAttributes(typeof(ImportDBFieldAttribute), false)
+                                    .Cast<ImportDBFieldAttribute>()
+                                    .FirstOrDefault();
+                                return attr != null && attr.Name == field.Key;
+                            });
+
+                        if (propertyWithAttribute != null)
                         {
-                            //Logger.Trace($"Converting {field.Value} to {field.Key}");
-                            // Get the value from pluItem and set it to the product, converting it to the correct type
+                            // check pluItem to see if the field.Key exists
+                            bool fieldValueExists = pluItem.ContainsKey(mappedField);
 
-                            var value = pluItem[field.Value];
-                            var propertyType = propertyWithAttribute.PropertyType;
+                            if (fieldValueExists)
+                            {
+                                //Logger.Trace($"Converting {field.Value} to {field.Key}");
+                                // Get the value from pluItem and set it to the product, converting it to the correct type
 
-                            if (propertyType == typeof(bool))
-                            {
-                                // The field in BooleanVals matches the field name, the value is what is constitutes a true value
-                                var trueValues = booleanVals[field.Key];
-                                var isTrue = trueValues == value;
-                                propertyWithAttribute.SetValue(product, isTrue);
-                            }
-                            else
-                            {
-                                if (!(propertyType == typeof(DateTime?) && string.IsNullOrWhiteSpace(value)))
+                                var value = pluItem[mappedField];
+                                var propertyType = propertyWithAttribute.PropertyType;
+
+                                if (propertyType == typeof(bool))
                                 {
-                                    var convertedValue = Convert.ChangeType(value, propertyType);
-                                    //if there is a null or whitespace then we go with our default values
-                                    if (propertyType != typeof(string)
-                                        || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
-                                        propertyWithAttribute.SetValue(product, convertedValue);
+                                    // The field in BooleanVals matches the field name, the value is what is constitutes a true value
+                                    var trueValues = booleanVals[field.Key];
+                                    var isTrue = trueValues == value;
+                                    propertyWithAttribute.SetValue(product, isTrue);
                                 }
                                 else
                                 {
-                                    Logger.Trace($"DateTime? Field {field.Key} is blank, skipping");
+                                    if (!(propertyType == typeof(DateTime?) && string.IsNullOrWhiteSpace(value)))
+                                    {
+                                        var convertedValue = Convert.ChangeType(value, propertyType);
+                                        //if there is a null or whitespace then we go with our default values
+                                        if (propertyType != typeof(string)
+                                            || (propertyType == typeof(string) && !String.IsNullOrWhiteSpace((string)convertedValue)))
+                                            propertyWithAttribute.SetValue(product, convertedValue);
+                                    }
+                                    else
+                                    {
+                                        Logger.Trace($"DateTime? Field {field.Key} is blank, skipping");
+                                    }
                                 }
-                            }
 
+                            }
                         }
+
                     }
                 }
-            } catch (Exception ex)
+            } 
+            catch (Exception ex)
             {
                 Logger.Error(ex.InnerException.Message);
             }
