@@ -27,7 +27,7 @@ namespace Importer.UI.ViewModels
         public ConsoleViewModel()
         {
             _cancellationTokenSource = new CancellationTokenSource();
-            AddLogEntry("Connecting to S2C_ImporterPipe...", "INFO");
+            AddLogEntry("Connecting to S2C_ImporterLoggingPipe...", "INFO");
             InitializePipeConnection();
         }
 
@@ -42,7 +42,7 @@ namespace Importer.UI.ViewModels
         {
             try
             {
-                _pipeClientService = new PipeClientService("S2C_ImporterPipe");
+                _pipeClientService = new PipeClientService("S2C_ImporterLoggingPipe");
                 AddLogEntry("Connected successfully!", "INFO");
                 _readTask = Task.Run(() => ContinuousRead(_cancellationTokenSource.Token));
             }

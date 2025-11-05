@@ -60,6 +60,9 @@ namespace Importer.Core.Modes
 
     public class ImporterService
     {
+        private const string LoggingPipeName = "S2C_ImporterLoggingPipe";
+        private IPipeMessageService _loggingPipeMessageService;
+
         private const string PipeName = "S2C_ImporterPipe";
         private IPipeMessageService _pipeMessageService;
 
@@ -68,11 +71,11 @@ namespace Importer.Core.Modes
             try
             {
                 // Create and initialize the pipe service
-                _pipeMessageService = new PipeMessageService(PipeName);
+                _pipeMessageService = new PipeServer(PipeName);
                 _pipeMessageService.Initialize();
 
                 // Initialize the static Logger with the pipe service
-                Logger.InitializePipeService(_pipeMessageService);
+                // Logger.InitializePipeService(_pipeMessageService);
 
                 Logger.Info("--------------------------------------------------");
                 Logger.Info($"Service started at: {DateTime.Now}");

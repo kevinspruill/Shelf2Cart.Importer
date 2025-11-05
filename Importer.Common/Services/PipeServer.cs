@@ -1,16 +1,21 @@
+﻿using Importer.Common.Helpers;
 using Importer.Common.Interfaces;
+using Importer.Common.Main;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Importer.Common.Services
 {
-    public class PipeMessageService : IPipeMessageService, IDisposable
+    public class PipeServer : IPipeMessageService, IDisposable
     {
         private NamedPipeServerStream _pipeServer;
         private readonly string _pipeName;
@@ -18,43 +23,36 @@ namespace Importer.Common.Services
         private CancellationTokenSource _cancellationTokenSource;
         private Task _serverTask;
         private readonly ConcurrentQueue<string> _messageQueue = new ConcurrentQueue<string>();
-        private bool _debugMode = true;
 
         public bool IsConnected => _pipeServer?.IsConnected == true;
+        public bool SendEnabled { get; set; }
 
-        // Allow enabling/disabling sending (e.g., to stop sending logs)
-        public bool SendEnabled { get; set; } = false;
-
-        // Raised when a message arrives from the client
         public event EventHandler<string> MessageReceived;
 
-        public PipeMessageService(string pipeName)
+        public PipeServer(string pipeName)
         {
             _pipeName = pipeName;
             _cancellationTokenSource = new CancellationTokenSource();
-            if (_debugMode)
-                Debug.WriteLine($"[PipeService] Created with pipe name: {pipeName}");
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public void Initialize()
         {
-            if (_debugMode)
-                Debug.WriteLine("[PipeService] Initialize called");
             _serverTask = Task.Run(() => RunServer(_cancellationTokenSource.Token));
         }
 
         private async Task RunServer(CancellationToken cancellationToken)
         {
-            if (_debugMode)
-                Debug.WriteLine("[PipeService] RunServer started");
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    if (_debugMode)
-                        Debug.WriteLine($"[PipeService] Creating pipe server: {_pipeName}");
-
                     _pipeServer = new NamedPipeServerStream(
                         _pipeName,
                         PipeDirection.InOut,
@@ -62,32 +60,17 @@ namespace Importer.Common.Services
                         PipeTransmissionMode.Message,
                         PipeOptions.Asynchronous);
 
-                    if (_debugMode)
-                        Debug.WriteLine("[PipeService] Waiting for connection...]");
-
                     await _pipeServer.WaitForConnectionAsync(cancellationToken);
-
-                    if (_debugMode)
-                        Debug.WriteLine("[PipeService] Client connected!");
-                                        
-                    await SendMessageAsync("Connected to Importer Service");
-                    
 
                     await HandleClientCommunication(cancellationToken);
 
-                    if (_debugMode)
-                        Debug.WriteLine("[PipeService] Client disconnected");
                 }
                 catch (OperationCanceledException)
                 {
-                    if (_debugMode)
-                        Debug.WriteLine("[PipeService] Server cancelled");
                     break;
                 }
                 catch (Exception ex)
                 {
-                    if (_debugMode)
-                        Debug.WriteLine($"[PipeService] Server error: {ex.Message}");
                     await Task.Delay(1000, cancellationToken);
                 }
                 finally
@@ -96,15 +79,10 @@ namespace Importer.Common.Services
                     _pipeServer = null;
                 }
             }
-
-            if (_debugMode)
-                Debug.WriteLine("[PipeService] RunServer ended");
         }
 
         private async Task HandleClientCommunication(CancellationToken cancellationToken)
         {
-            if (_debugMode)
-                Debug.WriteLine("[PipeService] HandleClientCommunication started");
 
             var readerTask = ReadLoop(cancellationToken);
 
@@ -112,15 +90,10 @@ namespace Importer.Common.Services
             {
                 try
                 {
-                    if (SendEnabled)
+                    while (_messageQueue.TryDequeue(out string message))
                     {
-                        while (_messageQueue.TryDequeue(out string message))
-                        {
-                            if (_debugMode)
-                                Debug.WriteLine($"[PipeService] Dequeued message: {message?.Substring(0, Math.Min(50, message?.Length ?? 0))}...");
-                            await SendMessageAsync(message);
-                        }
-                    }
+                        await SendMessageAsync(message);
+                    }                    
 
                     await Task.Delay(50, cancellationToken);
                 }
@@ -130,16 +103,11 @@ namespace Importer.Common.Services
                 }
                 catch (Exception ex)
                 {
-                    if (_debugMode)
-                        Debug.WriteLine($"[PipeService] Communication error: {ex.Message}");
                     break;
                 }
             }
 
             try { await Task.WhenAny(readerTask, Task.Delay(500, cancellationToken)); } catch { }
-
-            if (_debugMode)
-                Debug.WriteLine("[PipeService] HandleClientCommunication ended");
         }
 
         private async Task ReadLoop(CancellationToken cancellationToken)
@@ -171,8 +139,7 @@ namespace Importer.Common.Services
                         var data = ms.ToArray();
                         var text = DecodeIncoming(data);
 
-                        if (_debugMode)
-                            Debug.WriteLine($"[PipeService] Received message: {text?.Substring(0, Math.Min(100, text?.Length ?? 0))}");
+                        await HandleCommand(text);
 
                         if (!string.IsNullOrEmpty(text))
                         {
@@ -186,8 +153,6 @@ namespace Importer.Common.Services
                 }
                 catch (Exception ex)
                 {
-                    if (_debugMode)
-                        Debug.WriteLine($"[PipeService] ReadLoop error: {ex.Message}");
                     await Task.Delay(50, cancellationToken);
                 }
             }
@@ -217,31 +182,20 @@ namespace Importer.Common.Services
 
         public void SendMessage(string message)
         {
-            if (_debugMode)
-                Debug.WriteLine($"[PipeService] SendMessage called. Connected: {IsConnected}. Message length: {message?.Length}");
+            Debug.WriteLine($"[PipeService] SendMessage called. Connected: {IsConnected}. Message length: {message?.Length}");
 
             if (string.IsNullOrEmpty(message))
                 return;
 
-            if (!SendEnabled)
-            {
-                if (_debugMode)
-                    Debug.WriteLine("[PipeService] SendMessage: sending disabled; message dropped");
-                return;
-            }
-
             _messageQueue.Enqueue(message);
-
-            if (_debugMode)
-                Debug.WriteLine($"[PipeService] Message queued. Queue size: {_messageQueue.Count}");
+                
+            Debug.WriteLine($"[PipeService] Message queued. Queue size: {_messageQueue.Count}");
         }
 
         private async Task SendMessageAsync(string message)
         {
             if (_pipeServer == null || !_pipeServer.IsConnected)
             {
-                if (_debugMode)
-                    Debug.WriteLine("[PipeService] SendMessageAsync: Not connected");
                 return;
             }
 
@@ -254,31 +208,18 @@ namespace Importer.Common.Services
                 await _pipeServer.WriteAsync(messageBytes, 0, messageBytes.Length);
                 await _pipeServer.FlushAsync();
 
-                if (_debugMode)
-                    Debug.WriteLine($"[PipeService] Message sent successfully. Bytes: {messageBytes.Length}");
             }
             catch (Exception ex)
             {
-                if (_debugMode)
-                    Debug.WriteLine($"[PipeService] SendMessageAsync error: {ex.Message}");
+                Debug.WriteLine($"[PipeService] SendMessageAsync error: {ex.Message}");
             }
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
                 if (disposing)
                 {
-                    if (_debugMode)
-                        Debug.WriteLine("[PipeService] Disposing...");
-
                     _cancellationTokenSource?.Cancel();
                     try
                     {
@@ -289,6 +230,42 @@ namespace Importer.Common.Services
                     _cancellationTokenSource?.Dispose();
                 }
                 _disposed = true;
+            }
+        }
+
+        public Task HandleCommand(string command)
+        {
+            var CommandLibrary = new Dictionary<string, Func<Task>>
+            {
+                { "Process", new Func<Task>(async () => await TriggerProcessDatabase()) },
+
+            };
+
+            if (CommandLibrary.TryGetValue(command, out var action))
+            {
+                Logger.Info($"Executing command received via pipe: {command}");
+                return Task.Run(action);
+            }
+            else
+            {
+                Logger.Warn($"Unknown command received via pipe: {command}");
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task TriggerProcessDatabase()
+        {
+            Logger.Info("Manually triggering Process Database action");
+            try
+            {
+                ProcessDatabase processDatabase = new ProcessDatabase();
+                await processDatabase.ProcessImport();
+                Logger.Info("Manual Process Database action finished");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error($"Error manually triggering Process Database action - {ex.Message}");
             }
         }
     }

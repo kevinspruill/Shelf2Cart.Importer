@@ -121,7 +121,8 @@
                 <MenuItem
                     Command="{Binding NavigateToContent}"
                     CommandParameter="ConsoleView"
-                    Header="Service Console" />
+                    Header="Service Console"
+                    IsEnabled="False" />
                 <MenuItem Command="{Binding OpenLogFilesCommand}" Header="Log Files" />
             </MenuItem>
             <MenuItem Header="Help" Visibility="Hidden">
